@@ -30,7 +30,7 @@ class OptionView:
 
     @property
     def filterOptions(self):
-        return self.control.filter.layout
+        return self.control.engine.bandPassFilter.layout
 
     @property
     def algorithmOptions(self):
@@ -50,7 +50,7 @@ class OptionView:
         self.algorithmParameters = QStackedWidget()
 
         list(map(
-            lambda a: self.algorithmParameters.addWidget(a.widget),
+            lambda a: self.algorithmParameters.addWidget(a.options),
             self.control.algorithms
         ))
 
@@ -64,6 +64,6 @@ class OptionView:
 
     def onAlgorithmChange(self, index):
 
-        options = self.control.onAlgorithmChange(index)
+        options = self.control.onAlgorithmSelection(index)
 
         self.algorithmParameters.setCurrentWidget(options)

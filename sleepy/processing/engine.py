@@ -5,6 +5,7 @@ from PyQt5.QtWidgets import QVBoxLayout, QLineEdit, QDoubleSpinBox, QLabel, QHBo
 from PyQt5.QtGui import QDoubleValidator
 from sleepy.processing.constants import MU
 from sleepy.processing.filters import BandPassFilter
+from sleepy.gui.builder import Builder
 import pdb
 
 class Engine:
@@ -50,7 +51,7 @@ class Engine:
             data,
             self.dataSet.samplingRate
         )
-
+        
         epochStart = self.dataSet.epochs[index][0]
 
         return self.computeEpochAbsolute(filteredData, epochStart)

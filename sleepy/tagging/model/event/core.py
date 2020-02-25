@@ -64,7 +64,7 @@ class Event:
 
         eventStart, eventEnd = self.absoluteLimits
 
-        return eventStart - self.epochInterval, eventEnd - self.epochInterval
+        return eventStart - self.epochInterval[0], eventEnd - self.epochInterval[0]
 
     @property
     def absoluteLimitsInSeconds(self):

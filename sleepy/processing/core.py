@@ -1,10 +1,11 @@
 
 from sleepy.tagging.model import Navigator
 from sleepy.tagging.model.event import EventTypeNotSupported, PointEvent, IntervalEvent
-from eegplot.algorithms import Massimi
+from sleepy.processing.algorithms import Massimi
+from sleepy.processing.options import OptionView
+from sleepy.processing.engine import Engine
 from PyQt5.QtWidgets import QVBoxLayout, QGroupBox, QCheckBox, QComboBox
 from PyQt5.QtWidgets import QStackedWidget
-from sleepy.processing.options import OptionView
 import numpy as np
 import pdb
 
@@ -36,18 +37,29 @@ class FileProcessor:
 
         return self.currentAlgorithm.options
 
-    def run(self):
+    def run(self, algorithm, dataSet):
+        """Public API to execute an algorithm on a data-set. Is also used
+        internally. The method calls its internal engine to provide a run-time
+        environment for the algorithm.
+
+        :param algorithm: Algorithm object that implements the method
+        compute that receives a vector and a sampling rate and computes a list
+        of either 2D-intervals or points.
+
+        :param dataSet: Data-set object that provides the properties channelData,
+        samplingRate and epochs.
+        """
 
         return self.engine.run(
-            self.currentAlgorithm,
-            self.self.dataSet
+            algorithm,
+            dataSet
         )
 
     def computeNavigator(self, dataSet):
 
         self.dataSet = dataSet
 
-        labels = self.run()
+        labels = self.run(self.currentAlgorithm, dataSet)
 
         changesMade = self.updateLabels(labels)
 
@@ -61,7 +73,7 @@ class FileProcessor:
 
         changesMade = self.resultDiffers(labels)
 
-        self.dataSet.labels = result
+        self.dataSet.labels = labels
 
         return changesMade
 

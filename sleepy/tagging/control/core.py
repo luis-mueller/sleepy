@@ -1,14 +1,16 @@
 
-from sleepy.tagging.exceptions import UserCancel, NoNavigatorError
+from sleepy.gui.exceptions import UserCancel, NoNavigatorError
 from sleepy.tagging.constants import PATTERN_COUNT, SPACE
-from sleepy.tagging.model import Timeline
+from sleepy.tagging.model.timeline import Timeline
 from PyQt5.QtWidgets import QMessageBox
 from functools import partial
 
 class TaggingControl:
 
     def __init__(self, environment):
+
         self.environment = environment
+        self.counterString = ''
 
     @property
     def view(self):
@@ -126,13 +128,13 @@ class TaggingControl:
 
         currentPoint = self.navigator.currentPointInSeconds
 
-        currentInterval = self.navigator.currentIntervalInSeconds
+        currentLimits = self.navigator.currentLimitsInSeconds
 
         plotFunction = partial(
             self.timeline.plot,
             points,
             currentPoint,
-            currentInterval
+            currentLimits
         )
 
         self.view.plotTimeline(plotFunction)

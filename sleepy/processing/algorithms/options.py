@@ -1,12 +1,16 @@
 
 from sleepy.gui.builder import Builder, UpdateUnit
+from PyQt5.QtWidgets import QWidget, QDoubleSpinBox, QSpinBox
+from sleepy.processing.constants import MU
 
 class MassimiOptionView:
 
     def __init__(self):
 
-        self.separation = UpdateUnit(.3)
-        self.negativePeak = UpdateUnit(40)
+        self.separation = UpdateUnit(.1)
+        self.negativePeak = UpdateUnit(10)
+
+        self.builder = Builder()
 
     @property
     def options(self):

@@ -4,10 +4,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pdb
 
-class TimeLine:
+class Timeline:
     def __init__(self):
-
-        self.customize()
 
         self.initialized = False
 
@@ -33,6 +31,8 @@ class TimeLine:
     def plot(self, points, currentPoint, currentInterval, axis):
 
         self.axis = axis
+
+        self.customize()
 
         if not self.initialized:
             self.points = points

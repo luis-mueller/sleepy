@@ -2,7 +2,7 @@
 from PyQt5.QtWidgets import QMessageBox
 from sleepy.tagging.view import NullView, TaggingView
 from sleepy.tagging.control import TaggingControl
-from sleepy.tagging.exceptions import UserCancel
+from sleepy.gui.exceptions import UserCancel
 
 class Environment:
 
@@ -26,21 +26,13 @@ class Environment:
     def onResize(self):
         pass
 
-    @property
-    def widget(self):
-        raise NotImplementedError
-
 class NullEnvironment(Environment):
 
     def __init__(self, app):
 
         super().__init__(app)
 
-        self._widget = NullView(app)
-
-    @property
-    def widget(self):
-        return self._widget
+        self.view = NullView(app)
 
 class TaggingEnvironment(Environment):
 
@@ -53,10 +45,6 @@ class TaggingEnvironment(Environment):
         self.view = TaggingView(app, self.control)
 
         self.app = app
-
-    @property
-    def widget(self):
-        return self.view.widget
 
     def activate(self, fileLoader):
 

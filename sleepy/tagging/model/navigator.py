@@ -112,7 +112,7 @@ class Navigator:
 
         tags = []
 
-        for events in self.events:
-            tags.append(sample.tagged)
+        for event in self.events:
+            tags.append(event.tagged)
 
         return np.array(tags)

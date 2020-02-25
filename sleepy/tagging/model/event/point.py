@@ -24,7 +24,7 @@ class PointEvent(Event):
 
         time = self.convertSamples(self.point)
 
-        relativePoint = self.makeRelative(self.point)
+        relativePoint = self.point - self.epochInterval[0]
 
         voltage = self.dataSource.epoch[relativePoint]
 

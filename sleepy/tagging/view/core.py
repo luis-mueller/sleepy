@@ -128,7 +128,7 @@ class TaggingView(QWidget):
 
     def plotTimeline(self, plotFunction):
 
-        plotfunction(self.timelineAxis)
+        plotFunction(self.timelineAxis)
         self.figure.canvas.draw()
 
     def onClick(self, event):
