@@ -6,6 +6,7 @@ from PyQt5.QtGui import QDoubleValidator
 from sleepy.processing.constants import MU
 from sleepy.processing.filters import BandPassFilter
 from sleepy.gui.builder import Builder
+from sleepy.processing.signal import Signal
 import pdb
 
 class Engine:
@@ -25,43 +26,39 @@ class Engine:
 
         self.buffer(algorithm, dataSet)
 
-        epochMaps = self.mapEpochs()
-
-        epochResult = self.computeEpochs(epochMaps)
+        epochResult = self.computeResult()
 
         return np.concatenate(epochResult).ravel().astype(np.int32)
 
-    def mapEpochs(self):
+    def computeResult(self):
 
         channelDataSize = len(self.dataSet.channelData)
 
-        return map(lambda i: self.computeEpoch(i), range(channelDataSize))
+        maps = map(lambda i: self.computeEpoch(i), range(channelDataSize))
 
-    def computeEpochs(self, epochMaps):
-
-        result = list(epochMaps)
-
-        return np.array(result)
+        return np.array(list(maps))
 
     def computeEpoch(self, index):
 
         data = self.dataSet.channelData[index]
 
-        filteredData = self.bandPassFilter.filter(
-            data,
-            self.dataSet.samplingRate
-        )
-        
+        filteredData = self.applyFilter(data)
+
         epochStart = self.dataSet.epochs[index][0]
 
         return self.computeEpochAbsolute(filteredData, epochStart)
 
+    def applyFilter(self, data):
+
+        fs = self.dataSet.samplingRate
+
+        return self.bandPassFilter.filter(data, fs)
+
     def computeEpochAbsolute(self, data, epochStart):
 
-        relativeResult = self.algorithm.compute(
-            data,
-            self.dataSet.samplingRate
-        )
+        signal = Signal(data, self.dataSet.samplingRate)
+
+        relativeResult = self.algorithm.compute(signal)
 
         absoluteResult = relativeResult + epochStart
 

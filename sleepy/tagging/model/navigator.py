@@ -15,6 +15,8 @@ class Navigator:
 
         self.stateBeforeChanges = self.getCurrentTags()
 
+        self.changesMadeBeforeCreation = changesMade
+
         self.onChangesMade = DataEvent(changesMade)
         self.onPosition = DataEvent(0)
 
@@ -100,11 +102,13 @@ class Navigator:
 
         self.changesMade = not np.all(
             self.stateBeforeChanges == self.getCurrentTags()
-        )
+        ) or self.changesMadeBeforeCreation
 
     def onSave(self):
 
         self.changesMade = False
+
+        self.changesMadeBeforeCreation = False
 
         self.stateBeforeChanges = self.getCurrentTags()
 

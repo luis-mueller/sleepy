@@ -7,8 +7,8 @@ class MassimiOptionView:
 
     def __init__(self):
 
-        self.separation = UpdateUnit(.1)
-        self.negativePeak = UpdateUnit(10)
+        self.separation = UpdateUnit(.3)
+        self.negativePeak = UpdateUnit(40)
 
         self.builder = Builder()
 

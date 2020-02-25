@@ -9,6 +9,8 @@ class FileManager:
         self.supportedLoaders = supportedLoaders
         self.app = app
         self.qSettings = QSettings()
+
+        # Recent path requires an update on open and save
         self.recentPath = self.qSettings.value("recentPath")
 
     def openNew(self):
@@ -42,6 +44,9 @@ class FileManager:
         path, _ = QFileDialog.getSaveFileName(
             self.app, 'Save File', self.recentPath
         )
+
+        self.recentPath = path
+
         return path
 
     def getFileExtension(self, path):

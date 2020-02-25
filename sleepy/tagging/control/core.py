@@ -2,6 +2,7 @@
 from sleepy.gui.exceptions import UserCancel, NoNavigatorError
 from sleepy.tagging.constants import PATTERN_COUNT, SPACE
 from sleepy.tagging.model.timeline import Timeline
+from sleepy.tagging.texts import MSG_SAVE_CHANGES, MSG_NO_EVENTS_FOUND, MSG_NAVIGATION_FLAWED
 from PyQt5.QtWidgets import QMessageBox
 from functools import partial
 
@@ -83,11 +84,15 @@ class TaggingControl:
 
             self.navigator.selectNext(cyclic = True)
 
+            self.visualizeTag()
+
     def onPreviousClick(self):
 
         if self.active:
 
             self.navigator.selectPrevious(cyclic = True)
+
+            self.visualizeTag()
 
     def onTaggingClick(self):
 
@@ -160,12 +165,30 @@ class TaggingControl:
         self.fileLoader = fileLoader
         navigator = self.fileLoader.load()
 
-        if navigator is None:
-            raise NoNavigatorError
+        try:
+            self.validate(navigator)
+        except NoNavigatorError:
+
+            self.tellUserNavigationFlawed()
+
+            raise UserCancel
 
         self.navigator = navigator
 
         self.visualize()
+
+    def validate(self, navigator):
+
+        if navigator is None:
+            raise NoNavigatorError
+
+        if navigator.maximumPosition == 0:
+
+            self.tellUserNoEventsFound()
+
+            # By accepting the information, the user automatically cancels
+            # the process
+            raise NoNavigatorError
 
     def refresh(self):
 
@@ -245,7 +268,21 @@ class TaggingControl:
     def askUserForSwitch(self):
 
         return QMessageBox.question(
-            self.app, 'Confirm', 'Save changes?',
+            self.app, 'Confirm', MSG_SAVE_CHANGES,
             QMessageBox.Discard | QMessageBox.Save | QMessageBox.Cancel,
             QMessageBox.Cancel
+        )
+
+    def tellUserNoEventsFound(self):
+
+        return QMessageBox.information(
+            self.app, 'Event Detection', MSG_NO_EVENTS_FOUND,
+            QMessageBox.Ok
+        )
+
+    def tellUserNavigationFlawed(self):
+
+        return QMessageBox.critical(
+            self.app, 'Event Detection', MSG_NAVIGATION_FLAWED,
+            QMessageBox.Ok
         )

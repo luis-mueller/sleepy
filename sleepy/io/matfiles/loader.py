@@ -22,7 +22,7 @@ class MatFileLoader(FileLoader):
 
     def save(self):
 
-        self.dataSet.tags = self.navigator.getCurrentLabels()
+        self.dataSet.tags = self.navigator.getCurrentTags()
 
         savemat(self.path, self.dataSet.matData)
 
