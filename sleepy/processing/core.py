@@ -63,9 +63,9 @@ class FileProcessor:
 
         changesMade = self.updateLabels(labels)
 
-        samples = self.convertLabelsToEvents()
+        events = self.convertLabelsToEvents()
 
-        self.navigator = Navigator(samples, changesMade)
+        self.navigator = Navigator(events, changesMade)
 
         return self.navigator
 

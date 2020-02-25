@@ -20,7 +20,7 @@ class MatDataSet:
 
         labels = self.matData['label']
 
-        if len(labels) != 1:
+        if len(labels) != 1  or len(labels.shape) > 1:
 
             return labels.squeeze()
         else:
@@ -30,7 +30,7 @@ class MatDataSet:
     @labels.setter
     def labels(self, entries):
 
-        labels = self.matData['label']
+        labels = self.labels
 
         self.matData['label'] = entries
 
@@ -44,7 +44,7 @@ class MatDataSet:
             return self.channelInternalFormat
         except:
 
-            channelData = self.matData['channelData'].squeeze()
+            channelData = self.matData['channelData'].squeeze(axis = 0)
 
             self.channelInternalFormat = list(
                 map(
@@ -73,7 +73,7 @@ class MatDataSet:
 
             tags = self.matData['tags']
 
-            if len(tags) != 1:
+            if len(tags) != 1 or len(tags.shape) > 1:
 
                 return  tags.squeeze()
             else:
@@ -160,11 +160,8 @@ class MatDataSet:
                     self.tags[newIndex] = oldTags[index]
                 except ValueError:
                     pass
-        else:
 
-            self.tags = oldTags
-
-    def findIndexForOldLabel(oldLabel):
+    def findIndexForOldLabel(self, oldLabel):
 
         labelList = self.labels.tolist()
 
@@ -180,4 +177,15 @@ class MatDataSet:
 
     def compliantEventType(self, old, new):
 
-        return len(old.shape) == len(new.shape) and old.shape[1] == new.shape[1]
+        if len(old.shape) == len(new.shape):
+
+            if len(old.shape) > 1:
+
+                if old.shape[1] == new.shape[1]:
+
+                    return True
+            else:
+
+                return True
+
+        return False

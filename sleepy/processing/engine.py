@@ -28,7 +28,21 @@ class Engine:
 
         epochResult = self.computeResult()
 
-        return np.concatenate(epochResult).ravel().astype(np.int32)
+        formattedResult = self.formatResult(epochResult)
+
+        return formattedResult
+
+    def formatResult(self, result):
+
+        concatResult = np.concatenate(result)
+
+        flatResult = self.flattenFirstDimension(concatResult)
+
+        return flatResult.astype(np.int32)
+
+    def flattenFirstDimension(self, result):
+
+        return result.reshape(-1, result.shape[-1]).squeeze()
 
     def computeResult(self):
 

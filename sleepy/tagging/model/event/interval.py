@@ -9,3 +9,11 @@ class IntervalEvent(Event):
         self.interval = (start, stop)
 
         #axis.axvspan(*self.limits, alpha = .5)
+
+    @property
+    def interval(self):
+        return self._interval
+
+    @interval.setter
+    def interval(self, value):
+        self._interval = value
