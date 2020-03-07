@@ -1,4 +1,4 @@
 
 ORGANIZATION = "pupuis@github"
-APPLICATION = "LabellingPlots"
+APPLICATION = "Sleepy"
 ICON = "icons/ToyIcon.bmp"

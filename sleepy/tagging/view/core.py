@@ -1,5 +1,6 @@
 
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QPushButton, QHBoxLayout, QLabel
+import PyQt5.Qt as Qt
 from PyQt5.QtWidgets import QMainWindow, QFileDialog, QMessageBox, QStackedWidget, QShortcut
 from PyQt5.QtGui import QKeySequence
 import matplotlib
@@ -21,6 +22,26 @@ class NullView(QWidget):
         super().__init__(app)
 
         self.app = app
+
+        self.initializeLayout()
+
+    def initializeLayout(self):
+
+        #self.app.setStyleSheet("QMainWindow { background-color: #2F2F2F }")
+
+        self.labelLayout = QVBoxLayout()
+
+        self.nullLabel = QLabel("Load a dataset to get started.")
+        self.nullLabel.setStyleSheet("QLabel { font: 11pt; font-family: 'Arial'; color : black; }")
+        self.nullLabel.move(
+            ( self.app.width() - self.nullLabel.width() ) / 2,
+            ( self.app.height() - self.nullLabel.height() ) / 2
+        )
+        self.nullLabel.setAlignment(Qt.Qt.AlignCenter)
+
+        self.labelLayout.addWidget(self.nullLabel)
+
+        self.setLayout(self.labelLayout)
 
     def open(self):
         """Disables unnecessary menu features and resets the window title."""
@@ -87,14 +108,17 @@ class TaggingView(QWidget):
 
     def initializeShortcuts(self):
 
-        self.navigateRight = QShortcut(QKeySequence("Ctrl+Right"), self.app)
+        self.navigateRight = QShortcut(QKeySequence("Right"), self.app)
         self.navigateRight.activated.connect(self.control.onNextClick)
 
-        self.navigateLeft = QShortcut(QKeySequence("Ctrl+Left"), self.app)
+        self.navigateLeft = QShortcut(QKeySequence("Left"), self.app)
         self.navigateLeft.activated.connect(self.control.onPreviousClick)
 
-        self.selectPress = QShortcut(QKeySequence("Ctrl+P"), self.app)
+        self.selectPress = QShortcut(QKeySequence("P"), self.app)
         self.selectPress.activated.connect(self.control.onTaggingClick)
+
+        self.selectPressAlternative = QShortcut(QKeySequence("Up"), self.app)
+        self.selectPressAlternative.activated.connect(self.control.onTaggingClick)
 
         self.savePress = QShortcut(QKeySequence("Ctrl+S"), self.app)
         self.savePress.activated.connect(self.control.onSaveFile)
