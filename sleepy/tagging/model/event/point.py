@@ -1,5 +1,6 @@
 
 from sleepy.tagging.model.event import Event
+import pdb
 
 class PointEvent(Event):
     def __init__(self, point, dataSource, applicationSettings):
@@ -38,4 +39,16 @@ class PointEvent(Event):
 
         super().plot(axis)
 
-        axis.plot(*self.pointCoordinatesSeconds, marker='o')
+        for event in self.dataSource.events:
+
+            if event == self:
+
+                axis.plot(*self.pointCoordinatesSeconds, marker='o')
+
+            elif event.inInterval(self.absoluteLimits):
+
+                axis.plot(*event.pointCoordinatesSeconds, marker='o', color="gray")
+
+    def inInterval(self, interval):
+
+        return self.point >= interval[0] and self.point <= interval[1]

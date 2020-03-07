@@ -15,6 +15,7 @@ class DataSource:
         self.epochInterval = epochInterval
         self.samplingRate = samplingRate
         self.labels = []
+        self.events = []
 
     @property
     def size(self):
@@ -25,6 +26,9 @@ class DataSource:
 
     def addLabel(self, label):
         self.labels.append(label)
+
+    def addEvent(self, event):
+        self.events.append(event)
 
     @property
     def labelsInSeconds(self):
