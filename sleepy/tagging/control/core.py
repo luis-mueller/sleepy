@@ -2,7 +2,7 @@
 from sleepy.gui.exceptions import UserCancel, NoNavigatorError
 from sleepy.tagging.constants import PATTERN_COUNT, SPACE
 from sleepy.tagging.model.timeline import Timeline
-from sleepy.tagging.texts import MSG_SAVE_CHANGES, MSG_NO_EVENTS_FOUND, MSG_NAVIGATION_FLAWED
+from sleepy.tagging.texts import MSG_SAVE_CHANGES, MSG_NO_EVENTS_FOUND, MSG_NAVIGATION_FLAWED, MSG_CHECKPOINTS
 from PyQt5.QtWidgets import QMessageBox
 from functools import partial
 
@@ -245,6 +245,8 @@ class TaggingControl:
 
     def notifyUserOfSwitch(self):
 
+        self.setCheckPoint()
+
         changesMade = self.navigator.changesMade
 
         # We want to enable that if the user cancels the Save-Dialog, it prompts
@@ -265,12 +267,31 @@ class TaggingControl:
                     continue
             return
 
+    def setCheckPoint(self):
+
+        if self.applicationSettings.useCheckpoints:
+
+            answer = self.askUserForCheckPoint()
+
+            if answer == QMessageBox.Yes:
+                pass
+                # TODO: Set checkpoint
+
+
     def askUserForSwitch(self):
 
         return QMessageBox.question(
             self.app, 'Confirm', MSG_SAVE_CHANGES,
             QMessageBox.Discard | QMessageBox.Save | QMessageBox.Cancel,
             QMessageBox.Cancel
+        )
+
+    def askUserForCheckPoint(self):
+
+        return QMessageBox.question(
+            self.app, 'Checkpoints', MSG_CHECKPOINTS,
+            QMessageBox.Yes | QMessageBox.No,
+            QMessageBox.Yes
         )
 
     def tellUserNoEventsFound(self):

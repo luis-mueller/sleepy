@@ -60,7 +60,7 @@ class Window(QMainWindow):
         userMenu = self.applicationMenuBar.addMenu('User')
         settings = QAction('Settings', self)
         settings.triggered.connect(self.applicationSettings.view.onExecute)
-        userMenu.addAction(settings)
+        userMenu.addAction(settings)        
 
     def initializeShortcuts(self):
 

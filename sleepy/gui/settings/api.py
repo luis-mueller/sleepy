@@ -10,7 +10,7 @@ class ApplicationSettingsAPI:
 
         self.app = app
 
-        self.useCheckpoints = ApplicationSettingsUnit("useCheckpoints", 1)
+        self._useCheckpoints = ApplicationSettingsUnit("useCheckpoints", 1)
         self._intervalMin = ApplicationSettingsUnit("intervalMin", .0)
         self._intervalMax = ApplicationSettingsUnit("intervalMax", .0)
         self.showIndex = ApplicationSettingsUnit("showIndex", 0)
@@ -25,6 +25,10 @@ class ApplicationSettingsAPI:
     @property
     def updateObjects(self):
         return self.builder.updateObjects
+
+    @property
+    def useCheckpoints(self):
+        return self._useCheckpoints.value
 
     @property
     def intervalMin(self):
@@ -50,7 +54,7 @@ class ApplicationSettingsAPI:
                             "useCheckpoints" : {
                             "title" : "Enable Checkpoints",
                             "widgetType" : CustomQCheckBox,
-                            "unit" : self.useCheckpoints
+                            "unit" : self._useCheckpoints
                         }
                     }
                 },

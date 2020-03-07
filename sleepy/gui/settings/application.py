@@ -18,6 +18,10 @@ class ApplicationSettings:
         self.builder.build()
 
     @property
+    def useCheckpoints(self):
+        return self.api.useCheckpoints
+
+    @property
     def intervalMin(self):
         return self.api.intervalMin
 
