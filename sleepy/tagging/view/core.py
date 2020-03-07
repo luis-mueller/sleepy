@@ -146,6 +146,9 @@ class TaggingView(QWidget):
 
         self.axis.cla()
 
+        if self.app.applicationSettings.plotGrid:
+            self.axis.grid()
+
         plotFunction(self.axis)
 
         self.figure.canvas.draw_idle()

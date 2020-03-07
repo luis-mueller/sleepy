@@ -28,3 +28,7 @@ class ApplicationSettings:
     @property
     def showIndex(self):
         return self.api.showIndex
+
+    @property
+    def plotGrid(self):
+        return self.api.plotGrid

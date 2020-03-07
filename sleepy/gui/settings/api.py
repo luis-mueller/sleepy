@@ -14,6 +14,7 @@ class ApplicationSettingsAPI:
         self._intervalMin = ApplicationSettingsUnit("intervalMin", .0)
         self._intervalMax = ApplicationSettingsUnit("intervalMax", .0)
         self.showIndex = ApplicationSettingsUnit("showIndex", 0)
+        self._plotGrid = ApplicationSettingsUnit("plotGrid", 0)
 
         self.builder = Builder()
 
@@ -32,6 +33,10 @@ class ApplicationSettingsAPI:
     @property
     def intervalMax(self):
         return self._intervalMax.value
+
+    @property
+    def plotGrid(self):
+        return self._plotGrid.value
 
     @property
     def tree(self):
@@ -64,13 +69,18 @@ class ApplicationSettingsAPI:
                         }
                     }
                 },
-                "index" : {
-                    "title" : "Index",
+                "visual" : {
+                    "title" : "Visual",
                     "fields" : {
                         "showIndex" : {
                             "title" : "Show index of plots",
                             "widgetType" : CustomQCheckBox,
                             "unit" : self.showIndex
+                        },
+                        "plotGrid" : {
+                            "title" : "Plot grid",
+                            "widgetType" : CustomQCheckBox,
+                            "unit" : self._plotGrid
                         }
                     }
                 }
