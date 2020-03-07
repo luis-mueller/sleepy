@@ -19,8 +19,6 @@ class ApplicationSettingsUnit(UpdateUnit):
         else:
             super().__init__(default)
 
-        self.value = value
-
     @property
     def value(self):
         return self.getSettingFor()

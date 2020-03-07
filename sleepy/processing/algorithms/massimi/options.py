@@ -9,6 +9,7 @@ class MassimiOptionView:
 
         self.separation = UpdateUnit(.3)
         self.negativePeak = UpdateUnit(40)
+        self.negativeToPositivePeak = UpdateUnit(70)
 
         self.builder = Builder()
 
@@ -41,6 +42,11 @@ class MassimiOptionView:
                         'title' : 'Required height of negative peak (-{}V)'.format(MU),
                         'widgetType' : QDoubleSpinBox,
                         'unit' : self.negativePeak
+                    },
+                    'negativeToPositivePeak' : {
+                        'title' : 'Negative-To-Positive peak ({}V)'.format(MU),
+                        'widgetType' : QDoubleSpinBox,
+                        'unit' : self.negativeToPositivePeak
                     }
                 }
             }

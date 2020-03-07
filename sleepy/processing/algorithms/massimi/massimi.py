@@ -20,6 +20,10 @@ class Massimi:
     def options(self):
         return self.optionView.options
 
+    @property
+    def negativeToPositivePeak(self):
+        return self.optionView.negativeToPositivePeak
+
     def compute(self, signal):
 
         self.customizeSignal(signal)
@@ -51,7 +55,7 @@ class Massimi:
 
         threshold = self.convertSeparationThreshold(self.signal.samplingRate)
 
-        if valley.negativeToPositivePeak > 70 and valley.separation >= threshold:
+        if valley.negativeToPositivePeak > self.negativeToPositivePeak and valley.separation >= threshold:
             return True
 
         return False
