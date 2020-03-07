@@ -36,3 +36,7 @@ class ApplicationSettings:
     @property
     def plotGrid(self):
         return self.api.plotGrid
+
+    @property
+    def plotGridSize(self):
+        return self.api.plotGridSize

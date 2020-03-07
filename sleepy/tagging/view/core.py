@@ -1,8 +1,10 @@
 
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QPushButton, QHBoxLayout, QLabel, QCheckBox
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QPushButton, QHBoxLayout, QLabel, QCheckBox, QMenu, QAction
 import PyQt5.Qt as Qt
+from PyQt5.QtGui import QCursor
 from PyQt5.QtWidgets import QMainWindow, QFileDialog, QMessageBox, QStackedWidget, QShortcut
 from PyQt5.QtGui import QKeySequence
+from functools import partial
 import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.backends.backend_qt5agg as pltQt5
@@ -166,3 +168,35 @@ class TaggingView(QWidget):
         if event.inaxes == self.timelineAxis and event.dblclick:
 
             self.control.onTimelineClick(event.xdata)
+
+        elif event.inaxes == self.axis and event.dblclick:
+
+            self.control.onMainDblClick(event)
+
+    def showMenuUserEventRemove(self, userEvent):
+
+        menu = QMenu(self.app)
+
+        remove = QAction("Remove user event", self.app)
+
+        removeUserEvent = partial(self.control.removeUserEvent, userEvent)
+        remove.triggered.connect(removeUserEvent)
+
+        menu.addAction(remove)
+
+        menu.move(QCursor().pos())
+        menu.show()
+
+    def showMenuUserEventCreate(self, event):
+
+        menu = QMenu(self.app)
+
+        create = QAction("Create user event", self.app)
+
+        createUserEvent = partial(self.control.createUserEvent, event)
+        create.triggered.connect(createUserEvent)
+
+        menu.addAction(create)
+
+        menu.move(QCursor().pos())
+        menu.show()

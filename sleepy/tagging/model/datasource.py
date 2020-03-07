@@ -30,6 +30,9 @@ class DataSource:
     def addEvent(self, event):
         self.events.append(event)
 
+    def removeEvent(self, event):
+        self.events.remove(event)
+
     @property
     def labelsInSeconds(self):
         """Works for point and interval labels"""

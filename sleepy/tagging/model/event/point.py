@@ -10,6 +10,10 @@ class PointEvent(Event):
         self.point = point
 
     @property
+    def label(self):
+        return self.point
+
+    @property
     def interval(self):
 
         point = self.point
@@ -43,11 +47,19 @@ class PointEvent(Event):
 
             if event == self:
 
-                axis.plot(*self.pointCoordinatesSeconds, marker='o')
+                self.plotPointSelected(axis)
 
             elif event.inInterval(self.absoluteLimits):
 
-                axis.plot(*event.pointCoordinatesSeconds, marker='o', color="gray")
+                event.plotPointVisible(axis)
+
+    def plotPointSelected(self, axis):
+
+        axis.plot(*self.pointCoordinatesSeconds, marker='o')
+
+    def plotPointVisible(self, axis):
+
+        axis.plot(*self.pointCoordinatesSeconds, marker='o', color="gray")
 
     def inInterval(self, interval):
 

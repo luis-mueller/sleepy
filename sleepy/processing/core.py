@@ -102,8 +102,6 @@ class FileProcessor:
 
             events.append(event)
 
-            dataSource.addEvent(event)
-
         return events
 
     def deriveEvent(self, labelIndex, dataSource):

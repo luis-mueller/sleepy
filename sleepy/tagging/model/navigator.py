@@ -1,6 +1,8 @@
 
 from sleepy.tagging.core import DataEvent
 from sleepy.tagging.constants import SLASH
+from sleepy.tagging.model.event import UserPointEvent
+from sleepy.tagging.model.exceptions import UserEventExists
 import numpy as np
 import pdb
 
@@ -8,6 +10,7 @@ class Navigator:
     def __init__(self, events, changesMade = False):
 
         self.events = events
+        self.userEvents = []
 
         self.maximumPosition = len(events)
 
@@ -120,3 +123,90 @@ class Navigator:
             tags.append(event.tagged)
 
         return np.array(tags)
+
+    def getCurrentLabels(self):
+
+        labels = []
+
+        for event in self.events:
+            labels.append(event.label)
+
+        return np.array(labels)
+
+    def createUserEvent(self, time):
+
+        pointInSamples = self.selectedEvent.convertSeconds(time)
+
+        currentUserPoints = list(map(lambda e: e.point, self.userEvents))
+
+        if pointInSamples not in currentUserPoints:
+
+            # User-events are always point-events
+            return UserPointEvent(
+                pointInSamples,
+                self.selectedEvent.dataSource,
+                self.selectedEvent.applicationSettings
+            )
+        else:
+            raise UserEventExists
+
+    def addUserEvent(self, event):
+
+        try:
+            userEvent = self.createUserEvent(event.xdata)
+        except UserEventExists:
+            return
+
+        selectedEvent = self.selectedEvent
+
+        self.events.append(userEvent)
+        self.userEvents.append(userEvent)
+
+        self.ensureConsistency()
+
+        # Make sure that position is updated if inserted before current
+        # event
+        if selectedEvent.point > userEvent.point:
+            self.position += 1
+
+    def removeUserEvent(self, userEvent):
+
+        selectedEvent = self.selectedEvent
+
+        self.events.remove(userEvent)
+        self.userEvents.remove(userEvent)
+
+        userEvent.onRemove()
+
+        self.ensureConsistency()
+
+        # Make sure that position is updated if inserted before current
+        # event
+        if selectedEvent.point > userEvent.point:
+            self.position -= 1
+
+    def findUserEvent(self, event):
+
+        userEvent = [
+            e for e in self.userEvents if e.artist.contains(event)[0]
+        ]
+
+        if userEvent:
+            return userEvent[0]
+
+    def onGraphClick(self, event):
+
+        return self.selectedEvent.onGraphClick(event)
+
+    def ensureConsistency(self):
+
+        oldEvents = self.events
+
+        self.events = sorted(
+            self.events, key = lambda event: event.point
+        )
+
+        self.maximumPosition = len(self.events)
+
+        if oldEvents != self.events:
+            self.changesMade = True

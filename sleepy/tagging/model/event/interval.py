@@ -11,6 +11,10 @@ class IntervalEvent(Event):
         #axis.axvspan(*self.limits, alpha = .5)
 
     @property
+    def label(self):
+        return list(self.interval)
+
+    @property
     def interval(self):
         return self._interval
 

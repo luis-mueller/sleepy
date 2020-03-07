@@ -5,6 +5,9 @@ from sleepy.tagging.model.timeline import Timeline
 from sleepy.tagging.texts import MSG_SAVE_CHANGES, MSG_NO_EVENTS_FOUND, MSG_NAVIGATION_FLAWED, MSG_CHECKPOINTS
 from PyQt5.QtWidgets import QMessageBox
 from functools import partial
+from PyQt5.QtWidgets import QMenu, QAction
+from PyQt5.QtGui import QCursor
+import pdb
 
 class TaggingControl:
 
@@ -127,6 +130,12 @@ class TaggingControl:
 
         self.setCounterString(position)
 
+    def redraw(self):
+
+        self.onPosition(self.navigator.position)
+
+        self.updateWindowTitle()
+
     def updateTimeline(self, position):
 
         points = self.navigator.pointsInSeconds
@@ -147,6 +156,32 @@ class TaggingControl:
     def onTimelineClick(self, time):
 
         self.navigator.selectClosestToTime(time)
+
+    def onMainDblClick(self, event):
+
+        userEvent = self.navigator.findUserEvent(event)
+
+        if not userEvent:
+
+            if self.navigator.onGraphClick(event):
+
+                self.view.showMenuUserEventCreate(event)
+
+        else:
+
+            self.view.showMenuUserEventRemove(userEvent)
+
+    def createUserEvent(self, event):
+
+        self.navigator.addUserEvent(event)
+
+        self.redraw()
+
+    def removeUserEvent(self, userEvent):
+
+        self.navigator.removeUserEvent(userEvent)
+
+        self.redraw()
 
     def setCounterString(self, position):
 

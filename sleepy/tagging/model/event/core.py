@@ -8,8 +8,16 @@ class Event:
     def __init__(self, dataSource, applicationSettings):
 
         self.dataSource = dataSource
+        dataSource.addEvent(self)
+
         self.applicationSettings = applicationSettings
         self.binaryTag = 0
+
+        self.lineArtist = None
+
+    @property
+    def label(self):
+        raise NotImplementedError
 
     @property
     def intervalMin(self):
@@ -79,9 +87,21 @@ class Event:
 
         y = self.dataSource.get(*self.relativeLimits)
 
-        axis.plot(x, y)
+        self.lineArtist = axis.plot(x, y, picker = 2)[0]
+
+        self.setTicks(axis)
 
         self.labelAxes(axis)
+
+    def setTicks(self, axis):
+
+        tickFrequency = int(self.applicationSettings.plotGridSize * self.samplingRate)
+
+        axis.set(
+            xticks = np.arange(*self.absoluteLimits, tickFrequency) / self.samplingRate,
+            xticklabels = np.arange(*self.absoluteLimits, 1) / self.samplingRate
+        )
+
 
     def labelAxes(self, axis):
 
@@ -107,3 +127,7 @@ class Event:
         else:
 
             self.binaryTag = 0
+
+    def onGraphClick(self, event):
+
+        return self.lineArtist.contains(event)[0]

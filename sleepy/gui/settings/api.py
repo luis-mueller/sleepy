@@ -1,5 +1,5 @@
 
-from sleepy.gui.builder.customwidgets import CustomQCheckBox, CustomQDoubleSpinBox
+from sleepy.gui.builder.customwidgets import CustomQCheckBox, CustomQDoubleSpinBox, Custom0To1DoubleSpinBox, CustomQSpinBox
 from sleepy.gui.settings.updateunit import ApplicationSettingsUnit
 from sleepy.gui.builder import Builder
 import pdb
@@ -10,11 +10,12 @@ class ApplicationSettingsAPI:
 
         self.app = app
 
-        self._useCheckpoints = ApplicationSettingsUnit("useCheckpoints", 1)
-        self._intervalMin = ApplicationSettingsUnit("intervalMin", .0)
-        self._intervalMax = ApplicationSettingsUnit("intervalMax", .0)
+        self._useCheckpoints = ApplicationSettingsUnit("useCheckpoints", 0)
+        self._intervalMin = ApplicationSettingsUnit("intervalMin", 3.0)
+        self._intervalMax = ApplicationSettingsUnit("intervalMax", 3.0)
         self.showIndex = ApplicationSettingsUnit("showIndex", 0)
         self._plotGrid = ApplicationSettingsUnit("plotGrid", 0)
+        self._plotGridSize = ApplicationSettingsUnit("plotGridSize", 1.15)
 
         self.builder = Builder()
 
@@ -41,6 +42,10 @@ class ApplicationSettingsAPI:
     @property
     def plotGrid(self):
         return self._plotGrid.value
+
+    @property
+    def plotGridSize(self):
+        return float(self._plotGridSize.value)
 
     @property
     def tree(self):
@@ -85,6 +90,11 @@ class ApplicationSettingsAPI:
                             "title" : "Plot grid",
                             "widgetType" : CustomQCheckBox,
                             "unit" : self._plotGrid
+                        },
+                        "plotGridSize" : {
+                            "title" : "Plot grid size (in Seconds)",
+                            "widgetType" : CustomQDoubleSpinBox,
+                            "unit" : self._plotGridSize
                         }
                     }
                 }

@@ -57,7 +57,7 @@ class ApplicationSettingsView(QDialog):
         self.setLayout(self.layout)
 
     def save(self):
-        
+
         self.app.onRefresh()
 
         self.accept()

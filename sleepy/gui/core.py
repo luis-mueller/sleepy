@@ -18,6 +18,8 @@ class SleePyGUI(QApplication):
         self.setOrganizationName(ORGANIZATION)
         self.setApplicationName(APPLICATION)
 
+        #QSettings().clear()
+
         self.name = APPLICATION
         self.icon = ICON
 
