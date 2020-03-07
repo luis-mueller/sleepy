@@ -1,5 +1,5 @@
 
-from sleepy.processing.algorithms.options import MassimiOptionView
+from sleepy.processing.algorithms.massimi.options import MassimiOptionView
 import numpy as np
 from scipy.signal import find_peaks
 import pdb
@@ -22,7 +22,7 @@ class Massimi:
 
     @property
     def negativeToPositivePeak(self):
-        return self.optionView.negativeToPositivePeak
+        return self.optionView.negativeToPositivePeak.value
 
     def compute(self, signal):
 

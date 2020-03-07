@@ -1,2 +1,2 @@
 
-from sleepy.processing.algorithms.massimi import Massimi
+from sleepy.processing.algorithms.massimi.massimi import Massimi
