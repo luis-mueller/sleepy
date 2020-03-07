@@ -144,6 +144,9 @@ class TaggingView(QWidget):
 
     def plot(self, plotFunction):
 
+        # Resets the toolbar-history
+        self.plotToolBar.update()
+
         self.axis.cla()
 
         if self.app.applicationSettings.plotGrid:
