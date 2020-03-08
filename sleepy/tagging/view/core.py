@@ -6,7 +6,8 @@ from PyQt5.QtWidgets import QMainWindow, QFileDialog, QMessageBox, QStackedWidge
 from PyQt5.QtGui import QKeySequence
 from functools import partial
 import matplotlib
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
+from matplotlib.figure import Figure
 import matplotlib.backends.backend_qt5agg as pltQt5
 matplotlib.use('QT5Agg')
 from matplotlib.ticker import ScalarFormatter
@@ -80,8 +81,11 @@ class TaggingView(QWidget):
 
     def initializeFigure(self):
 
-        self.figure, (self.axis, self.timelineAxis) = plt.subplots(2,1, gridspec_kw={'height_ratios': [8, 1]})
-        self.figure.tight_layout(pad=2.0)
+        self.figure = Figure()
+        self.axis, self.timelineAxis = self.figure.subplots(2,1, gridspec_kw={'height_ratios': [8, 1]})
+
+        #self.figure, (self.axis, self.timelineAxis) = plt.subplots(2,1, gridspec_kw={'height_ratios': [8, 1]})
+        self.figure.set_tight_layout(True)#(pad=2.0)
         self.figureCanvas = pltQt5.FigureCanvas(self.figure)
 
         self.layout.addWidget(self.figureCanvas)
