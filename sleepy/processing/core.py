@@ -114,6 +114,9 @@ class FileProcessor:
 
         self.dataSet.labels = labels
 
+        if changesMade:
+            self.dataSet.removeCheckpoint()
+
         return changesMade
 
     def showNumberOfLabels(self):

@@ -189,3 +189,20 @@ class MatDataSet:
                 return True
 
         return False
+
+    def setCheckpoint(self, checkpoint):
+
+        self.matData['sleepy-metadata-checkpoint'] = str(checkpoint)
+
+    def getCheckpoint(self):
+
+        try:
+
+            return int(self.matData['sleepy-metadata-checkpoint'])
+        except KeyError:
+            pass
+
+    def removeCheckpoint(self):
+
+        # Removes the metadata if it exists in the dictionary
+        self.matData.pop('sleepy-metadata-checkpoint', None)

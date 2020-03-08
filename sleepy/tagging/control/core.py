@@ -2,7 +2,7 @@
 from sleepy.gui.exceptions import UserCancel, NoNavigatorError
 from sleepy.tagging.constants import PATTERN_COUNT, SPACE
 from sleepy.tagging.model.timeline import Timeline
-from sleepy.tagging.texts import MSG_SAVE_CHANGES, MSG_NO_EVENTS_FOUND, MSG_NAVIGATION_FLAWED, MSG_CHECKPOINTS
+from sleepy.tagging.texts import MSG_SAVE_CHANGES, MSG_NO_EVENTS_FOUND, MSG_NAVIGATION_FLAWED, MSG_CHECKPOINTS, MSG_CHECKPOINTS_RESTORE
 from PyQt5.QtWidgets import QMessageBox
 from functools import partial
 from PyQt5.QtWidgets import QMenu, QAction
@@ -213,6 +213,8 @@ class TaggingControl:
 
         self.navigator = navigator
 
+        self.restoreCheckPoint()
+
         self.visualize()
 
     def validate(self, navigator):
@@ -283,7 +285,7 @@ class TaggingControl:
 
     def notifyUserOfSwitch(self):
 
-        self.setCheckPoint()
+        self.setCheckpoint()
 
         changesMade = self.navigator.changesMade
 
@@ -305,16 +307,33 @@ class TaggingControl:
                     continue
             return
 
-    def setCheckPoint(self):
+    def restoreCheckPoint(self):
+
+        if self.applicationSettings.useCheckpoints:
+
+            checkpoint = self.fileLoader.dataSet.getCheckpoint()
+
+            if checkpoint:
+
+                answer = self.askUserForCheckPointRestore(checkpoint + 1)
+
+                if answer == QMessageBox.Yes:
+
+                    self.navigator.position = checkpoint
+
+    def setCheckpoint(self):
 
         if self.applicationSettings.useCheckpoints:
 
             answer = self.askUserForCheckPoint()
 
             if answer == QMessageBox.Yes:
-                pass
-                # TODO: Set checkpoint
 
+                checkpoint = self.navigator.position
+
+                self.fileLoader.dataSet.setCheckpoint(checkpoint)
+
+                self.navigator.changesMade = True
 
     def askUserForSwitch(self):
 
@@ -328,6 +347,14 @@ class TaggingControl:
 
         return QMessageBox.question(
             self.app, 'Checkpoints', MSG_CHECKPOINTS,
+            QMessageBox.Yes | QMessageBox.No,
+            QMessageBox.Yes
+        )
+
+    def askUserForCheckPointRestore(self, checkpoint):
+
+        return QMessageBox.question(
+            self.app, 'Checkpoints', MSG_CHECKPOINTS_RESTORE.format(checkpoint),
             QMessageBox.Yes | QMessageBox.No,
             QMessageBox.Yes
         )
