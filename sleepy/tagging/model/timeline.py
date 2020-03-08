@@ -85,3 +85,7 @@ class Timeline:
 
             self.interval.set_xy(xy)
             self.point.set_xdata(currentPoint)
+
+    def reset(self):
+
+        self.initialized = False

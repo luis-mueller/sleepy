@@ -153,6 +153,9 @@ class TaggingControl:
 
         self.view.plotTimeline(plotFunction)
 
+    def resetTimeline(self):
+        self.timeline.reset()
+
     def onTimelineClick(self, time):
 
         self.navigator.selectClosestToTime(time)

@@ -6,7 +6,6 @@ from PyQt5.QtWidgets import QMainWindow, QFileDialog, QMessageBox, QStackedWidge
 from PyQt5.QtGui import QKeySequence
 from functools import partial
 import matplotlib
-#import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
 import matplotlib.backends.backend_qt5agg as pltQt5
 matplotlib.use('QT5Agg')
@@ -57,11 +56,16 @@ class NullView(QWidget):
 class TaggingView(QWidget):
 
     def __init__(self, app, control):
+        """UI-part of the tagging environment. Does not implement application
+        logic but abstracts UI-functionality to the control. The :class:`TaggingView`
+        also creates all PyQt5-objects and connects them to the control (if needed).
+        """
 
         super().__init__(app)
 
         self.app = app
         self.control = control
+        self.plotFunction = None
 
         self.initializeLayout()
 
@@ -84,8 +88,7 @@ class TaggingView(QWidget):
         self.figure = Figure()
         self.axis, self.timelineAxis = self.figure.subplots(2,1, gridspec_kw={'height_ratios': [8, 1]})
 
-        #self.figure, (self.axis, self.timelineAxis) = plt.subplots(2,1, gridspec_kw={'height_ratios': [8, 1]})
-        self.figure.set_tight_layout(True)#(pad=2.0)
+        self.figure.set_tight_layout(True)
         self.figureCanvas = pltQt5.FigureCanvas(self.figure)
 
         self.layout.addWidget(self.figureCanvas)
@@ -173,7 +176,23 @@ class TaggingView(QWidget):
         plotFunction(self.timelineAxis)
         self.figure.canvas.draw()
 
+        self.plotFunction = plotFunction
+
+    def refreshTimeline(self):
+
+        if self.plotFunction:
+
+            self.timelineAxis.cla()
+
+            self.control.resetTimeline()
+            self.plotFunction(self.timelineAxis)
+
+            self.figure.canvas.draw_idle()
+
     def onClick(self, event):
+        """Called when user clicks any plot. Can be used to redirect clicks
+        dependent on the the axis or the type of click.
+        """
 
         if event.inaxes == self.timelineAxis and event.dblclick:
 
@@ -183,11 +202,15 @@ class TaggingView(QWidget):
 
             self.control.onMainDblClick(event)
 
+        # Button == 3 <=> right-click
+        if event.inaxes == self.timelineAxis and event.button == 3:
+            self.showMenuTimlineRightClick()
+
     def showMenuUserEventRemove(self, userEvent):
 
         menu = QMenu(self.app)
 
-        remove = QAction("Remove user event", self.app)
+        remove = QAction("Remove User-Event", self.app)
 
         removeUserEvent = partial(self.control.removeUserEvent, userEvent)
         remove.triggered.connect(removeUserEvent)
@@ -201,12 +224,25 @@ class TaggingView(QWidget):
 
         menu = QMenu(self.app)
 
-        create = QAction("Create user event", self.app)
+        create = QAction("Create User-Event", self.app)
 
         createUserEvent = partial(self.control.createUserEvent, event)
         create.triggered.connect(createUserEvent)
 
         menu.addAction(create)
+
+        menu.move(QCursor().pos())
+        menu.show()
+
+    def showMenuTimlineRightClick(self):
+
+        menu = QMenu(self.app)
+
+        reset = QAction("Reset Timeline", self.app)
+
+        reset.triggered.connect(self.refreshTimeline)
+
+        menu.addAction(reset)
 
         menu.move(QCursor().pos())
         menu.show()
