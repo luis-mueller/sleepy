@@ -37,6 +37,8 @@ class OptionView:
 
         self.algorithmSelection = QComboBox()
 
+        self.algorithmSelection.addItem("No processing")
+
         list(map(
             lambda a: self.algorithmSelection.addItem(a.name),
             self.control.algorithms
@@ -48,6 +50,9 @@ class OptionView:
         self.layout.addWidget(self.algorithmSelection)
 
         self.algorithmParameters = QStackedWidget()
+
+        self.noParameters = QWidget()
+        self.algorithmParameters.addWidget(self.noParameters)
 
         list(map(
             lambda a: self.algorithmParameters.addWidget(a.options),
@@ -66,4 +71,10 @@ class OptionView:
 
         options = self.control.onAlgorithmSelection(index)
 
-        self.algorithmParameters.setCurrentWidget(options)
+        if not options:
+
+            self.algorithmParameters.setCurrentWidget(self.noParameters)
+
+        else:
+
+            self.algorithmParameters.setCurrentWidget(options)

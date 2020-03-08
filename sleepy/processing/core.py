@@ -16,7 +16,7 @@ class FileProcessor:
 
         self.algorithms = [Massimi(self.engine), Massimi(self.engine)]
 
-        self.currentAlgorithm = self.algorithms[0]
+        self.currentAlgorithm = None
 
         self.applicationSettings = applicationSettings
 
@@ -33,9 +33,15 @@ class FileProcessor:
 
     def onAlgorithmSelection(self, index):
 
-        self.currentAlgorithm = self.algorithms[index]
+        if index == 0:
 
-        return self.currentAlgorithm.options
+            self.currentAlgorithm = None
+
+        else:
+
+            self.currentAlgorithm = self.algorithms[index - 1]
+
+            return self.currentAlgorithm.options
 
     def run(self, algorithm, dataSet):
         """Public API to execute an algorithm on a data-set. Is also used
@@ -55,11 +61,21 @@ class FileProcessor:
             dataSet
         )
 
+    def getLabels(self, dataSet):
+
+        if self.currentAlgorithm:
+
+            return self.run(self.currentAlgorithm, dataSet)
+
+        else:
+
+            return dataSet.labels
+
     def computeNavigator(self, dataSet):
 
         self.dataSet = dataSet
 
-        labels = self.run(self.currentAlgorithm, dataSet)
+        labels = self.getLabels(dataSet)
 
         changesMade = self.updateLabels(labels)
 
