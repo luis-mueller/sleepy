@@ -54,6 +54,10 @@ class FileLoaderView(QDialog):
         self.buttonBox.addButton("Load", QDialogButtonBox.AcceptRole)
         self.buttonBox.accepted.connect(self.control.computeAndAccept)
 
+        self.computeButton = QPushButton("Compute")
+        self.buttonBox.addButton(self.computeButton, QDialogButtonBox.ActionRole)
+        self.computeButton.clicked.connect(self.control.showNumberOfLabels)
+
         self.buttonBox.addButton("Cancel", QDialogButtonBox.RejectRole)
         self.buttonBox.rejected.connect(self.reject)
 

@@ -32,9 +32,18 @@ class FileLoader:
 
             self.showOptionsAndUpdate()
 
-        self.navigator = self.fileProcessor.computeNavigator(self.dataSet)
+        self.navigator = self.fileProcessor.computeNavigator()
 
         return self.navigator
+
+    def computeLabels(self):
+        self.fileProcessor.computeLabels(self.dataSet)
+
+    def showNumberOfLabels(self):
+
+        self.computeLabels()
+
+        self.fileProcessor.showNumberOfLabels()
 
     def save(self):
         raise NotImplementedError

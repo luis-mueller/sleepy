@@ -4,6 +4,7 @@ from sleepy.tagging.model.event import EventTypeNotSupported, PointEvent, Interv
 from sleepy.processing.algorithms import Massimi
 from sleepy.processing.options import OptionView
 from sleepy.processing.engine import Engine
+from sleepy.processing import exceptions
 from PyQt5.QtWidgets import QVBoxLayout, QGroupBox, QCheckBox, QComboBox
 from PyQt5.QtWidgets import QStackedWidget
 import numpy as np
@@ -20,16 +21,23 @@ class FileProcessor:
 
         self.applicationSettings = applicationSettings
 
+        self.labels = None
+        self.dataSet = None
+
     @property
-    def options(self):
+    def optionView(self):
 
         try:
-            return self._optionView.options
+            return self._optionView
         except AttributeError:
 
             self._optionView = OptionView(self)
 
-            return self._optionView.options
+            return self._optionView
+
+    @property
+    def options(self):
+        return self.optionView.options
 
     def onAlgorithmSelection(self, index):
 
@@ -71,19 +79,34 @@ class FileProcessor:
 
             return dataSet.labels
 
-    def computeNavigator(self, dataSet):
+    def computeLabels(self, dataSet):
+        """Computes the labels based on the dataset and buffers dataset and
+        computed labels. This needs to be called before computeNavigator.
+        """
 
         self.dataSet = dataSet
 
-        labels = self.getLabels(dataSet)
+        self.labels = self.getLabels(dataSet)
 
-        changesMade = self.updateLabels(labels)
+    def computeNavigator(self):
+        """Computes a navigator instance from the buffered dataset and computed
+        labels in computeLabels
+        """
+
+        self.checkComputeLabelsCalled()
+
+        changesMade = self.updateLabels(self.labels)
 
         events = self.convertLabelsToEvents()
 
         self.navigator = Navigator(events, changesMade)
 
         return self.navigator
+
+    def checkComputeLabelsCalled(self):
+
+        if self.labels is None or self.dataSet is None:
+            raise exceptions.ComputeLabelsNotCalled
 
     def updateLabels(self, labels):
 
@@ -92,6 +115,12 @@ class FileProcessor:
         self.dataSet.labels = labels
 
         return changesMade
+
+    def showNumberOfLabels(self):
+
+        self.checkComputeLabelsCalled()
+
+        self.optionView.showNumberOfLabels(len(self.labels))
 
     def resultDiffers(self, result):
 

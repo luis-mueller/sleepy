@@ -30,7 +30,12 @@ class FileLoaderControl:
 
         self.accepted = True
 
+        self.fileLoader.computeLabels()
+
         self.view.accept()
+
+    def showNumberOfLabels(self):
+        self.fileLoader.showNumberOfLabels()
 
     def selectPath(self):
         newPath, _ = QFileDialog.getOpenFileName(self, 'Open File')

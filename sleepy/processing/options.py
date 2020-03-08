@@ -1,5 +1,5 @@
 
-from PyQt5.QtWidgets import QVBoxLayout, QGroupBox, QCheckBox, QComboBox
+from PyQt5.QtWidgets import QVBoxLayout, QGroupBox, QCheckBox, QComboBox, QLabel
 from PyQt5.QtWidgets import QStackedWidget, QWidget
 
 class OptionView:
@@ -24,9 +24,21 @@ class OptionView:
 
         self._optionsLayout.addWidget(self.algorithmOptions)
 
+        self._optionsLayout.addWidget(self.computationStatus)
+
         self._optionsWidget.setLayout(self._optionsLayout)
 
         return self._optionsWidget
+
+    @property
+    def computationStatus(self):
+
+        try:
+            return self._computationStatus
+        except AttributeError:
+
+            self._computationStatus = QLabel("")
+            return self._computationStatus
 
     @property
     def filterOptions(self):
@@ -78,3 +90,7 @@ class OptionView:
         else:
 
             self.algorithmParameters.setCurrentWidget(options)
+
+    def showNumberOfLabels(self, numberOfLabels):
+
+        self.computationStatus.setText("{} labels found.".format(numberOfLabels))
