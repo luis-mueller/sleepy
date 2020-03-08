@@ -109,7 +109,7 @@ class TaggingControl:
 
         self.updateWindowTitle()
 
-        self.view.addToolBar()
+        self.view.open()
 
         self.visualizeTag()
 

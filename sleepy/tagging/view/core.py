@@ -125,6 +125,12 @@ class TaggingView(QWidget):
         self.savePress = QShortcut(QKeySequence("Ctrl+S"), self.app)
         self.savePress.activated.connect(self.control.onSaveFile)
 
+    def open(self):
+
+        self.addToolBar()
+
+        self.app.clearFile.setDisabled(False)
+
     def onTagging(self, tag):
 
         if tag:
