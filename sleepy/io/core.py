@@ -34,7 +34,7 @@ class FileLoader:
 
         self.navigator = self.fileProcessor.computeNavigator()
 
-        return self.navigator
+        return self.navigator, self.dataSet
 
     def computeLabels(self):
         self.fileProcessor.computeLabels(self.dataSet)

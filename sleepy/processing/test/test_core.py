@@ -59,7 +59,9 @@ class ProcessingTest(unittest.TestCase):
 
         proc = self.prepareFileProcessor([0,4])
 
-        nav = proc.computeNavigator(self.dataSet)
+        proc.computeLabels(self.dataSet)
+
+        nav = proc.computeNavigator()
 
         self.assertTrue(nav.maximumPosition == 4)
 
@@ -67,7 +69,9 @@ class ProcessingTest(unittest.TestCase):
 
         proc = self.prepareFileProcessor([[0,1],[4,5]])
 
-        nav = proc.computeNavigator(self.dataSet)
+        proc.computeLabels(self.dataSet)
+
+        nav = proc.computeNavigator()
 
         self.assertTrue(isinstance(nav.events[0], IntervalEvent))
 
@@ -78,7 +82,9 @@ class ProcessingTest(unittest.TestCase):
 
         proc = self.prepareFileProcessor([0,1,4,23])
 
-        nav = proc.computeNavigator(self.dataSet)
+        proc.computeLabels(self.dataSet)
+
+        nav = proc.computeNavigator()
 
         self.assertTrue(isinstance(nav.events[0], PointEvent))
 

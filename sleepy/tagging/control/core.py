@@ -26,17 +26,15 @@ class TaggingControl:
 
     @property
     def applicationSettings(self):
-        return self.view.app.applicationSettings
+        return self.environment.app.applicationSettings
 
     @property
     def showIndex(self):
-
-        return self.applicationSettings.showIndex.value
+        return self.applicationSettings.showIndex
 
     @property
     def useCheckpoints(self):
-
-        return self.applicationSettings.useCheckpoints.value
+        return self.applicationSettings.useCheckpoints
 
     @property
     def active(self):
@@ -201,17 +199,18 @@ class TaggingControl:
     def open(self, fileLoader):
 
         self.fileLoader = fileLoader
-        navigator = self.fileLoader.load()
+        navigator, dataset = self.fileLoader.load()
 
         try:
             self.validate(navigator)
         except NoNavigatorError:
 
-            self.tellUserNavigationFlawed()
+            self.view.tellUserNavigationFlawed()
 
             raise UserCancel
 
         self.navigator = navigator
+        self.dataset = dataset
 
         self.restoreCheckPoint()
 
@@ -224,7 +223,7 @@ class TaggingControl:
 
         if navigator.maximumPosition == 0:
 
-            self.tellUserNoEventsFound()
+            self.view.tellUserNoEventsFound()
 
             # By accepting the information, the user automatically cancels
             # the process
@@ -311,11 +310,11 @@ class TaggingControl:
 
         if self.applicationSettings.useCheckpoints:
 
-            checkpoint = self.fileLoader.dataSet.getCheckpoint()
+            checkpoint = self.dataset.getCheckpoint()
 
             if checkpoint:
 
-                answer = self.askUserForCheckPointRestore(checkpoint + 1)
+                answer = self.view.askUserForCheckPointRestore(checkpoint + 1)
 
                 if answer == QMessageBox.Yes:
 
@@ -325,13 +324,13 @@ class TaggingControl:
 
         if self.applicationSettings.useCheckpoints:
 
-            answer = self.askUserForCheckPoint()
+            answer = self.view.askUserForCheckPoint()
 
             if answer == QMessageBox.Yes:
 
                 checkpoint = self.navigator.position
 
-                self.fileLoader.dataSet.setCheckpoint(checkpoint)
+                self.dataset.setCheckpoint(checkpoint)
 
                 self.navigator.changesMade = True
 
@@ -341,34 +340,4 @@ class TaggingControl:
             self.app, 'Confirm', MSG_SAVE_CHANGES,
             QMessageBox.Discard | QMessageBox.Save | QMessageBox.Cancel,
             QMessageBox.Cancel
-        )
-
-    def askUserForCheckPoint(self):
-
-        return QMessageBox.question(
-            self.app, 'Checkpoints', MSG_CHECKPOINTS,
-            QMessageBox.Yes | QMessageBox.No,
-            QMessageBox.Yes
-        )
-
-    def askUserForCheckPointRestore(self, checkpoint):
-
-        return QMessageBox.question(
-            self.app, 'Checkpoints', MSG_CHECKPOINTS_RESTORE.format(checkpoint),
-            QMessageBox.Yes | QMessageBox.No,
-            QMessageBox.Yes
-        )
-
-    def tellUserNoEventsFound(self):
-
-        return QMessageBox.information(
-            self.app, 'Event Detection', MSG_NO_EVENTS_FOUND,
-            QMessageBox.Ok
-        )
-
-    def tellUserNavigationFlawed(self):
-
-        return QMessageBox.critical(
-            self.app, 'Event Detection', MSG_NAVIGATION_FLAWED,
-            QMessageBox.Ok
         )

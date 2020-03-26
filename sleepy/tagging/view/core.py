@@ -246,3 +246,33 @@ class TaggingView(QWidget):
 
         menu.move(QCursor().pos())
         menu.show()
+
+    def tellUserNavigationFlawed(self):
+
+        return QMessageBox.critical(
+            self.app, 'Event Detection', '[INTERNAL ERROR]: Unable to load events, please try again.',
+            QMessageBox.Ok
+        )
+
+    def askUserForCheckPoint(self):
+
+        return QMessageBox.question(
+            self.app, 'Checkpoints', 'Would you like to set a checkpoint for the current sample? Warning: This will be stored in the dataset.',
+            QMessageBox.Yes | QMessageBox.No,
+            QMessageBox.Yes
+        )
+
+    def askUserForCheckPointRestore(self, checkpoint):
+
+        return QMessageBox.question(
+            self.app, 'Checkpoints', 'Recover checkpoint at sample {}?'.format(checkpoint),
+            QMessageBox.Yes | QMessageBox.No,
+            QMessageBox.Yes
+        )
+
+    def tellUserNoEventsFound(self):
+
+        return QMessageBox.information(
+            self.app, 'Event Detection', 'The algorithm was unable to find events with the given parameters.',
+            QMessageBox.Ok
+        )
