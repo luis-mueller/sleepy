@@ -12,6 +12,7 @@ matplotlib.use('QT5Agg')
 from matplotlib.ticker import ScalarFormatter
 matplotlib.rcParams['axes.formatter.useoffset'] = False
 import pdb
+from sleepy.tagging.model.timeline import Timeline
 
 class NullView(QWidget):
     """Implements the null context. The null context disables save and clear
@@ -100,6 +101,8 @@ class TaggingView(QWidget):
 
         self.figure.canvas.mpl_connect('button_press_event', self.onClick)
 
+        self.timeline = Timeline(self.timelineAxis)
+
     def initializeButtons(self):
 
         self.buttonPrevious = QPushButton('Previous')
@@ -171,23 +174,29 @@ class TaggingView(QWidget):
 
         self.figure.canvas.draw_idle()
 
-    def plotTimeline(self, plotFunction):
+    def draw(self):
+        """Abstracts calling the draw method of the figure canvas.
+        """
 
-        plotFunction(self.timelineAxis)
         self.figure.canvas.draw()
 
-        self.plotFunction = plotFunction
-
     def refreshTimeline(self):
+        """Clears the plot on the timeline axis and requests the control to
+        initialize a new timeline and plot it.
+        """
 
-        if self.plotFunction:
+        self.timelineAxis.cla()
 
-            self.timelineAxis.cla()
+        self.control.configureTimeline()
 
-            self.control.resetTimeline()
-            self.plotFunction(self.timelineAxis)
+        self.figure.canvas.draw_idle()
 
-            self.figure.canvas.draw_idle()
+    def getTimeline(self):
+        """Creates a new Timeline object for the control and supplies a
+        proper axis to plot to.
+        """
+
+        return Timeline(self.timelineAxis)
 
     def onClick(self, event):
         """Called when user clicks any plot. Can be used to redirect clicks
@@ -275,4 +284,12 @@ class TaggingView(QWidget):
         return QMessageBox.information(
             self.app, 'Event Detection', 'The algorithm was unable to find events with the given parameters.',
             QMessageBox.Ok
+        )
+
+    def askUserForSwitch(self):
+
+        return QMessageBox.question(
+            self.app, 'Confirm', 'Save changes?',
+            QMessageBox.Discard | QMessageBox.Save | QMessageBox.Cancel,
+            QMessageBox.Cancel
         )

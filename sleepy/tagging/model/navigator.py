@@ -210,3 +210,15 @@ class Navigator:
 
         if oldEvents != self.events:
             self.changesMade = True
+
+    def getTimelineData(self):
+        """Returns a set of all points, the currently selected point and the
+        currently selected interval, which specifies the data for a timeline,
+        as a tuple.
+        """
+
+        return (
+            self.pointsInSeconds,
+            self.currentPointInSeconds,
+            self.currentLimitsInSeconds
+        )

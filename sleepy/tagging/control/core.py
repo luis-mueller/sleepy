@@ -1,8 +1,6 @@
 
 from sleepy.gui.exceptions import UserCancel, NoNavigatorError
 from sleepy.tagging.constants import PATTERN_COUNT, SPACE
-from sleepy.tagging.model.timeline import Timeline
-from sleepy.tagging.texts import MSG_SAVE_CHANGES, MSG_NO_EVENTS_FOUND, MSG_NAVIGATION_FLAWED, MSG_CHECKPOINTS, MSG_CHECKPOINTS_RESTORE
 from PyQt5.QtWidgets import QMessageBox
 from functools import partial
 from PyQt5.QtWidgets import QMenu, QAction
@@ -45,17 +43,6 @@ class TaggingControl:
         return self.fileLoader.path.split('/')[-1]
 
     @property
-    def timeline(self):
-
-        try:
-            return self._timeline
-        except AttributeError:
-
-            self._timeline = Timeline()
-
-            return self._timeline
-
-    @property
     def navigator(self):
         try:
             return self._navigator
@@ -72,7 +59,11 @@ class TaggingControl:
         )
 
         self._navigator.onPosition.initialize(
-            [self.onPosition, self.updateTimeline]
+            [self.onPosition]
+        )
+
+        self._navigator.onPosition.connect(
+            [self.updateTimeline]
         )
 
     @navigator.deleter
@@ -134,22 +125,13 @@ class TaggingControl:
 
         self.updateWindowTitle()
 
-    def updateTimeline(self, position):
+    def updateTimeline(self, *args):
 
-        points = self.navigator.pointsInSeconds
+        _, currentPoint, currentLimits = self.navigator.getTimelineData()
 
-        currentPoint = self.navigator.currentPointInSeconds
+        self.timeline.update(currentPoint, currentLimits)
 
-        currentLimits = self.navigator.currentLimitsInSeconds
-
-        plotFunction = partial(
-            self.timeline.plot,
-            points,
-            currentPoint,
-            currentLimits
-        )
-
-        self.view.plotTimeline(plotFunction)
+        self.view.draw()
 
     def resetTimeline(self):
         self.timeline.reset()
@@ -212,9 +194,21 @@ class TaggingControl:
         self.navigator = navigator
         self.dataset = dataset
 
+        self.configureTimeline()
+
         self.restoreCheckPoint()
 
         self.visualize()
+
+    def configureTimeline(self):
+        """Lets the view create a new timeline and plots the timeline points.
+        """
+
+        self.timeline = self.view.getTimeline()
+
+        timelineData = self.navigator.getTimelineData()
+
+        self.timeline.plot(*timelineData)
 
     def validate(self, navigator):
 
@@ -292,7 +286,7 @@ class TaggingControl:
         # the question again
         while changesMade:
 
-            reply = self.askUserForSwitch()
+            reply = self.view.askUserForSwitch()
 
             if reply == QMessageBox.Cancel:
                 raise UserCancel
@@ -333,11 +327,3 @@ class TaggingControl:
                 self.dataset.setCheckpoint(checkpoint)
 
                 self.navigator.changesMade = True
-
-    def askUserForSwitch(self):
-
-        return QMessageBox.question(
-            self.app, 'Confirm', MSG_SAVE_CHANGES,
-            QMessageBox.Discard | QMessageBox.Save | QMessageBox.Cancel,
-            QMessageBox.Cancel
-        )
