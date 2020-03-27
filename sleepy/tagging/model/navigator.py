@@ -1,6 +1,5 @@
 
 from sleepy.tagging.core import DataEvent
-from sleepy.tagging.constants import SLASH
 from sleepy.tagging.model.event import UserPointEvent
 from sleepy.tagging.model.exceptions import UserEventExists
 import numpy as np

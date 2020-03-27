@@ -17,7 +17,7 @@ class ControlTest(unittest.TestCase):
 
         env = MagicMock()
         env.view = MagicMock()
-        env.view.onTagging = MagicMock()
+        env.view.setButtonStyle = MagicMock()
         env.active = False
         env.app = self.app
         return env
@@ -111,7 +111,7 @@ class ControlTest(unittest.TestCase):
 
         self.app.setWindowTitle.assert_called_with('TestApplication - TestFile*')
 
-        self.env.view.onTagging.assert_called_with(1)
+        self.env.view.setButtonStyle.assert_not_called()
 
     def test_open_valid_navigator_changesMade_False_no_checkpoints_with_index_with_filename(self):
 
@@ -128,7 +128,7 @@ class ControlTest(unittest.TestCase):
 
         self.app.setWindowTitle.assert_called_with('TestApplication - TestFile* - Sample: 1/3')
 
-        self.env.view.onTagging.assert_called_with(1)
+        self.env.view.setButtonStyle.assert_not_called()
 
     def test_open_valid_navigator_changesMade_Initially_no_checkpoints_no_index_with_filename(self):
 
@@ -143,7 +143,39 @@ class ControlTest(unittest.TestCase):
 
         self.app.setWindowTitle.assert_called_with('TestApplication - TestFile* - Sample: 1/3')
 
-        self.env.view.onTagging.assert_called_with(0)
+        self.env.view.setButtonStyle.assert_not_called()
+
+    def test_open_valid_navigator_visualizeTag_active_tagged(self):
+
+        control = TaggingControl(self.env)
+
+        self.env.active = True
+
+        loader = self.getFileLoader('test/TestFile', self.getEvents([1,2,3]), changesMade = False)
+
+        self.navigator.switchSelectionTag()
+
+        control.open(loader)
+
+        self.env.view.setButtonStyle.assert_called_with(
+            stylesheet = 'QPushButton { background-color: red; color: white; }',
+            text = 'Tagged as False-Positive'
+        )
+
+    def test_open_valid_navigator_visualizeTag_active_tagged(self):
+
+        control = TaggingControl(self.env)
+
+        self.env.active = True
+
+        loader = self.getFileLoader('test/TestFile', self.getEvents([1,2,3]), changesMade = True)
+
+        control.open(loader)
+
+        self.env.view.setButtonStyle.assert_called_with(
+            stylesheet = '',
+            text = 'Not Tagged'
+        )
 
     def test_open_valid_navigator_changesMade_False_with_checkpoints_user_yes(self):
 

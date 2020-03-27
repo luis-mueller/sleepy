@@ -1,18 +1,27 @@
 
 from sleepy.gui.exceptions import UserCancel, NoNavigatorError
-from sleepy.tagging.constants import PATTERN_COUNT, SPACE
 from PyQt5.QtWidgets import QMessageBox
-from functools import partial
-from PyQt5.QtWidgets import QMenu, QAction
-from PyQt5.QtGui import QCursor
-import pdb
+
+def visualize(function):
+    """Decorator function for methods that should only apply changes if the
+    control is active and whose actions neccesitate a rerender of the ui.
+    """
+
+    def visualizing(self, *args):
+
+        if self.active:
+
+            function(self, *args)
+
+            self.visualizeTag()
+
+    return visualizing
 
 class TaggingControl:
 
     def __init__(self, environment):
 
         self.environment = environment
-        self.counterString = ''
 
     @property
     def view(self):
@@ -25,14 +34,6 @@ class TaggingControl:
     @property
     def applicationSettings(self):
         return self.environment.app.applicationSettings
-
-    @property
-    def showIndex(self):
-        return self.applicationSettings.showIndex
-
-    @property
-    def useCheckpoints(self):
-        return self.applicationSettings.useCheckpoints
 
     @property
     def active(self):
@@ -51,6 +52,11 @@ class TaggingControl:
 
     @navigator.setter
     def navigator(self, navigator):
+        """Sets the navigator internally and registers event handlers for a set
+        of data events of the navigator. On initialize, the corresponding event
+        handlers get called with the initial value of the event and on future
+        events, whereas connect only fires upon future events.
+        """
 
         self._navigator = navigator
 
@@ -70,62 +76,68 @@ class TaggingControl:
     def navigator(self):
         del self._navigator
 
+    @visualize
     def onNextClick(self):
+        """Gets registered by the view and is called if the user navigates
+        forward. Propagates this action to the navigator and ensures that
+        the changes will be reflected by the view.
+        """
 
-        if self.active:
+        self.navigator.selectNext()
 
-            self.navigator.selectNext(cyclic = True)
-
-            self.visualizeTag()
-
+    @visualize
     def onPreviousClick(self):
+        """Gets registered by the view and is called if the user navigates
+        backward. Propagates this action to the navigator and ensures that
+        the changes will be reflected by the view.
+        """
 
-        if self.active:
+        self.navigator.selectPrevious()
 
-            self.navigator.selectPrevious(cyclic = True)
-
-            self.visualizeTag()
-
+    @visualize
     def onTaggingClick(self):
+        """Gets registered by the view and is called if the user tags an event.
+        Propagates this action to the navigator and ensures that
+        the changes will be reflected by the view.
+        """
 
-        if self.active:
+        self.navigator.switchSelectionTag()
 
-            self.navigator.switchSelectionTag()
-
-            self.visualizeTag()
-
-    def visualize(self):
+    @visualize
+    def visualizeOnOpen(self):
+        """Called when loading new data, before presentation. Updates the
+        window title and propagates the open event to the view.
+        """
 
         self.updateWindowTitle()
 
         self.view.open()
 
-        self.visualizeTag()
-
-    def visualizeTag(self):
-
-        self.view.onTagging(self.navigator.selectionTag)
-
-    def onSaveFile(self):
-
-        try:
-            self.save()
-        except UserCancel:
-            return
-
     def onPosition(self, position):
+        """Event handler for the :class:`DataEvent` onPosition of the navigator.
+        Gives the navigator access to letting its current event plot its
+        data on the canvas provided by the view.
+        """
 
         self.view.plot(self.navigator.plot)
 
-        self.setCounterString(position)
+        self.updateWindowTitle()
 
     def redraw(self):
+        """Forces update on current position and updates the window title.
+        This method is used when e.g. user events are added, to refresh the
+        current plot even if the position of the current event has not changed.
+        """
 
         self.onPosition(self.navigator.position)
 
         self.updateWindowTitle()
 
     def updateTimeline(self, *args):
+        """Updates the timeline on a change of position. This does not require
+        every point of the dataset to be redrawn. For that task compare method
+        configureTimeline.
+        """
 
         _, currentPoint, currentLimits = self.navigator.getTimelineData()
 
@@ -133,14 +145,24 @@ class TaggingControl:
 
         self.view.draw()
 
-    def resetTimeline(self):
-        self.timeline.reset()
-
     def onTimelineClick(self, time):
+        """Handles a double-click on the timeline by telling the navigator
+        to select the event that is closest to the timestamp that the user
+        double-clicked.
+        """
 
         self.navigator.selectClosestToTime(time)
 
     def onMainDblClick(self, event):
+        """Called if the main figure in the view is double-clicked. This method
+        tries to identify the given event as a user event. If this can be done,
+        then the user is offered to remove the event. Otherwise, the user is
+        offered to create a new user event here. The API-method of the view
+        that are called build a context menu and move it to the current cursor
+        position. The context menu for event creation is only displayed if the
+        user actually clicked on the graph. The navigator offers a method to
+        check that.
+        """
 
         userEvent = self.navigator.findUserEvent(event)
 
@@ -155,30 +177,31 @@ class TaggingControl:
             self.view.showMenuUserEventRemove(userEvent)
 
     def createUserEvent(self, event):
+        """Propagates to the navigator to add an event and then forces a redraw.
+        """
 
         self.navigator.addUserEvent(event)
 
         self.redraw()
 
     def removeUserEvent(self, userEvent):
+        """Propagates to the navigator to add a user event and then forces a
+        redraw.
+        """
 
         self.navigator.removeUserEvent(userEvent)
 
         self.redraw()
 
-    def setCounterString(self, position):
-
-        self.counterString = ''
-
-        if self.showIndex:
-
-            outOf = self.navigator.maximumPosition
-
-            self.counterString = PATTERN_COUNT.format(position + 1, outOf)
-
-        self.updateWindowTitle()
-
     def open(self, fileLoader):
+        """Loads a navigator and a dataset from a specified file loader.
+        Before accepting the new data, this method validates whether the
+        navigator contains displayable data and tells the user that the
+        navigation is flawed otherwise.
+        If the navigator is valid, this method buffers navigator and dataset,
+        configures the timeline with data from the navigator, restores potential
+        checkpoints and fires an initial visualization of the view.
+        """
 
         self.fileLoader = fileLoader
         navigator, dataset = self.fileLoader.load()
@@ -198,7 +221,7 @@ class TaggingControl:
 
         self.restoreCheckPoint()
 
-        self.visualize()
+        self.visualizeOnOpen()
 
     def configureTimeline(self):
         """Lets the view create a new timeline and plots the timeline points.
@@ -211,6 +234,10 @@ class TaggingControl:
         self.timeline.plot(*timelineData)
 
     def validate(self, navigator):
+        """Validates whether a given navigator exists and contains data. Otherwise
+        appropriate messages are displayed to the user and the method raises a
+        NoNavigatorError exception.
+        """
 
         if navigator is None:
             raise NoNavigatorError
@@ -223,18 +250,38 @@ class TaggingControl:
             # the process
             raise NoNavigatorError
 
+    @visualize
     def refresh(self):
+        """Forces an update on the current position. Can be used to apply any
+        updates on settings-values or similar to the screen.
+        """
 
-        if self.navigator:
-            self.onPosition(self.navigator.position)
+        self.onPosition(self.navigator.position)
 
     def save(self):
+        """Tells the fileLoader to save the current dataset. If this does not
+        result in an exception, then the dataset is considered saved, which
+        needs reflection in the navigator (e.g. reset changesMade flag).
+        """
 
         self.fileLoader.saveAs()
 
         self.navigator.onSave()
 
+    def onSaveFile(self):
+        """Wraps around the save method but suppresses the UserCancel and
+        returns None instead.
+        """
+
+        try:
+            self.save()
+        except UserCancel:
+            return
+
     def onDeactivate(self):
+        """Removes navigator and file loader from the control and tells the view
+        to remove the toolbar.
+        """
 
         del self.navigator
         del self.fileLoader
@@ -242,6 +289,10 @@ class TaggingControl:
         self.view.removeToolBar()
 
     def onChangesMade(self, changesMade):
+        """Event handler for the changesMade event of the navigator. Keeps track
+        of whether changes are made, updates the menu options (save disabled if
+        no changes made) and updates the window title.
+        """
 
         self.changesMade = changesMade
 
@@ -250,6 +301,11 @@ class TaggingControl:
         self.updateWindowTitle()
 
     def updateWindowTitle(self):
+        """Creates a window title for the application based on the currently
+        selected filename, the name of the app, whether the user has made
+        changes on the dataset and the counter of the current events with
+        respect to the number of events detected.
+        """
 
         if self.filename != '':
 
@@ -263,12 +319,32 @@ class TaggingControl:
 
             windowTitle += '*'
 
-        if self.counterString != '':
-            windowTitle += " - Sample: {}".format(self.counterString)
+        counterString = self.getCounterString()
+
+        if counterString != '':
+            windowTitle += " - Sample: {}".format(counterString)
 
         self.app.setWindowTitle(windowTitle)
 
+    def getCounterString(self):
+        """Creates a string containing the current position + 1 and the
+        number of events managed by the navigator.
+        """
+
+        counterString = ''
+
+        if self.applicationSettings.showIndex:
+
+            outOf = self.navigator.maximumPosition
+
+            counterString = '{}/{}'.format(self.navigator.position + 1, outOf)
+
+        return counterString
+
     def updateMenuOptions(self):
+        """Disables the save menu action if no changes are made and disables the
+        clear menu action if the control is not active.
+        """
 
         disableSaveOption = not self.changesMade
         self.app.saveFile.setDisabled(disableSaveOption)
@@ -277,6 +353,10 @@ class TaggingControl:
         self.app.clearFile.setDisabled(disableClearOption)
 
     def notifyUserOfSwitch(self):
+        """Starts the creation of a potential checkpoint and asks the user
+        whether it is alright to switch to a different dataset or to the
+        null screen.
+        """
 
         self.setCheckpoint()
 
@@ -301,6 +381,8 @@ class TaggingControl:
             return
 
     def restoreCheckPoint(self):
+        """Tries to recover the last checkpoint saved in the current dataset.
+        """
 
         if self.applicationSettings.useCheckpoints:
 
@@ -315,6 +397,8 @@ class TaggingControl:
                     self.navigator.position = checkpoint
 
     def setCheckpoint(self):
+        """Tries to save the current position as a checkpoint in the dataset.
+        """
 
         if self.applicationSettings.useCheckpoints:
 
@@ -327,3 +411,24 @@ class TaggingControl:
                 self.dataset.setCheckpoint(checkpoint)
 
                 self.navigator.changesMade = True
+
+
+    def visualizeTag(self):
+        """Called by the visualize decorator. This methods decides on the
+        stylesheet and text of the tagging button and propagtes this change
+        to the view.
+        """
+
+        if self.navigator.selectionTag:
+
+            self.view.setButtonStyle(
+                stylesheet = 'QPushButton { background-color: red; color: white; }',
+                text = 'Tagged as False-Positive'
+            )
+
+        else:
+
+            self.view.setButtonStyle(
+                stylesheet = '',
+                text = 'Not Tagged'
+            )

@@ -141,16 +141,10 @@ class TaggingView(QWidget):
 
         self.app.clearFile.setDisabled(False)
 
-    def onTagging(self, tag):
+    def setButtonStyle(stylesheet, text):
 
-        if tag:
-
-            self.buttonTagging.setStyleSheet('QPushButton { background-color: red; color: white; }')
-            self.buttonTagging.setText('Tagged as False-Positive')
-
-        else:
-            self.buttonTagging.setStyleSheet('')
-            self.buttonTagging.setText('Not tagged')
+        self.buttonTagging.setStyleSheet(stylesheet)
+        self.buttonTagging.setText(text)
 
     def removeToolBar(self):
 
