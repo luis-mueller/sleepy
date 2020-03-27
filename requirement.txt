@@ -1,0 +1,4 @@
+Sleepy
+numpy
+PyQt5
+matplotlib

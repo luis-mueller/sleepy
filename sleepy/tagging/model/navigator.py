@@ -3,7 +3,6 @@ from sleepy.tagging.core import DataEvent
 from sleepy.tagging.model.event import UserPointEvent
 from sleepy.tagging.model.exceptions import UserEventExists
 import numpy as np
-import pdb
 
 class Navigator:
     def __init__(self, events, changesMade = False):
@@ -13,10 +12,7 @@ class Navigator:
 
         self.maximumPosition = len(events)
 
-        self.finished = False
-
         self.stateBeforeChanges = self.getCurrentTags()
-
         self.changesMadeBeforeCreation = changesMade
 
         self.onChangesMade = DataEvent(changesMade)
@@ -52,8 +48,7 @@ class Navigator:
 
     @property
     def selectedEvent(self):
-        if not self.finished:
-            return self.events[self.position]
+        return self.events[self.position]
 
     @property
     def tagsInSeconds(self):
@@ -66,23 +61,17 @@ class Navigator:
     def selectionTag(self):
         return self.selectedEvent.tagged
 
-    def selectNext(self, cyclic = True):
+    def selectNext(self):
 
         if (self.position + 1) == self.maximumPosition:
-            if cyclic:
-                self.position = 0
-            else:
-                self.finished = True
+            self.position = 0
         else:
             self.position += 1
 
-    def selectPrevious(self, cyclic = True):
+    def selectPrevious(self):
 
         if self.position == 0:
-            if cyclic:
-                self.position = self.maximumPosition - 1
-            else:
-                self.finished = True
+            self.position = self.maximumPosition - 1
         else:
             self.position -= 1
 
@@ -93,7 +82,6 @@ class Navigator:
         self.position = np.argmin(np.abs(pointsInSeconds - time))
 
     def reset(self):
-        self.finished = False
         self.position = 0
 
     def plot(self, axis):
