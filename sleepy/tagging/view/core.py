@@ -141,7 +141,7 @@ class TaggingView(QWidget):
 
         self.app.clearFile.setDisabled(False)
 
-    def setButtonStyle(stylesheet, text):
+    def setButtonStyle(self, stylesheet, text):
 
         self.buttonTagging.setStyleSheet(stylesheet)
         self.buttonTagging.setText(text)
