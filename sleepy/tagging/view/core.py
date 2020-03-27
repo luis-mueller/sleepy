@@ -8,7 +8,7 @@ from functools import partial
 import matplotlib
 from matplotlib.figure import Figure
 import matplotlib.backends.backend_qt5agg as pltQt5
-matplotlib.use('QT5Agg')
+#matplotlib.use('QT5Agg')
 from matplotlib.ticker import ScalarFormatter
 matplotlib.rcParams['axes.formatter.useoffset'] = False
 import pdb
