@@ -1,4 +1,4 @@
-
+"""
 from unittest.mock import MagicMock, Mock, patch, PropertyMock
 import unittest
 
@@ -34,3 +34,4 @@ class TestBase:
 
     def customPointSample(self, point):
         return PointEvent(point, self.dataSource, self.app.applicationSettings)
+"""

@@ -55,5 +55,3 @@ class BandPassFilter:
         )
 
         return filtfilt(b, a, data)
-
-        return y

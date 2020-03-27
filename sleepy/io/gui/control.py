@@ -1,4 +1,6 @@
 
+from PyQt5.QtWidgets import QFileDialog
+
 class FileLoaderControl:
 
     def __init__(self, fileLoader):
