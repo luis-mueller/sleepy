@@ -27,8 +27,6 @@ class ControlTest(unittest.TestCase):
         app = MagicMock()
         app.name = 'TestApplication'
         app.applicationSettings = MagicMock()
-        app.applicationSettings.showIndex = False
-        app.applicationSettings.useCheckpoints = False
         app.applicationSettings.setWindowTitle = MagicMock()
         return app
 
@@ -68,9 +66,13 @@ class ControlTest(unittest.TestCase):
 
         self.env = self.getEnvironment()
 
+        self.settings = MagicMock()
+        self.settings.showIndex = False
+        self.settings.useCheckpoints = False
+
     def test_open_no_navigator(self):
 
-        control = TaggingControl(self.env)
+        control = TaggingControl(self.env, self.settings)
 
         loader = self.getFileLoader('test/path')
 
@@ -84,7 +86,7 @@ class ControlTest(unittest.TestCase):
 
     def test_open_empty_navigator(self):
 
-        control = TaggingControl(self.env)
+        control = TaggingControl(self.env, self.settings)
 
         loader = self.getFileLoader('test/path', self.getEvents([]), changesMade = False)
 
@@ -98,10 +100,10 @@ class ControlTest(unittest.TestCase):
 
     def test_open_valid_navigator_changesMade_False_no_checkpoints_no_index_with_filename(self):
 
-        self.app.applicationSettings.useCheckpoints = False
-        self.app.applicationSettings.showIndex = False
+        self.settings.useCheckpoints = False
+        self.settings.showIndex = False
 
-        control = TaggingControl(self.env)
+        control = TaggingControl(self.env, self.settings)
 
         loader = self.getFileLoader('test/TestFile', self.getEvents([1,2,3]), changesMade = False)
 
@@ -115,10 +117,10 @@ class ControlTest(unittest.TestCase):
 
     def test_open_valid_navigator_changesMade_False_no_checkpoints_with_index_with_filename(self):
 
-        self.app.applicationSettings.useCheckpoints = False
-        self.app.applicationSettings.showIndex = True
+        self.settings.useCheckpoints = False
+        self.settings.showIndex = True
 
-        control = TaggingControl(self.env)
+        control = TaggingControl(self.env, self.settings)
 
         loader = self.getFileLoader('test/TestFile', self.getEvents([1,2,3]), changesMade = False)
 
@@ -132,10 +134,10 @@ class ControlTest(unittest.TestCase):
 
     def test_open_valid_navigator_changesMade_Initially_no_checkpoints_no_index_with_filename(self):
 
-        self.app.applicationSettings.useCheckpoints = False
-        self.app.applicationSettings.showIndex = True
+        self.settings.useCheckpoints = False
+        self.settings.showIndex = True
 
-        control = TaggingControl(self.env)
+        control = TaggingControl(self.env, self.settings)
 
         loader = self.getFileLoader('test/TestFile', self.getEvents([1,2,3]), changesMade = True)
 
@@ -147,7 +149,7 @@ class ControlTest(unittest.TestCase):
 
     def test_open_valid_navigator_visualizeTag_active_tagged(self):
 
-        control = TaggingControl(self.env)
+        control = TaggingControl(self.env, self.settings)
 
         self.env.active = True
 
@@ -164,7 +166,7 @@ class ControlTest(unittest.TestCase):
 
     def test_open_valid_navigator_visualizeTag_active_tagged(self):
 
-        control = TaggingControl(self.env)
+        control = TaggingControl(self.env, self.settings)
 
         self.env.active = True
 
@@ -179,11 +181,11 @@ class ControlTest(unittest.TestCase):
 
     def test_open_valid_navigator_changesMade_False_with_checkpoints_user_yes(self):
 
-        self.app.applicationSettings.useCheckpoints = True
+        self.settings.useCheckpoints = True
 
         self.env.view.askUserForCheckPointRestore = MagicMock(return_value = QMessageBox.Yes)
 
-        control = TaggingControl(self.env)
+        control = TaggingControl(self.env, self.settings)
 
         loader = self.getFileLoader('test/TestFile', self.getEvents([1,2,3]))
 
@@ -199,11 +201,11 @@ class ControlTest(unittest.TestCase):
 
     def test_open_valid_navigator_changesMade_False_with_checkpoints_user_no(self):
 
-        self.app.applicationSettings.useCheckpoints = True
+        self.settings.useCheckpoints = True
 
         self.env.view.askUserForCheckPointRestore = MagicMock(return_value = QMessageBox.No)
 
-        control = TaggingControl(self.env)
+        control = TaggingControl(self.env, self.settings)
 
         loader = self.getFileLoader('test/TestFile', self.getEvents([1,2,3]))
 
@@ -219,7 +221,7 @@ class ControlTest(unittest.TestCase):
 
     def test_open_timeline_intial_call(self):
 
-        control = TaggingControl(self.env)
+        control = TaggingControl(self.env, self.settings)
 
         self.env.active = True
 
@@ -237,7 +239,7 @@ class ControlTest(unittest.TestCase):
 
     def test_navigate_non_active(self):
 
-        control = TaggingControl(self.env)
+        control = TaggingControl(self.env, self.settings)
 
         self.env.active = False
 
@@ -265,7 +267,7 @@ class ControlTest(unittest.TestCase):
 
     def test_navigate_forward_active(self):
 
-        control = TaggingControl(self.env)
+        control = TaggingControl(self.env, self.settings)
 
         self.env.active = True
 
@@ -288,7 +290,7 @@ class ControlTest(unittest.TestCase):
 
     def test_navigate_backward_active(self):
 
-        control = TaggingControl(self.env)
+        control = TaggingControl(self.env, self.settings)
 
         self.env.active = True
 
@@ -311,7 +313,7 @@ class ControlTest(unittest.TestCase):
 
     def test_onTaggingClick_non_active(self):
 
-        control = TaggingControl(self.env)
+        control = TaggingControl(self.env, self.settings)
 
         self.env.active = False
 
@@ -333,7 +335,7 @@ class ControlTest(unittest.TestCase):
 
     def test_onTaggingClick_active_set(self):
 
-        control = TaggingControl(self.env)
+        control = TaggingControl(self.env, self.settings)
 
         self.env.active = True
 
@@ -355,7 +357,7 @@ class ControlTest(unittest.TestCase):
 
     def test_onTaggingClick_active_reset(self):
 
-        control = TaggingControl(self.env)
+        control = TaggingControl(self.env, self.settings)
 
         self.env.active = False
 
@@ -378,7 +380,7 @@ class ControlTest(unittest.TestCase):
 
     def test_navigate_timeline_supplied(self):
 
-        control = TaggingControl(self.env)
+        control = TaggingControl(self.env, self.settings)
 
         self.env.active = True
 
@@ -397,7 +399,7 @@ class ControlTest(unittest.TestCase):
 
     def test_notifyUserOfSwitch_no_checkpoints_no_changes(self):
 
-        control = TaggingControl(self.env)
+        control = TaggingControl(self.env, self.settings)
 
         self.env.active = True
 
@@ -415,7 +417,7 @@ class ControlTest(unittest.TestCase):
 
     def test_notifyUserOfSwitch_no_checkpoints_changes_cancel(self):
 
-        control = TaggingControl(self.env)
+        control = TaggingControl(self.env, self.settings)
 
         self.env.active = True
 
@@ -438,7 +440,7 @@ class ControlTest(unittest.TestCase):
 
     def test_notifyUserOfSwitch_no_checkpoints_changes_save(self):
 
-        control = TaggingControl(self.env)
+        control = TaggingControl(self.env, self.settings)
 
         self.env.active = True
 
@@ -456,7 +458,7 @@ class ControlTest(unittest.TestCase):
 
     def test_notifyUserOfSwitch_no_checkpoints_changes_answer_no(self):
 
-        control = TaggingControl(self.env)
+        control = TaggingControl(self.env, self.settings)
 
         self.env.active = True
 
@@ -474,9 +476,9 @@ class ControlTest(unittest.TestCase):
 
     def test_notifyUserOfSwitch_with_checkpoints_answer_no_no_changes(self):
 
-        control = TaggingControl(self.env)
+        control = TaggingControl(self.env, self.settings)
 
-        self.env.app.applicationSettings.useCheckpoints = True
+        self.settings.useCheckpoints = True
         self.env.active = True
 
         self.env.view.askUserForCheckPoint = MagicMock(return_value = QMessageBox.Yes)

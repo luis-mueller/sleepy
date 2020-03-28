@@ -1,7 +1,8 @@
 
-from sleepy.processing.algorithms.massimi.options import MassimiOptionView
+from sleepy.gui.builder import Builder
 import numpy as np
 from scipy.signal import find_peaks
+from PyQt5.QtWidgets import QWidget
 import pdb
 
 class Massimi:
@@ -10,19 +11,24 @@ class Massimi:
 
         self.engine = engine
 
-        self.optionView = MassimiOptionView()
-
     @property
     def name(self):
         return 'Massimi (2004)'
 
     @property
     def options(self):
-        return self.optionView.options
 
-    @property
-    def negativeToPositivePeak(self):
-        return self.optionView.negativeToPositivePeak.value
+        try:
+            return self.widget
+        except AttributeError:
+
+            self.widget = QWidget()
+
+            layout = Builder.build('sleepy/processing/algorithms/massimi/massimi.json', self)
+
+            self.widget.setLayout(layout)
+
+            return self.widget
 
     def compute(self, signal):
 
@@ -41,7 +47,7 @@ class Massimi:
 
     def customizeSignal(self, signal):
 
-        signal.negativePeak = self.optionView.negativePeak.value
+        signal.negativePeak = self.negativePeak
 
         self.signal = signal
 
@@ -62,4 +68,4 @@ class Massimi:
 
     def convertSeparationThreshold(self, samplingRate):
 
-        return self.optionView.separation.value * samplingRate
+        return self.separation * samplingRate

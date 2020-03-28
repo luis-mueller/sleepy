@@ -1,0 +1,22 @@
+{
+  "bandPassFilter": {
+    "title": "Bandpass Filter",
+    "fields": {
+      "lowCutFrequency": {
+        "title": "Low cut-off frequency in Hz",
+        "fieldType": "float",
+        "default": 0.1
+      },
+      "highCutFrequency": {
+        "title": "High cut-off frequency in Hz",
+        "fieldType": "float",
+        "default": 4
+      },
+      "order": {
+        "title": "Order",
+        "fieldType": "int",
+        "default": 2
+      }
+    }
+  }
+}

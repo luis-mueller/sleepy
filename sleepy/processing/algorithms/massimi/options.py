@@ -1,6 +1,6 @@
 
 from sleepy.gui.builder import Builder, UpdateUnit
-from PyQt5.QtWidgets import QWidget, QDoubleSpinBox, QSpinBox
+from PyQt5.QtWidgets import QWidget, "float", QSpinBox
 from sleepy.processing.constants import MU
 
 class MassimiOptionView:
@@ -30,23 +30,23 @@ class MassimiOptionView:
     def layout(self):
 
         return self.builder.build({
-            'params' : {
-                'title' : 'Parameters',
-                'fields' : {
-                    'separation' : {
-                        'title' : 'Separation of zero-crossings (seconds)',
-                        'widgetType' : QDoubleSpinBox,
-                        'unit' : self.separation
+            "params" : {
+                "title" : "Parameters",
+                "fields" : {
+                    "separation" : {
+                        "title" : "Separation of zero-crossings (seconds)",
+                        "fieldType" : "float",
+                        "default" : self.separation
                     },
-                    'negativePeak' : {
-                        'title' : 'Required height of negative peak (-{}V)'.format(MU),
-                        'widgetType' : QDoubleSpinBox,
-                        'unit' : self.negativePeak
+                    "negativePeak" : {
+                        "title" : "Required height of negative peak (-{}V)".format(MU),
+                        "fieldType" : "float",
+                        "default" : self.negativePeak
                     },
-                    'negativeToPositivePeak' : {
-                        'title' : 'Negative-To-Positive peak ({}V)'.format(MU),
-                        'widgetType' : QDoubleSpinBox,
-                        'unit' : self.negativeToPositivePeak
+                    "negativeToPositivePeak" : {
+                        "title" : "Negative-To-Positive peak ({}V)".format(MU),
+                        "fieldType" : "float",
+                        "default" : self.negativeToPositivePeak
                     }
                 }
             }

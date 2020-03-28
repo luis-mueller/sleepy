@@ -29,7 +29,6 @@ class Window(QMainWindow):
         self.name = name
 
         self.applicationSettings = Settings(self, self.onRefresh)
-        self.applicationSettings.update()
 
         self.setMinimumWidth(800)
         self.setMinimumHeight(600)
@@ -60,7 +59,7 @@ class Window(QMainWindow):
 
         userMenu = self.applicationMenuBar.addMenu('User')
         settings = QAction('Settings', self)
-        settings.triggered.connect(self.applicationSettings.view.exec_)
+        settings.triggered.connect(self.applicationSettings.asDialog)
         userMenu.addAction(settings)
 
     def initializeShortcuts(self):
@@ -69,7 +68,7 @@ class Window(QMainWindow):
         self.openFile.activated.connect(self.onOpenFile)
 
         self.openSettings = QShortcut(QKeySequence("Ctrl+Q"), self)
-        self.openSettings.activated.connect(self.applicationSettings.view.exec_)
+        self.openSettings.activated.connect(self.applicationSettings.asDialog)
 
     def onOpenFile(self):
         """Triggered when the user wants to open a new file to work with. Handed over
@@ -83,10 +82,7 @@ class Window(QMainWindow):
 
     def onRefresh(self):
 
-        try:
-            self.stack.refresh()
-        except AttributeError:
-            pass
+        self.stack.refresh()
 
     def onClearFile(self):
         """Triggered when the user wants to clear the currently loaded file. This

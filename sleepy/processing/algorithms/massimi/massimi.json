@@ -1,0 +1,22 @@
+{
+  "params": {
+    "title": "Parameters",
+    "fields": {
+      "separation": {
+        "title": "Separation of zero-crossings (seconds)",
+        "fieldType": "float",
+        "default": 0.3
+      },
+      "negativePeak": {
+        "title": "Required height of negative peak (-μV)",
+        "fieldType": "float",
+        "default": 40
+      },
+      "negativeToPositivePeak": {
+        "title": "Negative-To-Positive peak (μV)",
+        "fieldType": "float",
+        "default": 70
+      }
+    }
+  }
+}

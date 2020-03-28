@@ -3,6 +3,7 @@ from PyQt5.QtWidgets import QMessageBox
 from sleepy.tagging.view import NullView, TaggingView
 from sleepy.tagging.control import TaggingControl
 from sleepy.gui.exceptions import UserCancel
+from sleepy.gui.settings.v2.core import Settings
 
 class Environment:
 
@@ -40,7 +41,7 @@ class TaggingEnvironment(Environment):
 
         super().__init__(app)
 
-        self.control = TaggingControl(self)
+        self.control = TaggingControl(self, app.applicationSettings)
 
         self.view = TaggingView(app, self.control)
 

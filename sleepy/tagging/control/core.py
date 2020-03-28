@@ -19,9 +19,10 @@ def visualize(function):
 
 class TaggingControl:
 
-    def __init__(self, environment):
+    def __init__(self, environment, settings):
 
         self.environment = environment
+        self.settings = settings
 
     @property
     def view(self):
@@ -30,10 +31,6 @@ class TaggingControl:
     @property
     def app(self):
         return self.environment.app
-
-    @property
-    def applicationSettings(self):
-        return self.environment.app.applicationSettings
 
     @property
     def active(self):
@@ -333,7 +330,7 @@ class TaggingControl:
 
         counterString = ''
 
-        if self.applicationSettings.showIndex:
+        if self.settings.showIndex:
 
             outOf = self.navigator.maximumPosition
 
@@ -384,7 +381,7 @@ class TaggingControl:
         """Tries to recover the last checkpoint saved in the current dataset.
         """
 
-        if self.applicationSettings.useCheckpoints:
+        if self.settings.useCheckpoints:
 
             checkpoint = self.dataset.getCheckpoint()
 
@@ -400,7 +397,7 @@ class TaggingControl:
         """Tries to save the current position as a checkpoint in the dataset.
         """
 
-        if self.applicationSettings.useCheckpoints:
+        if self.settings.useCheckpoints:
 
             answer = self.view.askUserForCheckPoint()
 

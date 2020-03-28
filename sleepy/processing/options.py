@@ -79,6 +79,14 @@ class OptionView:
 
         return self.algorithmBox
 
+    def newWidgetFromLayout(self, layout):
+
+        widget = QWidget()
+
+        widget.setLayout(layout)
+
+        return widget
+
     def onAlgorithmChange(self, index):
 
         options = self.control.onAlgorithmSelection(index)

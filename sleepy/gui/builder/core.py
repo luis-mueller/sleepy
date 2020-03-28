@@ -5,23 +5,32 @@ from sleepy.gui.builder.exceptions import NoBuildTreeAvailable
 from sleepy.gui.builder.customwidgets import CustomQSpinBox, CustomQCheckBox, CustomQDoubleSpinBox, Custom0To1DoubleSpinBox
 from functools import partial
 from pydoc import locate
+import json
+import os
 import pdb
+import inspect
+import codecs
 
 class Builder:
 
-    def callback(function):
-        """Decorator function for callback functions used in the build tree that
-        precomputes the updated value and supplies it to the callback function.
-        This serves PyQt5-agnositics with respect to the user.
+    def build(tree, control, level = 2):
+        """API-call for building a QVBoxLayout from a given tree.
+        The tree can be a path to a json file or a dictionary. The control has
+        to implement the getCallback method that provides a callable for a given
+        key. Level 2 returns layout containing QGroupBoxes, containing QWidgets,
+        Level 3 returns layout conaining QTabWidgets, containing QGroupBoxes,
+        containing QWidgets.
         """
 
-        def update(self, key, fieldType, widget):
+        tree = Builder.getDict(tree)
 
-            value = fieldType(widget.value())
+        if level == 2:
 
-            function(self, key, value)
+            return Builder.buildBoxes(tree, control)
 
-        return update
+        elif level == 3:
+
+            return Builder.buildTabs(tree, control)
 
     def buildTabs(buildTree, control):
         """Builds a tabbed layout from a level-3-buildtree.
@@ -35,7 +44,7 @@ class Builder:
 
             title, content = Builder.extractTabData(**buildTree[key])
 
-            tabLayout = Builder.build(content, control)
+            tabLayout = Builder.buildBoxes(content, control)
 
             tab = QWidget()
 
@@ -47,10 +56,9 @@ class Builder:
 
         return layout
 
-    def extractTabData(title, content):
-        return title, content
-
-    def build(buildTree, control):
+    def buildBoxes(buildTree, control):
+        """Builds a boxed layout from a level-2-buildtree.
+        """
 
         layout = QVBoxLayout()
 
@@ -65,6 +73,8 @@ class Builder:
         return layout
 
     def constructBoxLayout(box, control):
+        """Constructs a box layout for a given box tree.
+        """
 
         layout = QVBoxLayout()
 
@@ -88,23 +98,52 @@ class Builder:
         return layout
 
     def constructFieldLayout(identifier, control, title, fieldType, default):
+        """Constructs a box layout for a given field tree.
+        """
 
         fieldType = Builder.recoverBuiltInType(fieldType)
 
         widget = Builder.mapBuiltInTypeToWidget(fieldType)()
 
+        Builder.setControlValue(widget, control, identifier, default)
+
+        callback = Builder.getCallback(control, identifier, fieldType, widget)
+
         widget.valueChanged.connect(
-            partial(
-                control.getCallback(identifier),
-                fieldType,
-                widget
-            )
+            callback
         )
 
-        # Trigger the callback for initialization
-        widget.setValue(default)
-
         return Builder.getLayoutForWidget(widget, title)
+
+    def getCallback(control, identifier, fieldType, widget):
+        """Gets the callback from the control if getCallback is implemented.
+        Otherwise, setattr is the callback for this control.
+        """
+
+        try:
+
+            return partial(control.getCallback(identifier), fieldType, widget)
+
+        except AttributeError:
+
+            return partial(Builder.callback(setattr), control, identifier, fieldType, widget)
+
+    def setControlValue(widget, control, identifier, default):
+        """If the control already has an attribute whose name is equal to the
+        value of identifier, then the widget's value is set to the value of that
+        attribute. Otherwise the attribute is created for that control and set
+        to the default value.
+        """
+
+        try:
+
+            widget.setValue(getattr(control, identifier))
+
+        except AttributeError:
+
+            widget.setValue(default)
+
+            setattr(control, identifier, default)
 
     def getLayoutForWidget(widget, title):
         """Creates a horizontal ayout for a widget containing the widget itself and
@@ -154,3 +193,43 @@ class Builder:
         """
 
         return fieldType if type(fieldType) != str else locate(fieldType)
+
+
+    def callback(function):
+        """Decorator function for callback functions used in the build tree that
+        precomputes the updated value and supplies it to the callback function.
+        This serves PyQt5-agnositics with respect to the user.
+        """
+
+        def update(self, key, fieldType, widget):
+
+            value = fieldType(widget.value())
+
+            function(self, key, value)
+
+        return update
+
+    def getDict(tree):
+        """If tree is a path, loads the corresponding file to a dict. Otherwise,
+        return tree.
+        """
+
+        if type(tree) != dict:
+
+            return Builder.loadJSON(tree)
+
+        return tree
+
+    def loadJSON(path):
+        """Loads a JSON file into a dict type.
+        """
+
+        with codecs.open(os.getcwd() + '\\' + path, 'r', 'utf8') as file:
+            return json.load(file)
+
+    def extractTabData(title, content):
+        """Helper method to pass a dict as kwargs and return title and content
+        from that dict. Works only if the format is valid.
+        """
+
+        return title, content
