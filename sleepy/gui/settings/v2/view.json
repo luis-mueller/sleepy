@@ -1,0 +1,47 @@
+{
+  "general": {
+    "title": "General",
+    "content": {
+      "checkpoints": {
+        "title": "Checkpoints",
+        "fields": {
+          "useCheckpoints": {
+            "title": "Use Checkpoints",
+            "fieldType": "bool",
+            "default": false
+          }
+        }
+      },
+      "windowBar": {
+        "title": "Window Bar",
+        "fields": {
+          "showIndex": {
+            "title": "Show number of current event",
+            "fieldType": "bool",
+            "default": true
+          }
+        }
+      }
+    }
+  },
+  "events": {
+    "title": "Events",
+    "content": {
+      "intervals": {
+        "title": "Displayed intervals",
+        "fields": {
+          "intervalMin": {
+            "title": "Seconds displayed before event",
+            "fieldType": "float",
+            "default": 3
+          },
+          "intervalMax": {
+            "title": "Seconds displayed after event",
+            "fieldType": "float",
+            "default": 3
+          }
+        }
+      }
+    }
+  }
+}

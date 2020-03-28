@@ -1,43 +1,70 @@
 
-from PyQt5.QtWidgets import QVBoxLayout, QHBoxLayout, QGroupBox, QLabel, QCheckBox
-from sleepy.gui.builder.updateunit import UpdateObject
+from PyQt5.QtWidgets import QVBoxLayout, QHBoxLayout, QGroupBox, QLabel, QCheckBox, QTabWidget, QWidget
+from PyQt5.QtWidgets import QDoubleSpinBox, QSpinBox
 from sleepy.gui.builder.exceptions import NoBuildTreeAvailable
+from sleepy.gui.builder.customwidgets import CustomQSpinBox, CustomQCheckBox, CustomQDoubleSpinBox, Custom0To1DoubleSpinBox
+from functools import partial
+from pydoc import locate
+import pdb
 
 class Builder:
 
-    def __init__(self):
+    def callback(function):
+        """Decorator function for callback functions used in the build tree that
+        precomputes the updated value and supplies it to the callback function.
+        This serves PyQt5-agnositics with respect to the user.
+        """
 
-        self.updateObjects = []
+        def update(self, key, fieldType, widget):
 
-    @property
-    def tree(self):
-        return self._tree
+            value = fieldType(widget.value())
 
-    @tree.setter
-    def tree(self, value):
+            function(self, key, value)
 
-        if value is None:
-            raise NoBuildTreeAvailable()
+        return update
 
-        self._tree = value
+    def buildTabs(buildTree, control):
+        """Builds a tabbed layout from a level-3-buildtree.
+        """
 
-    def build(self, buildTree):
+        layout = QVBoxLayout()
 
-        self.tree = buildTree
+        tabs = QTabWidget()
 
-        self.layout = QVBoxLayout()
+        for key in buildTree.keys():
+
+            title, content = Builder.extractTabData(**buildTree[key])
+
+            tabLayout = Builder.build(content, control)
+
+            tab = QWidget()
+
+            tab.setLayout(tabLayout)
+
+            tabs.addTab(tab, title)
+
+        layout.addWidget(tabs)
+
+        return layout
+
+    def extractTabData(title, content):
+        return title, content
+
+    def build(buildTree, control):
+
+        layout = QVBoxLayout()
 
         list(map(
-            lambda p: self.layout.addLayout(
-                self.constructBoxLayout(self.tree[p]
+            lambda p: layout.addLayout(
+                Builder.constructBoxLayout(buildTree[p], control
                 )
             ),
-            self.tree
+            buildTree
         ))
 
-        return self.layout
+        return layout
 
-    def constructBoxLayout(self, box):
+    def constructBoxLayout(box, control):
 
         layout = QVBoxLayout()
 
@@ -48,13 +75,11 @@ class Builder:
 
         fields = box['fields']
 
-        list(map(
-            lambda p: boxLayout.addLayout(
-                self.constructFieldLayout(p, fields[p]
-                )
-            ),
-            fields
-        ))
+        for key in fields.keys():
+
+            fieldLayout = Builder.constructFieldLayout(key, control, **fields[key])
+
+            boxLayout.addLayout(fieldLayout)
 
         groupBox.setLayout(boxLayout)
 
@@ -62,26 +87,70 @@ class Builder:
 
         return layout
 
-    def constructFieldLayout(self, identifier, field):
+    def constructFieldLayout(identifier, control, title, fieldType, default):
 
-        title = field['title']
-        type = field['widgetType']
-        unit = field['unit']
+        fieldType = Builder.recoverBuiltInType(fieldType)
 
-        updateObject = UpdateObject(identifier, type, unit)
+        widget = Builder.mapBuiltInTypeToWidget(fieldType)()
+
+        widget.valueChanged.connect(
+            partial(
+                control.getCallback(identifier),
+                fieldType,
+                widget
+            )
+        )
+
+        # Trigger the callback for initialization
+        widget.setValue(default)
+
+        return Builder.getLayoutForWidget(widget, title)
+
+    def getLayoutForWidget(widget, title):
+        """Creates a horizontal ayout for a widget containing the widget itself and
+        a descriptive title attached to it.
+        """
 
         layout = QHBoxLayout()
 
-        if not issubclass(type, QCheckBox):
+        if not isinstance(widget, CustomQCheckBox):
 
             label = QLabel(title)
             layout.addWidget(label)
         else:
 
-            updateObject.widget.setText(title)
+            widget.setText(title)
 
-        layout.addWidget(updateObject.widget)
-
-        self.updateObjects.append(updateObject)
+        layout.addWidget(widget)
 
         return layout
+
+    def mapBuiltInTypeToWidget(fieldType):
+        """Maps a list of built-in types to an appropriate widget type. Hence,
+        the user can be agnostic of PyQt5 when using the builder, since only
+        so many types are supported anyways. The custom widgets are wrappers
+        around the original widgets to implement a unified interface
+        """
+
+        if fieldType == int:
+
+            return CustomQSpinBox
+
+        elif fieldType == float:
+
+            return CustomQDoubleSpinBox
+
+        elif fieldType == bool:
+
+            return CustomQCheckBox
+
+        else:
+            raise TypeError("Field type {} is not supported".format(str(fieldType)))
+
+    def recoverBuiltInType(fieldType):
+        """To support JSON input, builtin types must be recovered. However, for
+        security reasons, it is best to use pydoc.locate, which recovers only
+        builtin types from string, not functions or classes.
+        """
+
+        return fieldType if type(fieldType) != str else locate(fieldType)

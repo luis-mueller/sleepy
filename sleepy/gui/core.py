@@ -25,7 +25,6 @@ class SleePyGUI(QApplication):
 
         self.supportedLoaders = supportedLoaders
 
-
     def run(self):
         """Creates a new main window, sets title and icon and starts it. For a
         rich documentation of the features inside of the window refer to the
