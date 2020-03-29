@@ -31,7 +31,7 @@ class PointEvent(Event):
 
         relativePoint = self.point - self.epochInterval[0]
 
-        voltage = self.dataSource.epoch[relativePoint]
+        voltage = self.getVoltage(relativePoint)
 
         return (time, voltage)
 
@@ -52,6 +52,19 @@ class PointEvent(Event):
             elif event.inInterval(self.absoluteLimits):
 
                 event.plotPointVisible(axis)
+
+    def getVoltage(self, relativePoint):
+        """Returns either the raw or filtered voltage amount for the point of
+        this event.
+        """
+
+        if self.applicationSettings.plotFiltered:
+
+            return self.dataSource.epochFiltered[relativePoint]
+
+        else:
+
+            return self.dataSource.epoch[relativePoint]
 
     def plotPointSelected(self, axis):
 

@@ -10,8 +10,9 @@ class DataSource:
     builds the updateObjects which have access to memory. Additionally the
     :class:`DataSource` offers methods for general conversion.
     """
-    def __init__(self, epoch, epochInterval, samplingRate = 500):
+    def __init__(self, epoch, epochFiltered, epochInterval, samplingRate = 500):
         self.epoch = epoch
+        self.epochFiltered = epochFiltered
         self.epochInterval = epochInterval
         self.samplingRate = samplingRate
         self.labels = []
@@ -23,6 +24,9 @@ class DataSource:
 
     def get(self, start, stop):
         return self.epoch[start:stop]
+
+    def getFiltered(self, start, stop):
+        return self.epochFiltered[start:stop]
 
     def addLabel(self, label):
         self.labels.append(label)

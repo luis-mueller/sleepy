@@ -64,7 +64,7 @@ class TestBase:
         self.interval = (points[0] - 1, points[-1] + 1)
 
         self.dataSource = DataSource(
-            np.arange(*self.interval,1), self.interval, self.samplingRate
+            np.arange(*self.interval,1),np.arange(*self.interval,1) * 0.5, self.interval, self.samplingRate
         )
 
         return list(
