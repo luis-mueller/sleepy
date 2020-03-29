@@ -154,6 +154,8 @@ class MatDataSet:
 
         if not epochIndex in self.dataSources:
 
+            pdb.set_trace()
+
             epochInterval = self.epochs[epochIndex]
 
             epoch = self.channelData[epochIndex]
