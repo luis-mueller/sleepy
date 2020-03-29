@@ -1,7 +1,6 @@
 
-from sleepy.gui.builder import Builder, UpdateUnit
-from PyQt5.QtWidgets import QWidget, "float", QSpinBox
 from sleepy.processing.constants import MU
+from sleepy.gui.builder import Builder, UpdateUnit
 
 class MassimiOptionView:
 

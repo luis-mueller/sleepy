@@ -78,6 +78,7 @@ class ControlTest(unittest.TestCase):
 
         try:
             control.open(loader)
+            control.onAfterActivate()
         except UserCancel:
             self.assertTrue(True)
             return
@@ -92,6 +93,7 @@ class ControlTest(unittest.TestCase):
 
         try:
             control.open(loader)
+            control.onAfterActivate()
         except UserCancel:
             self.assertTrue(True)
             return
@@ -110,6 +112,7 @@ class ControlTest(unittest.TestCase):
         self.navigator.switchSelectionTag()
 
         control.open(loader)
+        control.onAfterActivate()
 
         self.app.setWindowTitle.assert_called_with('TestApplication - TestFile*')
 
@@ -127,6 +130,7 @@ class ControlTest(unittest.TestCase):
         self.navigator.switchSelectionTag()
 
         control.open(loader)
+        control.onAfterActivate()
 
         self.app.setWindowTitle.assert_called_with('TestApplication - TestFile* - Sample: 1/3')
 
@@ -142,6 +146,7 @@ class ControlTest(unittest.TestCase):
         loader = self.getFileLoader('test/TestFile', self.getEvents([1,2,3]), changesMade = True)
 
         control.open(loader)
+        control.onAfterActivate()
 
         self.app.setWindowTitle.assert_called_with('TestApplication - TestFile* - Sample: 1/3')
 
@@ -158,6 +163,7 @@ class ControlTest(unittest.TestCase):
         self.navigator.switchSelectionTag()
 
         control.open(loader)
+        control.onAfterActivate()
 
         self.env.view.setButtonStyle.assert_called_with(
             stylesheet = 'QPushButton { background-color: red; color: white; }',
@@ -173,6 +179,7 @@ class ControlTest(unittest.TestCase):
         loader = self.getFileLoader('test/TestFile', self.getEvents([1,2,3]), changesMade = True)
 
         control.open(loader)
+        control.onAfterActivate()
 
         self.env.view.setButtonStyle.assert_called_with(
             stylesheet = '',
@@ -193,6 +200,7 @@ class ControlTest(unittest.TestCase):
         self.dataset.getCheckpoint = MagicMock(return_value = checkpoint)
 
         control.open(loader)
+        control.onAfterActivate()
 
         self.assertEqual(
             self.navigator.position,
@@ -213,6 +221,7 @@ class ControlTest(unittest.TestCase):
         self.dataset.getCheckpoint = MagicMock(return_value = checkpoint)
 
         control.open(loader)
+        control.onAfterActivate()
 
         self.assertEqual(
             self.navigator.position,
@@ -228,6 +237,7 @@ class ControlTest(unittest.TestCase):
         loader = self.getFileLoader('test/TestFile', self.getEvents([1,2,3]))
 
         control.open(loader)
+        control.onAfterActivate()
 
         timeline = control.timeline
 
@@ -246,6 +256,7 @@ class ControlTest(unittest.TestCase):
         loader = self.getFileLoader('test/TestFile', self.getEvents([1,2,3]))
 
         control.open(loader)
+        control.onAfterActivate()
 
         self.assertEqual(
             self.navigator.position,
@@ -274,6 +285,7 @@ class ControlTest(unittest.TestCase):
         loader = self.getFileLoader('test/TestFile', self.getEvents([1,2,3]))
 
         control.open(loader)
+        control.onAfterActivate()
 
         self.assertEqual(
             self.navigator.position,
@@ -297,6 +309,7 @@ class ControlTest(unittest.TestCase):
         loader = self.getFileLoader('test/TestFile', self.getEvents([1,2,3,4,5]))
 
         control.open(loader)
+        control.onAfterActivate()
 
         self.assertEqual(
             self.navigator.position,
@@ -320,6 +333,7 @@ class ControlTest(unittest.TestCase):
         loader = self.getFileLoader('test/TestFile', self.getEvents([1,2,3]))
 
         control.open(loader)
+        control.onAfterActivate()
 
         self.assertEqual(
             self.navigator.selectionTag,
@@ -342,6 +356,7 @@ class ControlTest(unittest.TestCase):
         loader = self.getFileLoader('test/TestFile', self.getEvents([1,2,3]))
 
         control.open(loader)
+        control.onAfterActivate()
 
         self.assertEqual(
             self.navigator.selectionTag,
@@ -364,6 +379,7 @@ class ControlTest(unittest.TestCase):
         loader = self.getFileLoader('test/TestFile', self.getEvents([1,2,3]))
 
         control.open(loader)
+        control.onAfterActivate()
 
         self.assertEqual(
             self.navigator.selectionTag,
@@ -387,6 +403,7 @@ class ControlTest(unittest.TestCase):
         loader = self.getFileLoader('test/TestFile', self.getEvents([1,2,3]))
 
         control.open(loader)
+        control.onAfterActivate()
 
         control.onNextClick()
 
@@ -409,6 +426,7 @@ class ControlTest(unittest.TestCase):
         loader = self.getFileLoader('test/TestFile', self.getEvents([1,2,3]))
 
         control.open(loader)
+        control.onAfterActivate()
 
         control.notifyUserOfSwitch()
 
@@ -427,6 +445,7 @@ class ControlTest(unittest.TestCase):
         loader = self.getFileLoader('test/TestFile', self.getEvents([1,2,3]), changesMade = True)
 
         control.open(loader)
+        control.onAfterActivate()
 
         try:
             control.notifyUserOfSwitch()
@@ -450,6 +469,7 @@ class ControlTest(unittest.TestCase):
         loader = self.getFileLoader('test/TestFile', self.getEvents([1,2,3]), changesMade = True)
 
         control.open(loader)
+        control.onAfterActivate()
 
         control.notifyUserOfSwitch()
 
@@ -468,6 +488,7 @@ class ControlTest(unittest.TestCase):
         loader = self.getFileLoader('test/TestFile', self.getEvents([1,2,3]), changesMade = True)
 
         control.open(loader)
+        control.onAfterActivate()
 
         control.notifyUserOfSwitch()
 
@@ -486,6 +507,7 @@ class ControlTest(unittest.TestCase):
         loader = self.getFileLoader('test/TestFile', self.getEvents([1,2,3]))
 
         control.open(loader)
+        control.onAfterActivate()
 
         control.dataset.setCheckpoint = MagicMock()
 
@@ -507,6 +529,7 @@ class ControlTest(unittest.TestCase):
         loader = self.getFileLoader('test/TestFile', self.getEvents([1,2,3]))
 
         control.open(loader)
+        control.onAfterActivate()
 
         control.dataset.setCheckpoint = MagicMock()
 
