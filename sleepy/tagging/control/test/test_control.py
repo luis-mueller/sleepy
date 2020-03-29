@@ -50,7 +50,7 @@ class ControlTest(unittest.TestCase):
         self.samplingRate = 10
         self.interval = (0,100)
         self.dataSource = DataSource(
-            np.arange(*self.interval,1), self.interval, samplingRate = self.samplingRate
+            np.arange(*self.interval,1),np.arange(*self.interval,1), self.interval, samplingRate = self.samplingRate
         )
 
         return list(

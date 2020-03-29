@@ -9,6 +9,7 @@ class MatDataSet:
         self.matData = matData
         self.dataSources = {}
         self.samplingRate = 500
+        self.changesMade = False
 
     @property
     def epochs(self):
@@ -56,6 +57,19 @@ class MatDataSet:
             return self.channelInternalFormat
 
     @property
+    def channelDataFiltered(self):
+
+        try:
+
+            return self.matData['channelDataFiltered']
+
+        except KeyError:
+
+            self.matData['channelDataFiltered'] = self.channelData.copy()
+
+            return self.matData['channelDataFiltered']
+
+    @property
     def numberOfLabels(self):
 
         return self.labels.shape[0]
@@ -91,6 +105,14 @@ class MatDataSet:
         channelData = np.array(self.channelData.copy()).flatten()
 
         return channelData / self.samplingRate
+
+    def setFilteredData(self, index, filteredData):
+
+        if not np.array_equal(filteredData, self.channelDataFiltered[index]):
+
+            self.changesMade = True
+
+        self.channelDataFiltered[index] = filteredData
 
     def getDataSourceFor(self, labelIndex):
 
@@ -136,8 +158,10 @@ class MatDataSet:
 
             epoch = self.channelData[epochIndex]
 
+            epochFiltered = self.channelDataFiltered[epochIndex]
+
             self.dataSources[epochIndex] = DataSource(
-                epoch, epochInterval, self.samplingRate
+                epoch, epochFiltered, epochInterval, self.samplingRate
             )
 
         return self.dataSources[epochIndex]

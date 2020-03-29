@@ -110,7 +110,7 @@ class FileProcessor:
 
     def updateLabels(self, labels):
 
-        changesMade = self.resultDiffers(labels)
+        changesMade = self.resultDiffers(labels) or self.dataSet.changesMade
 
         self.dataSet.labels = labels
 

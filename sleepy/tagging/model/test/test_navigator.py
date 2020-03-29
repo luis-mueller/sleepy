@@ -2,6 +2,7 @@
 from unittest.mock import MagicMock, Mock, patch, PropertyMock
 import unittest
 from sleepy.tagging.test.core import TestBase
+import numpy as np
 
 class NavigatorTest(unittest.TestCase):
 
@@ -42,4 +43,34 @@ class NavigatorTest(unittest.TestCase):
         self.assertEqual(
             nav.selectedEvent.point,
             3
+        )
+
+    def test_plot_nonfilteredData(self):
+
+        self.base.app.applicationSettings.plotFiltered = False
+
+        loader, nav, dataset = self.base.create()
+
+        axis = MagicMock()
+        axis.plot = MagicMock(return_value = [0])
+
+        nav.plot(axis)
+
+        axis.plot.assert_called_with(
+            0.5, 5, color="gray", marker="o"
+        )
+
+    def test_plot_filteredData(self):
+
+        self.base.app.applicationSettings.plotFiltered = True
+
+        loader, nav, dataset = self.base.create()
+
+        axis = MagicMock()
+        axis.plot = MagicMock(return_value = [0])
+
+        nav.plot(axis)
+
+        axis.plot.assert_called_with(
+            0.5, 2.5, color="gray", marker="o"
         )

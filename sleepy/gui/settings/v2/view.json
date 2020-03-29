@@ -61,6 +61,16 @@
             "default": 3
           }
         }
+      },
+      "filters": {
+        "title": "Filters",
+        "fields": {
+          "plotFiltered": {
+            "title": "Plot filtered data",
+            "fieldType": "bool",
+            "default": true
+          }
+        }
       }
     }
   }

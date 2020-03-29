@@ -93,7 +93,7 @@ class TaggingControl:
         self.navigator.selectPrevious()
 
     @visualize
-    def onTaggingClick(self):
+    def onTaggingClick(self, *args):
         """Gets registered by the view and is called if the user tags an event.
         Propagates this action to the navigator and ensures that
         the changes will be reflected by the view.

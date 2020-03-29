@@ -85,13 +85,28 @@ class Event:
 
         x = np.arange(*self.absoluteLimits, 1) / self.samplingRate
 
-        y = self.dataSource.get(*self.relativeLimits)
+        y = self.getYData()
 
         self.lineArtist = axis.plot(x, y, picker = 2)[0]
 
         self.setTicks(axis)
 
         self.labelAxes(axis)
+
+    def getYData(self):
+        """Get the data for the Y-axis. This is eiter the raw or the filtered
+        data.
+        """
+
+        limits = self.relativeLimits
+
+        if self.applicationSettings.plotFiltered:
+
+            return self.dataSource.getFiltered(*limits)
+
+        else:
+
+            return self.dataSource.get(*limits)
 
     def setTicks(self, axis):
 

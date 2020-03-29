@@ -61,6 +61,8 @@ class Engine:
 
         filteredData = self.applyFilter(data)
 
+        self.dataSet.setFilteredData(index, filteredData)
+
         epochStart = self.dataSet.epochs[index][0]
 
         return self.computeEpochAbsolute(filteredData, epochStart)
