@@ -120,9 +120,26 @@ class Navigator:
 
         return np.array(labels)
 
-    def createUserEvent(self, time):
+    def getLabelPartition(self):
+        """Returns the labels belonging to computed events and the labels
+        belonging to user events as two separate numpy arrays.
+        """
 
-        pointInSamples = self.selectedEvent.convertSeconds(time)
+        computed = list(filter(lambda e: e not in self.userEvents, self.events))
+
+        user = list(filter(lambda e: e in self.userEvents, self.events))
+
+        return self.getLabelsFromEvents(computed), self.getLabelsFromEvents(user)
+
+    def getLabelsFromEvents(self, events):
+        """Returns the labels of a given set of events as a numpy array.
+        """
+
+        labelsAsList = list(map(lambda e: e.label, events))
+
+        return np.array(labelsAsList)
+
+    def createUserEvent(self, pointInSamples):
 
         currentUserPoints = list(map(lambda e: e.point, self.userEvents))
 
@@ -138,11 +155,28 @@ class Navigator:
             raise UserEventExists
 
     def addUserEvent(self, event):
+        """Called by pyplot when a user event has to be added.
+        """
+
+        pointInSamples = self.selectedEvent.convertSeconds(event.xdata)
+
+        self.addUserEventSamples(pointInSamples)
+
+    def addUserEventSamples(self, pointInSamples):
+        """Add a user event in samples unit. Can be used as an API but is also
+        internally used when receiving an event from pyplot.
+        """
 
         try:
-            userEvent = self.createUserEvent(event.xdata)
+            userEvent = self.createUserEvent(pointInSamples)
         except UserEventExists:
             return
+
+        self.addCreatedUserEvent(userEvent)
+
+    def addCreatedUserEvent(self, userEvent):
+        """Adds an userEvent instance and ensures consistency in the events list.
+        """
 
         selectedEvent = self.selectedEvent
 
@@ -174,12 +208,13 @@ class Navigator:
 
     def findUserEvent(self, event):
 
-        userEvent = [
-            e for e in self.userEvents if e.artist.contains(event)[0]
-        ]
+        for userEvent in self.userEvents:
 
-        if userEvent:
-            return userEvent[0]
+            if userEvent.artist:
+
+                if userEvent.artist.contains(event)[0]:
+
+                    return userEvent
 
     def onGraphClick(self, event):
 

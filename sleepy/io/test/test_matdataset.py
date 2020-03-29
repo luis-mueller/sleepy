@@ -43,6 +43,20 @@ class MatDataSetTest(unittest.TestCase):
             }
         )
 
+        self.dataSetUserLabels = MatDataSet(
+            {
+                '__header__': b'Testdata', '__version__': '1.0', '__globals__': [],
+                'channelData': np.array([[
+                    [np.zeros(vectorSize)],
+                    [np.zeros(vectorSize)]
+                ]]),
+                'label': np.array([1, 3, 25, 27]),
+                'sleepyUserLabels' : np.array([4, 17]),
+                'sampleInfo': np.array([[  0,  (vectorSize - 1)],[ vectorSize, (2 * vectorSize) -1]]),
+                'tags': np.array([[0,0,1,1]])
+            }
+        )
+
     def test_property_labels_migrate_tags(self):
 
         self.dataSetTagged.labels = np.array([0,4,25,29])
@@ -91,3 +105,44 @@ class MatDataSetTest(unittest.TestCase):
         self.assertTrue(
             self.dataSet.getDataSourceFor(0) != self.dataSet.getDataSourceFor(2)
         )
+
+    def test_getUserLabels_dataset_with_no_userlabels(self):
+        """Tests whether a dataset with not userLabels returns an empty list on
+        userLabel attribute call.
+        """
+
+        self.assertTrue(np.array_equal(np.array([]), self.dataSet.userLabels))
+
+    def test_getUserLabels_dataset_with_userLabels(self):
+        """Tests whether a dataset with not userLabels returns the correct values on
+        userLabel attribute call.
+        """
+
+        self.assertTrue(np.array_equal(np.array([4,17]), self.dataSetUserLabels.userLabels))
+
+    def test_setUserLabels_dataset_changesMade_false(self):
+        """Tests that if setUserLabels is called but the values do not change, then
+        the changesMade flag is false.
+        """
+
+        self.dataSetUserLabels.setUserLabels(np.array([4,17]))
+
+        self.assertEqual(self.dataSetUserLabels.changesMade, False)
+
+    def test_setUserLabels_dataset_changesMade_true_1(self):
+        """Tests that if setUserLabels is called and the values change, then
+        the changesMade flag is true - partially overlapping values.
+        """
+
+        self.dataSetUserLabels.setUserLabels(np.array([4,17,18]))
+
+        self.assertEqual(self.dataSetUserLabels.changesMade, True)
+
+    def test_setUserLabels_dataset_changesMade_true_2(self):
+        """Tests that if setUserLabels is called and the values change, then
+        the changesMade flag is true - completely different values.
+        """
+
+        self.dataSetUserLabels.setUserLabels(np.array([2, 9,12]))
+
+        self.assertEqual(self.dataSetUserLabels.changesMade, True)

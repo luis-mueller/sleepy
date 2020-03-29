@@ -5,6 +5,7 @@ from sleepy.processing.algorithms import Massimi
 from sleepy.processing.options import OptionView
 from sleepy.processing.engine import Engine
 from sleepy.processing import exceptions
+from sleepy.tagging.model.event import UserPointEvent
 from PyQt5.QtWidgets import QVBoxLayout, QGroupBox, QCheckBox, QComboBox
 from PyQt5.QtWidgets import QStackedWidget
 import numpy as np
@@ -101,6 +102,8 @@ class FileProcessor:
 
         self.navigator = Navigator(events, changesMade)
 
+        self.addUserEventsToNavigator(self.navigator)
+
         return self.navigator
 
     def checkComputeLabelsCalled(self):
@@ -168,3 +171,17 @@ class FileProcessor:
         else:
 
             raise EventTypeNotSupported
+
+    def addUserEventsToNavigator(self, navigator):
+        """Add the stored user labels as events to the navigator.
+        """
+
+        for userLabel in self.dataSet.userLabels:
+
+            userLabel = userLabel.squeeze().tolist()
+
+            dataSource = self.dataSet.getDataSourceForLabel(userLabel)
+
+            userEvent = UserPointEvent(userLabel, dataSource, self.applicationSettings)
+
+            navigator.addCreatedUserEvent(userEvent)
