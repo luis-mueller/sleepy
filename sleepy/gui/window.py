@@ -57,6 +57,10 @@ class Window(QMainWindow):
         self.clearFile.triggered.connect(self.onClearFile)
         fileMenu.addAction(self.clearFile)
 
+        self.reloadFile = QAction('Reload', self)
+        self.reloadFile.triggered.connect(self.onReloadFile)
+        fileMenu.addAction(self.reloadFile)
+
         userMenu = self.applicationMenuBar.addMenu('User')
         settings = QAction('Settings', self)
         settings.triggered.connect(self.applicationSettings.asDialog)
@@ -70,15 +74,20 @@ class Window(QMainWindow):
         self.openSettings = QShortcut(QKeySequence("Ctrl+Q"), self)
         self.openSettings.activated.connect(self.applicationSettings.asDialog)
 
+        self.openSettings = QShortcut(QKeySequence("Ctrl+R"), self)
+        self.openSettings.activated.connect(self.onReloadFile)
+
     def onOpenFile(self):
         """Triggered when the user wants to open a new file to work with. Handed over
-        to the stack to try to switch to a labelling context with this file."""
+        to the stack to try to switch to a labelling context with this file.
+        Buffers the latest fileLoader for re-use.
+        """
 
-        fileLoader = self.fileManager.openNew()
+        self.fileLoader = self.fileManager.openNew()
 
-        if fileLoader:
+        if self.fileLoader:
 
-            self.stack.switchToTagging(fileLoader)
+            self.stack.switchToTagging(self.fileLoader)
 
     def onRefresh(self):
 
@@ -89,6 +98,24 @@ class Window(QMainWindow):
         neccessitates a context switch and has to be confirmed."""
 
         self.stack.switchToNull()
+
+    def onReloadFile(self):
+        """Reload the latest fileLoader. This should only work if a file has
+        recently been opened.
+        """
+
+        try:
+
+            if self.fileLoader:
+
+                self.fileLoader = self.fileManager.openRecent()
+
+                if self.fileLoader:
+
+                    self.stack.switchToTagging(self.fileLoader)
+
+        except AttributeError:
+            pass
 
     def closeEvent(self, event):
         """Triggered when the user wants to close the application. This amounts to

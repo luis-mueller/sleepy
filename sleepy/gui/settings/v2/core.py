@@ -65,11 +65,17 @@ class Settings:
         """
 
         # Make values accessible like attributes (settings.value)
-        self.__dict__.update(self.values.copy())
+        self.__dict__.update(self.values)
 
-        self.dump(self.values.copy())
+        self.dump(self.values)
 
         self.applicationCallback()
+
+    def reset(self):
+        """Resets the values dict to the values before updating.
+        """
+
+        Settings.updateExistingValues(self.__dict__, self.values)
 
     def asDialog(self):
         """Open a QDialog, displaying the current state. Embedds the view in an
@@ -115,3 +121,14 @@ class Settings:
         jsonString = json.dumps(settings)
 
         QSettings().setValue("json_settings", jsonString)
+
+    def updateExistingValues(source, target):
+        """Updates the value in target from the values in source if and only if
+        the corresponding keys exist in both dicts.
+        """
+
+        for key in source.keys():
+
+            if key in target:
+
+                target[key] = source[key]

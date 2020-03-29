@@ -26,18 +26,28 @@ class FileManager:
 
             fileExtension = self.getFileExtension(path)
 
-            try:
+            return self.open(fileExtension, path)
 
-                return self.supportedLoaders[fileExtension](self.app, path)
-            except AttributeError:
+    def open(self, fileExtension, path):
 
-                error = QMessageBox(self.app)
-                error.setWindowTitle('Error')
-                error.setIcon(QMessageBox.Critical)
-                error.setText(
-                    'Files of type {} are not supported.'.format(fileExtension)
-                )
-                error.exec_()
+        try:
+
+            return self.supportedLoaders[fileExtension](self.app, path)
+        except AttributeError:
+
+            error = QMessageBox(self.app)
+            error.setWindowTitle('Error')
+            error.setIcon(QMessageBox.Critical)
+            error.setText(
+                'Files of type {} are not supported.'.format(fileExtension)
+            )
+            error.exec_()
+
+    def openRecent(self):
+
+        fileExtension = self.getFileExtension(self.recentPath)
+
+        return self.open(fileExtension, self.recentPath)
 
     def getPathForSaving(self):
 

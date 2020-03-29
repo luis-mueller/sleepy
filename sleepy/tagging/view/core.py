@@ -51,6 +51,7 @@ class NullView(QWidget):
 
         self.app.clearFile.setDisabled(True)
         self.app.saveFile.setDisabled(True)
+        self.app.reloadFile.setDisabled(True)
 
         self.app.setWindowTitle(self.app.name)
 
@@ -140,6 +141,7 @@ class TaggingView(QWidget):
         self.addToolBar()
 
         self.app.clearFile.setDisabled(False)
+        self.app.reloadFile.setDisabled(False)
 
     def setButtonStyle(self, stylesheet, text):
 

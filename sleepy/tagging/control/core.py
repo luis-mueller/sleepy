@@ -1,6 +1,7 @@
 
 from sleepy.gui.exceptions import UserCancel, NoNavigatorError
 from PyQt5.QtWidgets import QMessageBox
+import pdb
 
 def visualize(function):
     """Decorator function for methods that should only apply changes if the
@@ -214,6 +215,12 @@ class TaggingControl:
         self.navigator = navigator
         self.dataset = dataset
 
+    def onAfterActivate(self):
+        """Do visualization after the control has been set active. This involves
+        setting up the timeline, restoring checkpoints and visualizing the setup.
+        This method should be called by the environment after it was activated.
+        """
+
         self.configureTimeline()
 
         self.restoreCheckPoint()
@@ -410,7 +417,7 @@ class TaggingControl:
                 self.navigator.changesMade = True
 
             elif answer == QMessageBox.Cancel:
-                
+
                 raise UserCancel
 
 

@@ -48,12 +48,17 @@ class TaggingEnvironment(Environment):
         self.app = app
 
     def activate(self, fileLoader):
+        """Attempt to activate the control. If the control can be opened, then
+        activate self and process the control on after activation.
+        """
 
         self.onBeforeActive()
 
         self.control.open(fileLoader)
 
         super().activate()
+
+        self.control.onAfterActivate()
 
     def deactivate(self):
 
