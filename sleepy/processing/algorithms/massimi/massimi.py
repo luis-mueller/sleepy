@@ -3,6 +3,7 @@ from sleepy.gui.builder import Builder
 import numpy as np
 from scipy.signal import find_peaks
 from PyQt5.QtWidgets import QWidget
+from sleepy import SLEEPY_ROOT_DIR
 import pdb
 
 class Massimi:
@@ -11,7 +12,7 @@ class Massimi:
 
         self.engine = engine
 
-        Builder.setAttributesFromJSON('sleepy/processing/algorithms/massimi/massimi.json', self)
+        Builder.setAttributesFromJSON(SLEEPY_ROOT_DIR + '/processing/algorithms/massimi/massimi.json', self)
 
     @property
     def name(self):
@@ -26,7 +27,7 @@ class Massimi:
 
             self.widget = QWidget()
 
-            layout = Builder.build('sleepy/processing/algorithms/massimi/massimi.json', self)
+            layout = Builder.build(SLEEPY_ROOT_DIR + '/processing/algorithms/massimi/massimi.json', self)
 
             self.widget.setLayout(layout)
 

@@ -6,7 +6,6 @@ from sleepy.gui.builder.customwidgets import CustomQSpinBox, CustomQCheckBox, Cu
 from functools import partial
 from pydoc import locate
 import json
-import os
 import pdb
 import inspect
 import codecs
@@ -282,7 +281,7 @@ class Builder:
         """Loads a JSON file into a dict type.
         """
 
-        with codecs.open(os.getcwd() + '\\' + path, 'r', 'utf8') as file:
+        with codecs.open(path, 'r', 'utf8') as file:
             return json.load(file)
 
     def extractTabData(title, content):

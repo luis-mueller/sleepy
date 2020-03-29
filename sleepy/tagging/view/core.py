@@ -176,16 +176,17 @@ class TaggingView(QWidget):
 
         self.figure.canvas.draw()
 
-    def refreshTimeline(self):
-        """Clears the plot on the timeline axis and requests the control to
-        initialize a new timeline and plot it.
+    def draw_idle(self):
+        """Abstracts calling the draw_idle method of the figure canvas.
+        """
+
+        self.figure.canvas.draw_idle()
+
+    def clearTimelineAxis(self):
+        """Clears the plot on the timeline axis.
         """
 
         self.timelineAxis.cla()
-
-        self.control.configureTimeline()
-
-        self.figure.canvas.draw_idle()
 
     def getTimeline(self):
         """Creates a new Timeline object for the control and supplies a
@@ -245,7 +246,7 @@ class TaggingView(QWidget):
 
         reset = QAction("Reset Timeline", self.app)
 
-        reset.triggered.connect(self.refreshTimeline)
+        reset.triggered.connect(self.control.configureTimeline)
 
         menu.addAction(reset)
 

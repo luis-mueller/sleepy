@@ -1,16 +1,17 @@
 
 from sleepy.gui.builder import Builder
 from scipy.signal import butter, filtfilt
+from sleepy import SLEEPY_ROOT_DIR
 
 class BandPassFilter:
 
     def __init__(self):
 
-        Builder.setAttributesFromJSON('sleepy/processing/filters/bandpass.json', self)
+        Builder.setAttributesFromJSON(SLEEPY_ROOT_DIR + '/processing/filters/bandpass.json', self)
 
     @property
     def layout(self):
-        return Builder.build('sleepy/processing/filters/bandpass.json', self)
+        return Builder.build(SLEEPY_ROOT_DIR + '/processing/filters/bandpass.json', self)
 
     # Implements:
     # https://stackoverflow.com/questions/12093594/how-to-implement-band-pass-butterworth-filter-with-scipy-signal-butter

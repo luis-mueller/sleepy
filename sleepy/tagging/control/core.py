@@ -231,11 +231,15 @@ class TaggingControl:
         """Lets the view create a new timeline and plots the timeline points.
         """
 
+        self.view.clearTimelineAxis()
+
         self.timeline = self.view.getTimeline()
 
         timelineData = self.navigator.getTimelineData()
 
         self.timeline.plot(*timelineData)
+
+        self.view.draw_idle()
 
     def validate(self, navigator):
         """Validates whether a given navigator exists and contains data. Otherwise
