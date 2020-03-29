@@ -70,6 +70,42 @@ class MatDataSet:
             return self.matData['channelDataFiltered']
 
     @property
+    def userLabels(self):
+        """Returns the stored user labels in the dataset. These must be explicitly
+        set.
+        """
+
+        try:
+            
+            return self.matData['sleepyUserLabels'].squeeze()
+
+        except KeyError:
+
+            return np.array([])
+
+    def setUserLabels(self, labels):
+        """Sets a set of labels as the new userLabels of this dataset. If this
+        causes a new set of user labels in the dataset, then changesMade is set
+        to true.
+        """
+
+        if not np.array_equal(labels, self.userLabels):
+
+            self.changesMade = True
+
+        self.matData['sleepyUserLabels'] = labels
+
+    def convertToPy(self, data):
+        """Performs a sequence of transformations to array types to be in a more
+        pythonic format.
+        """
+
+        data = data.squeeze(axis = 0)
+
+        return list(map(lambda data: data[0], data))
+
+
+    @property
     def numberOfLabels(self):
 
         return self.labels.shape[0]
@@ -120,6 +156,10 @@ class MatDataSet:
 
         if isinstance(label, list):
             label = label [0]
+
+        return self.getDataSourceForLabel(label)
+
+    def getDataSourceForLabel(self, label):
 
         # We only use label[0] as we rely on events not overlapping samples.
         # Therefore interval and point labels are both covered

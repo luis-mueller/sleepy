@@ -74,3 +74,26 @@ class NavigatorTest(unittest.TestCase):
         axis.plot.assert_called_with(
             0.5, 2.5, color="gray", marker="o"
         )
+
+    def test_addUserEvent_getLabelPartition(self):
+        """Add two user event and check whether the method getLabelPartition
+        returns exactly those two events and no others.
+        """
+
+        loader, nav, dataset = self.base.create()
+
+        event = MagicMock()
+        event.xdata = 2
+
+        nav.addUserEvent(event)
+
+        event = MagicMock()
+        event.xdata = 4
+
+        nav.addUserEvent(event)
+
+        computed, user = nav.getLabelPartition()
+
+        self.assertEqual(user[0], 2 * self.base.samplingRate)
+        self.assertEqual(user[1], 4 * self.base.samplingRate)
+        self.assertEqual(len(user), 2)

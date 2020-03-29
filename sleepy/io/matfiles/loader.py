@@ -3,6 +3,7 @@ from sleepy.io.matfiles import MatDataSet
 from sleepy.io.core import FileLoader
 from sleepy.gui.exceptions import UserCancel
 from scipy.io import loadmat, savemat
+import pdb
 
 class MatFileLoader(FileLoader):
 
@@ -22,7 +23,11 @@ class MatFileLoader(FileLoader):
 
     def save(self):
 
-        self.dataSet.labels = self.navigator.getCurrentLabels()
+        computed, user = self.navigator.getLabelPartition()
+
+        self.dataSet.labels = computed
+
+        self.dataSet.setUserLabels(user)
 
         self.dataSet.tags = self.navigator.getCurrentTags()
 
