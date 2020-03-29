@@ -208,12 +208,13 @@ class Navigator:
 
     def findUserEvent(self, event):
 
-        userEvent = [
-            e for e in self.userEvents if e.artist.contains(event)[0]
-        ]
+        for userEvent in self.userEvents:
 
-        if userEvent:
-            return userEvent[0]
+            if userEvent.artist:
+
+                if userEvent.artist.contains(event)[0]:
+
+                    return userEvent
 
     def onGraphClick(self, event):
 
