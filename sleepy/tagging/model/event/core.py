@@ -1,6 +1,8 @@
 
 import numpy as np
 from matplotlib.axes import Axes
+from matplotlib.ticker import FuncFormatter
+import time
 import pdb
 
 class Event:
@@ -117,6 +119,9 @@ class Event:
             xticklabels = np.arange(*self.absoluteLimits, 1) / self.samplingRate
         )
 
+        axis.xaxis.set_major_formatter(
+            FuncFormatter(lambda sec, x: time.strftime('%H:%M:%S', time.gmtime(sec)))
+        )
 
     def labelAxes(self, axis):
 

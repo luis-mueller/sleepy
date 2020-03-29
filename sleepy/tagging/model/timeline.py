@@ -1,6 +1,8 @@
 
 import numpy as np
 import pdb
+from matplotlib.ticker import FuncFormatter
+import time
 
 class Timeline:
 
@@ -40,6 +42,10 @@ class Timeline:
         axis.yaxis.set_visible(False)
 
         axis.xaxis.set_ticks_position('bottom')
+
+        axis.xaxis.set_major_formatter(
+            FuncFormatter(lambda sec, x: time.strftime('%H:%M:%S', time.gmtime(sec)))
+        )
 
         axis.get_yaxis().set_ticklabels([])
 
