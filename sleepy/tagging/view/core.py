@@ -7,12 +7,14 @@ from PyQt5.QtGui import QKeySequence
 from functools import partial
 import matplotlib
 from matplotlib.figure import Figure
+from matplotlib.dates import HourLocator, SecondLocator, DateFormatter
 import matplotlib.backends.backend_qt5agg as pltQt5
 #matplotlib.use('QT5Agg')
-from matplotlib.ticker import ScalarFormatter
+from matplotlib.ticker import ScalarFormatter, FuncFormatter
 matplotlib.rcParams['axes.formatter.useoffset'] = False
 import pdb
 from sleepy.tagging.model.timeline import Timeline
+import time
 
 class NullView(QWidget):
     """Implements the null context. The null context disables save and clear
@@ -97,8 +99,14 @@ class TaggingView(QWidget):
         self.plotToolBar = pltQt5.NavigationToolbar2QT(self.figureCanvas, self)
 
         noOffset = ScalarFormatter(useOffset=False)
-        self.axis.xaxis.set_major_formatter(noOffset)
-        self.timelineAxis.xaxis.set_major_formatter(noOffset)
+
+        #self.axis.xaxis.set_major_locator(HourLocator(interval = 1))
+        #self.axis.xaxis.set_major_formatter(DateFormatter('%H:%M:%S'))
+        self.axis.xaxis.set_major_formatter(
+            FuncFormatter(lambda x: time.strftime('%H:%M:%S', time.gmtime(x)))
+        )
+
+        self.timelineAxis.xaxis.set_major_formatter(DateFormatter('%H:%M:%S'))# .set_major_formatter(noOffset)
 
         self.figure.canvas.mpl_connect('button_press_event', self.onClick)
 
