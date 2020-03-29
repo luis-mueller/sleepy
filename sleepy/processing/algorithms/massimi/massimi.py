@@ -11,6 +11,8 @@ class Massimi:
 
         self.engine = engine
 
+        Builder.setAttributesFromJSON('sleepy/processing/algorithms/massimi/massimi.json', self)
+
     @property
     def name(self):
         return 'Massimi (2004)'

@@ -16,9 +16,29 @@
         "title": "Window Bar",
         "fields": {
           "showIndex": {
-            "title": "Show number of current event",
+            "title": "Show index of current event",
             "fieldType": "bool",
             "default": true
+          }
+        }
+      }
+    }
+  },
+  "plot": {
+    "title": "Plots",
+    "content": {
+      "grid": {
+        "title": "Grid",
+        "fields": {
+          "plotGrid": {
+            "title": "Plot data on grid",
+            "fieldType": "bool",
+            "default": true
+          },
+          "plotGridSize": {
+            "title": "Separation of two vertical grid lines in seconds",
+            "fieldType": "float",
+            "default": 1.15
           }
         }
       }

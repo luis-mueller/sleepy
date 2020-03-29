@@ -22,25 +22,42 @@ class Settings:
         self.application = application
         self.applicationCallback = applicationCallback
 
-        self.reset()
+        self.values = {}
+
+        Builder.setAttributesFromJSON('sleepy/gui/settings/v2/view.json', self, level = 3)
 
         self.load()
 
+    def getCallbackDefault(self, key):
+        """Returns a partial function is called with the key as the first
+        argument. Called by the builder when default values are set. By default
+        this adds an attribute to the control. However, this control requires
+        that the values are stored in a dict, so they can be translated to json.
+        """
+
+        return partial(self.updateValues, key)
+
     def getCallback(self, key):
         """Returns a partial function is called with the key as the first
-        argument.
+        argument. Called by the builder when layout is built.
         """
 
         return partial(self.onCallback, key)
 
     @Builder.callback
     def onCallback(self, key, value):
-        """Gets called on callback of a widget in the builder. Receives a
+        """Gets called on callback in the builder. Receives a
         key value pair and updates the internal dict accordingly. This dict
         collects updates until a save event is fired.
         """
 
-        self.temporaryDict[key] = value
+        self.updateValues(key, value)
+
+    def updateValues(self, key, value):
+        """Updates values with a key value pair
+        """
+
+        self.values[key] = value
 
     def update(self):
         """Store the values of the temporaryDict in the actual internal dict
@@ -48,26 +65,11 @@ class Settings:
         """
 
         # Make values accessible like attributes (settings.value)
-        self.__dict__.update(self.temporaryDict.copy())
+        self.__dict__.update(self.values.copy())
 
-        self.dump(self.temporaryDict.copy())
-
-        self.reset()
+        self.dump(self.values.copy())
 
         self.applicationCallback()
-
-    def reset(self):
-        """Recover the actual internal dict state into a temporary dict. This
-        dict is filled via the onCallback method. Once update is executed, this
-        dict must be initialized.
-        """
-
-        self.temporaryDict = {
-            'useCheckpoints' : False,
-            'showIndex' : True,
-            'intervalMin' : 3.0,
-            'intervalMax' : 3.0
-        }
 
     def asDialog(self):
         """Open a QDialog, displaying the current state. Embedds the view in an
@@ -88,9 +90,9 @@ class Settings:
 
             values = self.loadValuesFromDisk()
 
-            self.__dict__.update(values)
+            self.values.update(values)
 
-            self.extendDict(self.temporaryDict)
+            self.__dict__.update(self.values)
 
         except TypeError:
             pass
@@ -113,14 +115,3 @@ class Settings:
         jsonString = json.dumps(settings)
 
         QSettings().setValue("json_settings", jsonString)
-
-    def extendDict(self, defaults):
-        """Extend a dict with defaults, if and only if the defaulting key is
-        not in the dict.
-        """
-
-        for key in defaults.keys():
-
-            if not key in self__dict__.keys():
-
-                self.__dict__[key] = defaults[key]

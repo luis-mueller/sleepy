@@ -409,6 +409,10 @@ class TaggingControl:
 
                 self.navigator.changesMade = True
 
+            elif answer == QMessageBox.Cancel:
+                
+                raise UserCancel
+
 
     def visualizeTag(self):
         """Called by the visualize decorator. This methods decides on the

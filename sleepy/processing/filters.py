@@ -4,6 +4,10 @@ from scipy.signal import butter, filtfilt
 
 class BandPassFilter:
 
+    def __init__(self):
+
+        Builder.setAttributesFromJSON('sleepy/processing/filters/bandpass.json', self)
+
     @property
     def layout(self):
         return Builder.build('sleepy/processing/filters/bandpass.json', self)

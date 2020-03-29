@@ -494,3 +494,30 @@ class ControlTest(unittest.TestCase):
 
         self.env.view.askUserForCheckPoint.assert_called()
         control.dataset.setCheckpoint.assert_called_with(1)
+
+    def test_notifyUserOfSwitch_with_checkpoints_answer_cancel(self):
+
+        control = TaggingControl(self.env, self.settings)
+
+        self.settings.useCheckpoints = True
+        self.env.active = True
+
+        self.env.view.askUserForCheckPoint = MagicMock(return_value = QMessageBox.Cancel)
+
+        loader = self.getFileLoader('test/TestFile', self.getEvents([1,2,3]))
+
+        control.open(loader)
+
+        control.dataset.setCheckpoint = MagicMock()
+
+        control.onNextClick()
+
+        try:
+            control.notifyUserOfSwitch()
+
+            self.assertFalse(True)
+        except UserCancel:
+            self.assertTrue(True)
+
+        self.env.view.askUserForCheckPoint.assert_called()
+        control.dataset.setCheckpoint.assert_not_called()

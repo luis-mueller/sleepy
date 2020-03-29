@@ -42,7 +42,10 @@ class Engine:
 
     def flattenFirstDimension(self, result):
 
-        return result.reshape(-1, result.shape[-1]).squeeze()
+        if result.shape[0] > 0:
+            return result.reshape(-1, result.shape[-1]).squeeze()
+        else:
+            return result
 
     def computeResult(self):
 

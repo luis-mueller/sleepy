@@ -32,6 +32,64 @@ class Builder:
 
             return Builder.buildTabs(tree, control)
 
+    def setAttributesFromJSON(tree, control, level = 2):
+        """API-call for equipping a control with the attributes as defined in a
+        json-file, representing a build tree. Useful to make it transparent in
+        the code, that the attributes are added dynamically at runtime.
+        """
+
+        tree = Builder.getDict(tree)
+
+        if level == 2:
+
+            Builder.parseBoxes(tree, control)
+
+        elif level == 3:
+
+            Builder.parseTabs(tree, control)
+
+    def parseTabs(buildTree, control):
+        """Propagates setAttributesFromJSON to all tabs.
+        """
+
+        for key in buildTree.keys():
+
+            Builder.parseBoxes(buildTree[key]["content"], control)
+
+    def parseBoxes(buildTree, control):
+        """Propagates setAttributesFromJSON to all boxes.
+        """
+
+        for key in buildTree.keys():
+
+            Builder.parseFields(buildTree[key]["fields"], control)
+
+    def parseFields(buildTree, control):
+        """Propagates setAttributesFromJSON to all fields.
+        """
+
+        for key in buildTree.keys():
+
+            try:
+
+                Builder.setAttributesField(key, control, buildTree[key]["default"])
+
+            except AttributeError:
+
+                pass
+
+    def setAttributesField(identifier, control, default):
+        """Sets the default value for control with attribute identifier.
+        """
+
+        try:
+
+            return control.getCallbackDefault(identifier)(default)
+
+        except AttributeError:
+
+            return setattr(control, identifier, default)
+
     def buildTabs(buildTree, control):
         """Builds a tabbed layout from a level-3-buildtree.
         """

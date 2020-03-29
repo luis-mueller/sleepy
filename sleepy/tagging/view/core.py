@@ -261,8 +261,8 @@ class TaggingView(QWidget):
 
         return QMessageBox.question(
             self.app, 'Checkpoints', 'Would you like to set a checkpoint for the current sample? Warning: This will be stored in the dataset.',
-            QMessageBox.Yes | QMessageBox.No,
-            QMessageBox.Yes
+            QMessageBox.Yes | QMessageBox.No | QMessageBox.Cancel,
+            QMessageBox.Cancel
         )
 
     def askUserForCheckPointRestore(self, checkpoint):
