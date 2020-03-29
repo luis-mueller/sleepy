@@ -185,3 +185,6 @@ class FileProcessor:
             userEvent = UserPointEvent(userLabel, dataSource, self.applicationSettings)
 
             navigator.addCreatedUserEvent(userEvent)
+
+            # User events are stored in dataset
+            navigator.onSave()
