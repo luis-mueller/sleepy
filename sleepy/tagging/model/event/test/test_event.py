@@ -107,11 +107,10 @@ class EventTest(unittest.TestCase):
         axis = MagicMock()
         axis.plot = MagicMock(return_value = [None])
 
-        pdb.set_trace()
         event.plot(axis)
 
         self.called_with_args(axis.plot, 0,
-            np.array([0,1,2,3,4,5,6]) / samplingRate,
+            np.array([0,1,2,3,4,5,6,7]) / samplingRate,
             dataSource.epoch,
 
             # Needed for comparison
@@ -138,7 +137,6 @@ class EventTest(unittest.TestCase):
         axis = MagicMock()
         axis.plot = MagicMock(return_value = [None])
 
-        pdb.set_trace()
         event.plot(axis)
 
         self.called_with_args(axis.plot, 0,

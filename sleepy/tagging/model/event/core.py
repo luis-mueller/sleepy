@@ -83,7 +83,7 @@ class Event:
 
     def plot(self, axis):
 
-        x = np.arange(*self.absoluteLimits, 1) / self.samplingRate
+        x = np.arange(self.absoluteLimits[0], self.absoluteLimits[1] + 1, 1) / self.samplingRate
 
         y = self.getYData()
 

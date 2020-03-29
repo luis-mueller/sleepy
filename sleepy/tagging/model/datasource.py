@@ -23,10 +23,10 @@ class DataSource:
         return self.epoch.size
 
     def get(self, start, stop):
-        return self.epoch[start:stop]
+        return self.epoch[start:(stop+1)]
 
     def getFiltered(self, start, stop):
-        return self.epochFiltered[start:stop]
+        return self.epochFiltered[start:(stop+1)]
 
     def addLabel(self, label):
         self.labels.append(label)

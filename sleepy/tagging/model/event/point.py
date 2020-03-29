@@ -22,7 +22,7 @@ class PointEvent(Event):
 
         pInterval = self.convertSeconds(self.intervalMax)
 
-        return (point - nInterval, point + pInterval + 1)
+        return (point - nInterval, point + pInterval)
 
     @property
     def pointCoordinatesSeconds(self):
