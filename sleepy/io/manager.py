@@ -33,7 +33,7 @@ class FileManager:
         try:
 
             return self.supportedLoaders[fileExtension](self.app, path)
-        except AttributeError:
+        except KeyError:
 
             error = QMessageBox(self.app)
             error.setWindowTitle('Error')
