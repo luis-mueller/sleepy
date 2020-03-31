@@ -40,7 +40,7 @@ class FileLoaderControl:
         self.fileLoader.showNumberOfLabels()
 
     def selectPath(self):
-        newPath, _ = QFileDialog.getOpenFileName(self, 'Open File')
+        newPath, _ = QFileDialog.getOpenFileName(self.fileLoader.app, 'Open File')
         if newPath != '':
 
             self.fileLoader.path = newPath
