@@ -13,11 +13,23 @@ class UserPointEvent(PointEvent):
 
     def plotSelected(self, axis):
 
-        self.artist = axis.plot(*self.pointCoordinatesSeconds, marker='o', picker=5)[0]
+        self.artist = axis.plot(
+            *self.pointCoordinatesSeconds,
+            marker='o',
+            picker=5,
+            c=self.applicationSettings.plotSelectedColor,
+            markersize=self.applicationSettings.pointSize
+        )[0]
 
     def plotVisible(self, axis):
 
-        self.artist = axis.plot(*self.pointCoordinatesSeconds, marker='o', color="lightgreen", picker=5)[0]
+        self.artist = axis.plot(
+            *self.pointCoordinatesSeconds,
+            marker='o',
+            picker=5,
+            c=self.applicationSettings.plotUserEventColor,
+            markersize=self.applicationSettings.pointSize
+        )[0]
 
     def onRemove(self):
 

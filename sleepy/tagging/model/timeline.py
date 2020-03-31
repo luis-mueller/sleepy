@@ -6,9 +6,11 @@ import time
 
 class Timeline:
 
-    def __init__(self, axis):
+    def __init__(self, axis, settings):
 
         self.axis = self.customizeAxis(axis)
+
+        self.settings = settings
 
     def plot(self, points, currentPoint, currentInterval):
         """Plots a timeline on a given axis, which is specified by a set of
@@ -68,7 +70,7 @@ class Timeline:
         """Plots a given point as a coral vertical line.
         """
 
-        return self.axis.axvline(currentPoint, linewidth=2 ,c='coral')
+        return self.axis.axvline(currentPoint, linewidth=2 ,c=self.settings.plotSelectedColor)
 
     def updateCurrentInterval(self, currentInterval):
         """Updates the plot of an interval as a span in standard color.
@@ -91,3 +93,4 @@ class Timeline:
         """
 
         self.point.set_xdata(currentPoint)
+        self.point.set_color(self.settings.plotSelectedColor)

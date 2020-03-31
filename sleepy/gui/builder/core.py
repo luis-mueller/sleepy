@@ -2,7 +2,7 @@
 from PyQt5.QtWidgets import QVBoxLayout, QHBoxLayout, QGroupBox, QLabel, QCheckBox, QTabWidget, QWidget
 from PyQt5.QtWidgets import QDoubleSpinBox, QSpinBox
 from sleepy.gui.builder.exceptions import NoBuildTreeAvailable
-from sleepy.gui.builder.customwidgets import CustomQSpinBox, CustomQCheckBox, CustomQDoubleSpinBox, Custom0To1DoubleSpinBox
+from sleepy.gui.builder.customwidgets import CustomQSpinBox, CustomQCheckBox, CustomQDoubleSpinBox, Custom0To1DoubleSpinBox, CustomQColorPicker
 from functools import partial
 from pydoc import locate
 import json
@@ -119,13 +119,16 @@ class Builder:
 
         layout = QVBoxLayout()
 
-        list(map(
-            lambda p: layout.addLayout(
-                Builder.constructBoxLayout(buildTree[p], control
-                )
-            ),
-            buildTree
-        ))
+        boxLayout = None
+
+        for key in buildTree:
+
+            boxLayout = Builder.constructBoxLayout(buildTree[key], control)
+
+            layout.addLayout(boxLayout)
+
+        if boxLayout:
+            boxLayout.addStretch()
 
         return layout
 
@@ -240,6 +243,10 @@ class Builder:
 
             return CustomQCheckBox
 
+        elif fieldType == Builder.color:
+
+            return CustomQColorPicker
+
         else:
             raise TypeError("Field type {} is not supported".format(str(fieldType)))
 
@@ -247,7 +254,13 @@ class Builder:
         """To support JSON input, builtin types must be recovered. However, for
         security reasons, it is best to use pydoc.locate, which recovers only
         builtin types from string, not functions or classes.
+        Additionally supported are explicitly named strings which are checked
+        before the locate call. The locate call returns None if the type does
+        not exist.
         """
+
+        if fieldType == 'color':
+            return Builder.color
 
         return fieldType if type(fieldType) != str else locate(fieldType)
 
@@ -290,3 +303,9 @@ class Builder:
         """
 
         return title, content
+
+    def color(hexCode):
+        """Used instead of a built-in type as fieldType.
+        """
+
+        return hexCode

@@ -48,6 +48,7 @@ class NavigatorTest(unittest.TestCase):
     def test_plot_nonfilteredData(self):
 
         self.base.app.applicationSettings.plotFiltered = False
+        self.base.app.applicationSettings.pointSize = MagicMock()
 
         loader, nav, dataset = self.base.create()
 
@@ -57,12 +58,14 @@ class NavigatorTest(unittest.TestCase):
         nav.plot(axis)
 
         axis.plot.assert_called_with(
-            0.5, 5, color="gray", marker="o"
+            0.5, 5, color="gray", marker="o",
+            markersize=self.base.app.applicationSettings.pointSize
         )
 
     def test_plot_filteredData(self):
 
         self.base.app.applicationSettings.plotFiltered = True
+        self.base.app.applicationSettings.pointSize = MagicMock()
 
         loader, nav, dataset = self.base.create()
 
@@ -72,7 +75,8 @@ class NavigatorTest(unittest.TestCase):
         nav.plot(axis)
 
         axis.plot.assert_called_with(
-            0.5, 2.5, color="gray", marker="o"
+            0.5, 2.5, color="gray", marker="o",
+            markersize=self.base.app.applicationSettings.pointSize
         )
 
     def test_addUserEvent_getLabelPartition(self):

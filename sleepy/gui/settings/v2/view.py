@@ -11,6 +11,8 @@ class SettingsView(QDialog):
 
         layout = Builder.build(SLEEPY_ROOT_DIR + '/gui/settings/v2/view.json', control, level = 3)
 
+        layout.addStretch()
+
         layout.addWidget(self.buildButtonBox(control))
 
         self.setLayout(layout)

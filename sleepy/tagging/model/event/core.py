@@ -95,7 +95,13 @@ class Event:
 
         y = self.getYData()
 
-        self.lineArtist = axis.plot(x, y, picker = 2)[0]
+        self.lineArtist = axis.plot(
+            x,
+            y,
+            picker = 2,
+            c=self.applicationSettings.plotLineColor,
+            linewidth=self.applicationSettings.lineWidth
+        )[0]
 
         self.setTicks(axis)
 
