@@ -2,6 +2,7 @@
 from sleepy.gui.builder import Builder
 from scipy.signal import butter, filtfilt
 from sleepy import SLEEPY_ROOT_DIR
+from PyQt5.QtWidgets import QWidget
 
 class BandPassFilter:
 
@@ -10,8 +11,24 @@ class BandPassFilter:
         Builder.setAttributesFromJSON(SLEEPY_ROOT_DIR + '/processing/filters/bandpass.json', self)
 
     @property
-    def layout(self):
-        return Builder.build(SLEEPY_ROOT_DIR + '/processing/filters/bandpass.json', self)
+    def name(self):
+        return 'Bandpass'
+
+    @property
+    def options(self):
+
+        try:
+            return self.widget
+        except AttributeError:
+            widget = QWidget()
+
+            widget.setLayout(
+                Builder.build(SLEEPY_ROOT_DIR + '/processing/filters/bandpass.json', self)
+            )
+
+            self.widget = widget
+
+            return widget
 
     # Implements:
     # https://stackoverflow.com/questions/12093594/how-to-implement-band-pass-butterworth-filter-with-scipy-signal-butter

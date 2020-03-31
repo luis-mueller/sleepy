@@ -182,6 +182,8 @@ class TaggingControl:
 
         self.redraw()
 
+        self.configureTimeline()
+
     def removeUserEvent(self, userEvent):
         """Propagates to the navigator to add a user event and then forces a
         redraw.
@@ -190,6 +192,8 @@ class TaggingControl:
         self.navigator.removeUserEvent(userEvent)
 
         self.redraw()
+
+        self.configureTimeline()
 
     def open(self, fileLoader):
         """Loads a navigator and a dataset from a specified file loader.
@@ -229,6 +233,8 @@ class TaggingControl:
 
     def configureTimeline(self):
         """Lets the view create a new timeline and plots the timeline points.
+        This method can be used to rerender the entire timeline at any given
+        point.
         """
 
         self.view.clearTimelineAxis()
