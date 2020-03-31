@@ -11,11 +11,11 @@ class UserPointEvent(PointEvent):
 
         self.artist = None
 
-    def plotPointSelected(self, axis):
+    def plotSelected(self, axis):
 
         self.artist = axis.plot(*self.pointCoordinatesSeconds, marker='o', picker=5)[0]
 
-    def plotPointVisible(self, axis):
+    def plotVisible(self, axis):
 
         self.artist = axis.plot(*self.pointCoordinatesSeconds, marker='o', color="lightgreen", picker=5)[0]
 

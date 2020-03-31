@@ -76,7 +76,7 @@ class MatDataSet:
         """
 
         try:
-            
+
             return self.matData['sleepyUserLabels'].squeeze()
 
         except KeyError:
@@ -154,8 +154,8 @@ class MatDataSet:
 
         label = self.labels[labelIndex]
 
-        if isinstance(label, list):
-            label = label [0]
+        if isinstance(label, np.ndarray):
+            label = label[0]
 
         return self.getDataSourceForLabel(label)
 
