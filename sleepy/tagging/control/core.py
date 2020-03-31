@@ -75,7 +75,7 @@ class TaggingControl:
         del self._navigator
 
     @visualize
-    def onNextClick(self):
+    def onNextClick(self, *args):
         """Gets registered by the view and is called if the user navigates
         forward. Propagates this action to the navigator and ensures that
         the changes will be reflected by the view.
@@ -84,7 +84,7 @@ class TaggingControl:
         self.navigator.selectNext()
 
     @visualize
-    def onPreviousClick(self):
+    def onPreviousClick(self, *args):
         """Gets registered by the view and is called if the user navigates
         backward. Propagates this action to the navigator and ensures that
         the changes will be reflected by the view.
@@ -102,7 +102,7 @@ class TaggingControl:
         self.navigator.switchSelectionTag()
 
     @visualize
-    def visualizeOnOpen(self):
+    def visualizeOnOpen(self, *args):
         """Called when loading new data, before presentation. Updates the
         window title and propagates the open event to the view.
         """
