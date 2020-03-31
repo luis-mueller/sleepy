@@ -4,7 +4,6 @@ from scipy.signal import find_peaks
 from PyQt5.QtWidgets import QVBoxLayout, QLineEdit, QDoubleSpinBox, QLabel, QHBoxLayout, QWidget
 from PyQt5.QtGui import QDoubleValidator
 from sleepy.processing.constants import MU
-from sleepy.processing.filters import BandPassFilter
 from sleepy.gui.builder import Builder
 from sleepy.processing.signal import Signal
 import pdb
@@ -15,18 +14,16 @@ class Engine:
 
         self.builder = Builder()
 
-        self.bandPassFilter = BandPassFilter()
-
     def buffer(self, algorithm, dataSet):
 
         self.algorithm = algorithm
         self.dataSet = dataSet
 
-    def run(self, algorithm, dataSet):
+    def run(self, algorithm, dataSet, filter):
 
         self.buffer(algorithm, dataSet)
 
-        epochResult = self.computeResult()
+        epochResult = self.computeResult(filter)
 
         formattedResult = self.formatResult(epochResult)
 
@@ -42,24 +39,24 @@ class Engine:
 
     def flattenFirstDimension(self, result):
 
-        if result.shape[0] > 0:
+        if result.shape[0] > 1:
             return result.reshape(-1, result.shape[-1]).squeeze()
         else:
             return result
 
-    def computeResult(self):
+    def computeResult(self, filter):
 
         channelDataSize = len(self.dataSet.channelData)
 
-        maps = map(lambda i: self.computeEpoch(i), range(channelDataSize))
+        maps = map(lambda i: self.computeEpoch(i, filter), range(channelDataSize))
 
         return np.array(list(maps))
 
-    def computeEpoch(self, index):
+    def computeEpoch(self, index, filter):
 
         data = self.dataSet.channelData[index]
 
-        filteredData = self.applyFilter(data)
+        filteredData = self.applyFilter(filter, data)
 
         self.dataSet.setFilteredData(index, filteredData)
 
@@ -67,11 +64,17 @@ class Engine:
 
         return self.computeEpochAbsolute(filteredData, epochStart)
 
-    def applyFilter(self, data):
+    def applyFilter(self, filter, data):
 
-        fs = self.dataSet.samplingRate
+        if filter:
 
-        return self.bandPassFilter.filter(data, fs)
+            fs = self.dataSet.samplingRate
+
+            return filter.filter(data, fs)
+
+        else:
+
+            return data
 
     def computeEpochAbsolute(self, data, epochStart):
 

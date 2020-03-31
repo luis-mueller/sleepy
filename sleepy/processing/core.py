@@ -5,6 +5,7 @@ from sleepy.processing.algorithms import Massimi
 from sleepy.processing.options import OptionView
 from sleepy.processing.engine import Engine
 from sleepy.processing import exceptions
+from sleepy.processing.filters import BandPassFilter
 from sleepy.tagging.model.event import UserPointEvent
 from PyQt5.QtWidgets import QVBoxLayout, QGroupBox, QCheckBox, QComboBox
 from PyQt5.QtWidgets import QStackedWidget
@@ -18,7 +19,10 @@ class FileProcessor:
 
         self.algorithms = [Massimi(self.engine), Massimi(self.engine)]
 
+        self.filters = [BandPassFilter()]
+
         self.currentAlgorithm = None
+        self.selectedFilter = None
 
         self.applicationSettings = applicationSettings
 
@@ -41,6 +45,9 @@ class FileProcessor:
         return self.optionView.options
 
     def onAlgorithmSelection(self, index):
+        """Given an index, selects either no algorithm or a corresponding algorithm
+        in the algorithm list and returns its layout.
+        """
 
         if index == 0:
 
@@ -50,9 +57,30 @@ class FileProcessor:
 
             self.currentAlgorithm = self.algorithms[index - 1]
 
-            return self.currentAlgorithm.options
+            try:
+                return self.currentAlgorithm.options
+            except AttributeError:
+                pass
 
-    def run(self, algorithm, dataSet):
+    def onFilterSelection(self, index):
+        """Given an index, selects either no filter or a corresponding filter
+        in the filter list and returns its layout.
+        """
+
+        if index == 0:
+
+            self.selectedFilter = None
+
+        else:
+
+            self.selectedFilter = self.filters[index - 1]
+
+            try:
+                return self.selectedFilter.options
+            except AttributeError:
+                pass
+
+    def run(self, algorithm, dataSet, filter = None):
         """Public API to execute an algorithm on a data-set. Is also used
         internally. The method calls its internal engine to provide a run-time
         environment for the algorithm.
@@ -63,18 +91,21 @@ class FileProcessor:
 
         :param dataSet: Data-set object that provides the properties channelData,
         samplingRate and epochs.
+
+        :param filter: Filter object, optional.
         """
 
         return self.engine.run(
             algorithm,
-            dataSet
+            dataSet,
+            filter
         )
 
     def getLabels(self, dataSet):
 
         if self.currentAlgorithm:
 
-            return self.run(self.currentAlgorithm, dataSet)
+            return self.run(self.currentAlgorithm, dataSet, self.selectedFilter)
 
         else:
 

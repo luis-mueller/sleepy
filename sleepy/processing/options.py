@@ -20,7 +20,7 @@ class OptionView:
 
         self._optionsLayout = QVBoxLayout()
 
-        self._optionsLayout.addLayout(self.filterOptions)
+        self._optionsLayout.addWidget(self.filterOptions)
 
         self._optionsLayout.addWidget(self.algorithmOptions)
 
@@ -42,7 +42,39 @@ class OptionView:
 
     @property
     def filterOptions(self):
-        return self.control.engine.bandPassFilter.layout
+
+        self.filterSelection = QComboBox()
+
+        self.filterSelection.addItem("No filter")
+
+        list(map(
+            lambda f: self.filterSelection.addItem(f.name),
+            self.control.filters
+        ))
+
+        self.filterBox = QGroupBox('Filters')
+
+        layout = QVBoxLayout()
+
+        layout.addWidget(self.filterSelection)
+
+        self.filterParameters = QStackedWidget()
+
+        self.noFilterParameters = QWidget()
+        self.filterParameters.addWidget(self.noFilterParameters)
+
+        list(map(
+            lambda f: self.filterParameters.addWidget(f.options),
+            self.control.filters
+        ))
+
+        layout.addWidget(self.filterParameters)
+
+        self.filterBox.setLayout(layout)
+
+        self.filterSelection.currentIndexChanged.connect(self.onFilterChange)
+
+        return self.filterBox
 
     @property
     def algorithmOptions(self):
@@ -57,9 +89,10 @@ class OptionView:
         ))
 
         self.algorithmBox = QGroupBox('Algorithms')
-        self.layout = QVBoxLayout()
 
-        self.layout.addWidget(self.algorithmSelection)
+        layout = QVBoxLayout()
+
+        layout.addWidget(self.algorithmSelection)
 
         self.algorithmParameters = QStackedWidget()
 
@@ -71,9 +104,9 @@ class OptionView:
             self.control.algorithms
         ))
 
-        self.layout.addWidget(self.algorithmParameters)
+        layout.addWidget(self.algorithmParameters)
 
-        self.algorithmBox.setLayout(self.layout)
+        self.algorithmBox.setLayout(layout)
 
         self.algorithmSelection.currentIndexChanged.connect(self.onAlgorithmChange)
 
@@ -98,6 +131,18 @@ class OptionView:
         else:
 
             self.algorithmParameters.setCurrentWidget(options)
+
+    def onFilterChange(self, index):
+
+        options = self.control.onFilterSelection(index)
+
+        if not options:
+
+            self.filterParameters.setCurrentWidget(self.noFilterParameters)
+
+        else:
+
+            self.filterParameters.setCurrentWidget(options)
 
     def showNumberOfLabels(self, numberOfLabels):
 

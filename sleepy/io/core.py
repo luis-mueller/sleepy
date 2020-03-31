@@ -26,6 +26,10 @@ class FileLoader:
             )
             return self._fileProcessor
 
+    @fileProcessor.setter
+    def fileProcessor(self, value):
+        self._fileProcessor = value
+
     def load(self):
 
         if self.fileProcessor.options:
