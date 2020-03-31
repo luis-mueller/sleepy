@@ -1,6 +1,6 @@
 
 from PyQt5.QtWidgets import QVBoxLayout, QGroupBox, QCheckBox, QComboBox, QLabel
-from PyQt5.QtWidgets import QStackedWidget, QWidget
+from PyQt5.QtWidgets import QStackedWidget, QWidget, QApplication
 
 class OptionView:
 
@@ -147,3 +147,5 @@ class OptionView:
     def showNumberOfLabels(self, numberOfLabels):
 
         self.computationStatus.setText("{} labels found.".format(numberOfLabels))
+
+        QApplication.processEvents()
