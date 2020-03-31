@@ -39,20 +39,6 @@ class PointEvent(Event):
     def currentPointInSeconds(self):
         return self.pointCoordinatesSeconds[0]
 
-    def plot(self, axis):
-
-        super().plot(axis)
-
-        for event in self.dataSource.events:
-
-            if event == self:
-
-                self.plotPointSelected(axis)
-
-            elif event.inInterval(self.absoluteLimits):
-
-                event.plotPointVisible(axis)
-
     def getVoltage(self, relativePoint):
         """Returns either the raw or filtered voltage amount for the point of
         this event.
@@ -66,11 +52,11 @@ class PointEvent(Event):
 
             return self.dataSource.epoch[relativePoint]
 
-    def plotPointSelected(self, axis):
+    def plotSelected(self, axis):
 
         axis.plot(*self.pointCoordinatesSeconds, marker='o')
 
-    def plotPointVisible(self, axis):
+    def plotVisible(self, axis):
 
         axis.plot(*self.pointCoordinatesSeconds, marker='o', color="gray")
 

@@ -69,6 +69,10 @@ class ProcessingTest(unittest.TestCase):
 
         proc = self.prepareFileProcessor([[0,1],[4,5]])
 
+        proc.applicationSettings = MagicMock()
+        proc.applicationSettings.intervalMin = 0.0
+        proc.applicationSettings.intervalMax = 0.0
+
         proc.computeLabels(self.dataSet)
 
         nav = proc.computeNavigator()

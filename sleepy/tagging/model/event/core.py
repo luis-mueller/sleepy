@@ -43,6 +43,10 @@ class Event:
 
     @property
     def currentPointInSeconds(self):
+        """A single point in time (unit: seconds) marking (not necessarily
+        identifying) this event.
+        """
+
         raise NotImplementedError
 
     def convertSeconds(self, seconds):
@@ -85,7 +89,9 @@ class Event:
 
     def plot(self, axis):
 
-        x = np.arange(self.absoluteLimits[0], self.absoluteLimits[1] + 1, 1) / self.samplingRate
+        absoluteLimits = self.absoluteLimits
+
+        x = np.arange(absoluteLimits[0], absoluteLimits[1] + 1, 1) / self.samplingRate
 
         y = self.getYData()
 
@@ -94,6 +100,22 @@ class Event:
         self.setTicks(axis)
 
         self.labelAxes(axis)
+
+        self.plotAdditional(axis)
+
+    def plotAdditional(self, axis):
+        """Perform additional plots for all events in the dataSource.
+        """
+
+        for event in self.dataSource.events:
+
+            if event == self:
+
+                self.plotSelected(axis)
+
+            elif event.inInterval(self.absoluteLimits):
+
+                event.plotVisible(axis)
 
     def getYData(self):
         """Get the data for the Y-axis. This is eiter the raw or the filtered
@@ -151,3 +173,22 @@ class Event:
     def onGraphClick(self, event):
 
         return self.lineArtist.contains(event)[0]
+
+    def plotSelected(self, axis):
+        """Plot additional content if event is selected.
+        """
+
+        pass
+
+    def plotVisible(self, axis):
+        """Plot additional content if event is not selected but visible.
+        """
+
+        pass
+
+    def inInterval(self, interval):
+        """Decide whether this event is still in a given interval of visible
+        data.
+        """
+
+        return False
