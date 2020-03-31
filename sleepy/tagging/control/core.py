@@ -270,7 +270,7 @@ class TaggingControl:
         updates on settings-values or similar to the screen.
         """
 
-        self.onPosition(self.navigator.position)
+        self.navigator.onPosition.trigger()
 
     def save(self):
         """Tells the fileLoader to save the current dataset. If this does not

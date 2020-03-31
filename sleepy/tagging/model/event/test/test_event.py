@@ -118,10 +118,7 @@ class EventTest(unittest.TestCase):
 
         self.called_with_args(axis.plot, 0,
             np.array([0,1,2,3,4,5,6,7]) / samplingRate,
-            dataSource.epoch,
-
-            # Needed for comparison
-            2
+            dataSource.epoch
         )
 
     def test_point_plot_intervals_min_max_narrower(self):

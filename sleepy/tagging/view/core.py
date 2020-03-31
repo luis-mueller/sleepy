@@ -98,19 +98,7 @@ class TaggingView(QWidget):
         self.layout.addWidget(self.figureCanvas)
         self.plotToolBar = pltQt5.NavigationToolbar2QT(self.figureCanvas, self)
 
-        noOffset = ScalarFormatter(useOffset=False)
-
-        #self.axis.xaxis.set_major_locator(HourLocator(interval = 1))
-        #self.axis.xaxis.set_major_formatter(DateFormatter('%H:%M:%S'))
-        self.axis.xaxis.set_major_formatter(
-            FuncFormatter(lambda x: time.strftime('%H:%M:%S', time.gmtime(x)))
-        )
-
-        self.timelineAxis.xaxis.set_major_formatter(DateFormatter('%H:%M:%S'))# .set_major_formatter(noOffset)
-
         self.figure.canvas.mpl_connect('button_press_event', self.onClick)
-
-        self.timeline = Timeline(self.timelineAxis)
 
     def initializeButtons(self):
 
@@ -201,7 +189,7 @@ class TaggingView(QWidget):
         proper axis to plot to.
         """
 
-        return Timeline(self.timelineAxis)
+        return Timeline(self.timelineAxis, self.app.applicationSettings)
 
     def onClick(self, event):
         """Called when user clicks any plot. Can be used to redirect clicks

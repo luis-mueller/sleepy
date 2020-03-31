@@ -54,11 +54,21 @@ class PointEvent(Event):
 
     def plotSelected(self, axis):
 
-        axis.plot(*self.pointCoordinatesSeconds, marker='o')
+        axis.plot(
+            *self.pointCoordinatesSeconds,
+            marker='o',
+            c=self.applicationSettings.plotSelectedColor,
+            markersize=self.applicationSettings.pointSize
+        )
 
     def plotVisible(self, axis):
 
-        axis.plot(*self.pointCoordinatesSeconds, marker='o', color="gray")
+        axis.plot(
+            *self.pointCoordinatesSeconds,
+            marker='o',
+            color="gray",
+            markersize=self.applicationSettings.pointSize
+        )
 
     def inInterval(self, interval):
 
