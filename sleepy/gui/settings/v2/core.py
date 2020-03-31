@@ -99,10 +99,10 @@ class Settings:
 
             self.values.update(values)
 
-            self.__dict__.update(self.values)
-
         except TypeError:
             pass
+
+        self.__dict__.update(self.values)
 
     def loadValuesFromDisk(self):
         """Disk access. Redefine this in a testing environment and return a
