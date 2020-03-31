@@ -97,3 +97,16 @@ class NavigatorTest(unittest.TestCase):
         self.assertEqual(user[0], 2 * self.base.samplingRate)
         self.assertEqual(user[1], 4 * self.base.samplingRate)
         self.assertEqual(len(user), 2)
+
+    def test_addUserEvent_changesMade(self):
+        """Test whether adding a user event causes a positive changesMade flag.
+        """
+
+        loader, nav, dataset = self.base.create()
+
+        event = MagicMock()
+        event.xdata = 2
+
+        nav.addUserEvent(event)
+
+        self.assertEqual(nav.changesMade, True)
