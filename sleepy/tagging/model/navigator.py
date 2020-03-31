@@ -13,6 +13,7 @@ class Navigator:
         self.maximumPosition = len(events)
 
         self.stateBeforeChanges = self.getCurrentTags()
+        self.eventsBeforeChanges = self.events
         self.changesMadeBeforeCreation = changesMade
 
         self.onChangesMade = DataEvent(changesMade)
@@ -90,9 +91,19 @@ class Navigator:
     def switchSelectionTag(self):
         self.selectedEvent.switchTag()
 
-        self.changesMade = not np.all(
-            self.stateBeforeChanges == self.getCurrentTags()
-        ) or self.changesMadeBeforeCreation
+        self.updateChangesMade()
+
+    def updateChangesMade(self):
+        """Implements a sequence of checks to set changesMade to true or false.
+        """
+
+        self.changesMade = not np.array_equal(
+            self.stateBeforeChanges, self.getCurrentTags()
+        ) or self.changesMadeBeforeCreation or not np.array_equal(
+            list(map(lambda e:e.currentPointInSeconds, self.eventsBeforeChanges)),
+            list(map(lambda e:e.currentPointInSeconds, self.events))
+        )
+
 
     def onSave(self):
 
@@ -101,6 +112,8 @@ class Navigator:
         self.changesMadeBeforeCreation = False
 
         self.stateBeforeChanges = self.getCurrentTags()
+
+        self.eventsBeforeChanges = self.events
 
     def getCurrentTags(self):
 
@@ -190,6 +203,8 @@ class Navigator:
         if selectedEvent.point > userEvent.point:
             self.position += 1
 
+        self.updateChangesMade()
+
     def removeUserEvent(self, userEvent):
 
         selectedEvent = self.selectedEvent
@@ -205,6 +220,8 @@ class Navigator:
         # event
         if selectedEvent.point > userEvent.point:
             self.position -= 1
+
+        self.updateChangesMade()
 
     def findUserEvent(self, event):
 
