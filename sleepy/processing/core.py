@@ -17,7 +17,7 @@ class FileProcessor:
 
         self.engine = Engine()
 
-        self.algorithms = [Massimi(self.engine), Massimi(self.engine)]
+        self.algorithms = [Massimi(), Massimi()]
 
         self.filters = [BandPassFilter()]
 

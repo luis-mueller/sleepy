@@ -1,74 +1,25 @@
 
-from sleepy.gui.builder import Builder
-import numpy as np
-from scipy.signal import find_peaks
-from PyQt5.QtWidgets import QWidget
-from sleepy import SLEEPY_ROOT_DIR
-import pdb
+from sleepy.processing.algorithms.core import Algorithm
 
-class Massimi:
+class Massimi(Algorithm):
 
-    def __init__(self, engine):
+    def __init__(self):
 
-        self.engine = engine
-
-        Builder.setAttributesFromJSON(SLEEPY_ROOT_DIR + '/processing/algorithms/massimi/massimi.json', self)
-
-    @property
-    def name(self):
-        return 'Massimi (2004)'
-
-    @property
-    def options(self):
-
-        try:
-            return self.widget
-        except AttributeError:
-
-            self.widget = QWidget()
-
-            layout = Builder.build(SLEEPY_ROOT_DIR + '/processing/algorithms/massimi/massimi.json', self)
-
-            self.widget.setLayout(layout)
-
-            return self.widget
+        self.setAttributesRelative('processing/algorithms/massimi/massimi.json')
 
     def compute(self, signal):
 
-        self.customizeSignal(signal)
+        def isEvent(peak):
 
-        negativePeaks = self.signal.negativePeaks
+            valley = signal.findValley(peak)
 
-        detectedEvents = list(
-            filter(
-                lambda peak: self.isEvent(peak),
-                negativePeaks
-            )
-        )
+            if valley:
+                if valley.negativeToPositivePeak > self.negativeToPositivePeak:
+                    if  valley.separation >= self.separation * signal.samplingRate:
+                        return True
 
-        return detectedEvents
-
-    def customizeSignal(self, signal):
-
-        signal.negativePeak = self.negativePeak
-
-        self.signal = signal
-
-    def isEvent(self, peak):
-
-        try:
-
-            valley = self.signal.findValley(peak)
-        except IndexError:
             return False
 
-        threshold = self.convertSeparationThreshold(self.signal.samplingRate)
+        negativePeaks = signal.getNegativePeaks(self.negativePeak)
 
-        if valley.negativeToPositivePeak > self.negativeToPositivePeak and valley.separation >= threshold:
-            return True
-
-        return False
-
-    def convertSeparationThreshold(self, samplingRate):
-
-        return self.separation * samplingRate
+        return list(filter(isEvent, negativePeaks))

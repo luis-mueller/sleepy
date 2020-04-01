@@ -23,6 +23,10 @@ class Builder:
 
         tree = Builder.getDict(tree)
 
+        if level == 1:
+
+            return Builder.constructBoxLayout(tree, control)
+
         if level == 2:
 
             return Builder.buildBoxes(tree, control)
@@ -39,7 +43,11 @@ class Builder:
 
         tree = Builder.getDict(tree)
 
-        if level == 2:
+        if level == 1:
+
+            Builder.parseFields(tree["fields"], control)
+
+        elif level == 2:
 
             Builder.parseBoxes(tree, control)
 
