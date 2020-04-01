@@ -49,7 +49,7 @@ class IntervalEvent(Event):
 
     def plotSelected(self, axis):
 
-        axis.axvspan(*self.intervalInSeconds, alpha = .5, c=self.applicationSettings.plotSelectedColor)
+        axis.axvspan(*self.intervalInSeconds, alpha = .5, color=self.applicationSettings.plotSelectedColor)
 
     def plotVisible(self, axis):
 
