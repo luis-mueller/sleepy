@@ -191,7 +191,7 @@ class FileProcessor:
         label = self.dataSet.labels[labelIndex]
 
         # Currently unclear, how to solve this other than by checking shapes
-        if isinstance(label, np.int32):
+        if isinstance(label, np.int32) or isinstance(label, np.int64):
 
             return PointEvent(label, dataSource, self.applicationSettings)
 
