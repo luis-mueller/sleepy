@@ -63,10 +63,15 @@ class PointEvent(Event):
 
     def plotVisible(self, axis):
 
+        if self.tagged:
+            color = "red"
+        else:
+            color = "gray"
+
         axis.plot(
             *self.pointCoordinatesSeconds,
             marker='o',
-            color="gray",
+            color=color,
             markersize=self.applicationSettings.pointSize
         )
 
