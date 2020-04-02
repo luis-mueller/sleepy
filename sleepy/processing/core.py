@@ -1,11 +1,11 @@
 
 from sleepy.tagging.model import Navigator
 from sleepy.tagging.model.event import EventTypeNotSupported, PointEvent, IntervalEvent
-from sleepy.processing.algorithms import Massimi
 from sleepy.processing.options import OptionView
 from sleepy.processing.engine import Engine
 from sleepy.processing import exceptions
 from sleepy.processing.filters import BandPassFilter
+from sleepy.processing.supported import SUPPORTED_ALGORITHMS
 from sleepy.tagging.model.event import UserPointEvent
 from PyQt5.QtWidgets import QVBoxLayout, QGroupBox, QCheckBox, QComboBox
 from PyQt5.QtWidgets import QStackedWidget
@@ -17,7 +17,7 @@ class FileProcessor:
 
         self.engine = Engine()
 
-        self.algorithms = [Massimi(self.engine), Massimi(self.engine)]
+        self.algorithms = self.renderAlgorithms(SUPPORTED_ALGORITHMS)
 
         self.filters = [BandPassFilter()]
 
@@ -28,6 +28,10 @@ class FileProcessor:
 
         self.labels = None
         self.dataSet = None
+
+    def renderAlgorithms(self, algorithmList):
+
+        return [ a().render() for a in algorithmList ]
 
     @property
     def optionView(self):

@@ -10,8 +10,6 @@ class Signal:
         self.data = data
         self.samplingRate = samplingRate
 
-        self.negativePeak = 40
-
     @property
     def zeroCrossings(self):
 
@@ -40,30 +38,31 @@ class Signal:
 
             return self._positivePeaks
 
-    @property
-    def negativePeaks(self):
+    def getNegativePeaks(self, negativeHeight):
 
-        try:
-            return self._negativePeaks
-        except AttributeError:
-            self._negativePeaks, _ = find_peaks(-self.data, height = self.negativePeak)
+        negativePeaks, _ = find_peaks(-self.data, height = negativeHeight)
 
-            return self._negativePeaks
+        return negativePeaks
 
     def findValley(self, peak):
 
-        nCrossing = self.findClosestNCrossing(peak)
-        pCrossing = self.findClosestPCrossing(peak)
+        try:
 
-        nextPeak = list(filter(lambda p: p > pCrossing, self.positivePeaks))[0]
+            nCrossing = self.findClosestNCrossing(peak)
+            pCrossing = self.findClosestPCrossing(peak)
 
-        return Valley(
-            nCrossing,
-            pCrossing,
-            peak,
-            nextPeak,
-            self.data
-        )
+            nextPeak = list(filter(lambda p: p > pCrossing, self.positivePeaks))[0]
+
+            return Valley(
+                nCrossing,
+                pCrossing,
+                peak,
+                nextPeak,
+                self.data
+            )
+
+        except IndexError:
+            pass
 
     def findClosestPCrossing(self, peak):
 

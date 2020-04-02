@@ -1,5 +1,6 @@
 {
-  "params": {
+  "name" : "Massimini (2004)",
+  "parameters": {
     "title": "Parameters",
     "fields": {
       "separation": {
