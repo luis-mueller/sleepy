@@ -1,5 +1,6 @@
-from sleepy.processing.algorithms import Massimi
+from sleepy.processing.algorithms import Massimi, Walkthrough
 
 SUPPORTED_ALGORITHMS = [
-    Massimi
+    Massimi,
+    Walkthrough
 ]
