@@ -1,7 +1,7 @@
 # sleepy
 A python tool for slow wave detection and labelling.
 
-## Walkthorugh: Implementing and Integrating an Algorithm
+## Walkthrough: Implementing and Integrating an Algorithm
 This walkthrough takes you through the steps necessary to extend the existing
 algorithm library with a new implementation. Except for the next section, this
 walkthough does not distinguish between integrating an algorithm as a
@@ -51,17 +51,8 @@ without a runtime error. In the next section we will extend our implementation
 with user-supplied parameters.
 
 ### User-Supplied Parameters
-The `sleepy` framework offers an interface for the user to change algorithm  
-parameters in a pre-processing screen. We will now demonstrate how to declare
-such parameters in our algorithm implementation. To configure a parameter we
-must declare an instance attribute and assign it an instance of the `Parameter`
-class from `sleepy.processing.algorithms.parameters`. The constructor of this
-class takes three arguments: `title`, `fieldType` and `default`. It is necessary
-to supply all of these arguments when creating a parameter. The value of `title`
-is a short-description of the parameter that will be displayed next to its
-value field. The value of `fieldType` decides the type of value that the user can
-change, determining the widget that we will use in the frontend. Supported values
-for this field are:
+The `sleepy` framework offers an interface for the user to change algorithm parameters in a pre-processing screen. We will now demonstrate how to declare such parameters in our algorithm implementation. To configure a parameter we must declare an instance attribute and assign it an instance of the `Parameter` class from `sleepy.processing.algorithms.parameters`. The constructor of this class takes three arguments: `title`, `fieldType` and `default`. It is necessary to supply all of these arguments when creating a parameter. The value of `title` is a short-description of the parameter that will be displayed next to its value field. The value of `fieldType` decides the type of value that the user can change, determining the widget that we will use in the frontend. Supported values for this field are:
+
 ```python
 
 # Displays an integer spinner in the frontend
@@ -148,10 +139,10 @@ method, one with detected points and one with detected intervals:
 ```python
 import numpy as np
 
-# will cause three instance of `PointEvent` which are displayed to the user
+# will cause three instances of `PointEvent` which are displayed to the user
 return np.array([3, 19, 120])
 
-# will cause three instance of `IntervalEvent` which are displayed to the user
+# will cause three instances of `IntervalEvent` which are displayed to the user
 return np.array([
   [3, 8],
   [19, 26],
@@ -172,6 +163,7 @@ an event if the amplitude of the data point is greater than `alpha` and smaller 
 ```python
 from sleepy.processing.algorithms.core import Algorithm
 from sleepy.processing.algorithms.parameter import Parameter
+import numpy as np
 
 class MyDetector(Algorithm):
 
