@@ -1,11 +1,30 @@
 
 from sleepy.processing.algorithms.core import Algorithm
+from sleepy.processing.algorithms.parameter import Parameter
 
 class Massimi(Algorithm):
 
     def __init__(self):
 
-        self.setAttributesRelative('processing/algorithms/massimi/massimi.json')
+        self.name = "Massimini (2004)"
+
+        self.negativeHeight = Parameter(
+            title = "Required height of negative peak (-μV)",
+            fieldType = float,
+            default = 40.0
+        )
+
+        self.negativeToPositivePeak = Parameter(
+            title = "Negative-To-Positive peak (μV)",
+            fieldType = float,
+            default = 70.0
+        )
+
+        self.separation = Parameter(
+            title = "Separation of zero-crossings (seconds)",
+            fieldType = float,
+            default = 0.3
+        )
 
     def compute(self, signal):
 
@@ -20,6 +39,6 @@ class Massimi(Algorithm):
 
             return False
 
-        negativePeaks = signal.getNegativePeaks(self.negativePeak)
+        negativePeaks = signal.getNegativePeaks(self.negativeHeight)
 
         return list(filter(isEvent, negativePeaks))

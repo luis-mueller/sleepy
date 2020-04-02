@@ -1,25 +1,18 @@
 
 from sleepy.gui.builder import Builder
-import numpy as np
-from scipy.signal import find_peaks
 from PyQt5.QtWidgets import QWidget
-from sleepy import SLEEPY_ROOT_DIR
+from sleepy.processing.algorithms.parameter import ParameterBase
 import pdb
 
 class Algorithm:
 
-    def setAttributesRelative(self, path):
+    def render(self):
 
-        self.setAttributes(SLEEPY_ROOT_DIR + '/' + path)
+        self.buildTree = ParameterBase.getBuildTree(self)
 
-    def setAttributes(self, path):
+        Builder.setAttributesFromJSON(self.buildTree, self, level = 1)
 
-        viewData = Builder.loadJSON(path)
-
-        self.name = viewData["name"]
-        self.parameters = viewData["parameters"]
-
-        Builder.setAttributesFromJSON(self.parameters, self, level = 1)
+        return self
 
     @property
     def options(self):
@@ -30,7 +23,7 @@ class Algorithm:
 
             self.widget = QWidget()
 
-            layout = Builder.build(self.parameters, self, level = 1)
+            layout = Builder.build(self.buildTree, self, level = 1)
 
             self.widget.setLayout(layout)
 

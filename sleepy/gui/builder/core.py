@@ -169,7 +169,8 @@ class Builder:
         """Constructs a box layout for a given field tree.
         """
 
-        fieldType = Builder.recoverBuiltInType(fieldType)
+        if type(fieldType) == str:
+            fieldType = Builder.recoverBuiltInType(fieldType)
 
         widget = Builder.mapBuiltInTypeToWidget(fieldType)()
 
