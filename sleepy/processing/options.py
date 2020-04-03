@@ -147,5 +147,5 @@ class OptionView:
     def showNumberOfLabels(self, numberOfLabels):
 
         self.computationStatus.setText("{} labels found.".format(numberOfLabels))
+        self.computationStatus.repaint()
 
-        QApplication.processEvents()
