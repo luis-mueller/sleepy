@@ -27,11 +27,17 @@ class DataEvent:
         """toConnect can be a single function or a list of functions. This
         method first transforms any input into an iterable and then
         adds every object in that iterable into the list of connected
-        functions."""
+        functions. Only adds a function that has not been added before
+        => No Duplicates!
+        """
 
         functions = self.makeIterable(toConnect)
 
-        self._onTrigger.extend(functions)
+        for function in functions:
+
+            if function not in self._onTrigger:
+
+                self._onTrigger.append(function)
 
     def trigger(self):
 

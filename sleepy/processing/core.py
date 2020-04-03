@@ -133,13 +133,15 @@ class FileProcessor:
 
         changesMade = self.updateLabels(self.labels)
 
-        events = self.convertLabelsToEvents()
+        #events = self.convertLabelsToEvents()
 
-        self.navigator = Navigator(events, changesMade)
+        #self.navigator = Navigator(events, changesMade)
 
-        self.addUserEventsToNavigator(self.navigator)
+        #self.addUserEventsToNavigator(self.navigator)
 
-        return self.navigator
+        #return self.navigator
+
+        return self.getNavigators()
 
     def checkComputeLabelsCalled(self):
 
@@ -150,7 +152,7 @@ class FileProcessor:
 
         changesMade = self.resultDiffers(labels) or self.dataSet.changesMade
 
-        self.dataSet.labels = labels
+        self.dataSet.setLabels(labels)
 
         if changesMade:
             self.dataSet.removeCheckpoint()
@@ -165,9 +167,14 @@ class FileProcessor:
 
     def resultDiffers(self, result):
 
-        if result.shape == self.dataSet.labels.shape:
+        try:
+            labels = self.dataSet.labels
+        except AttributeError:
+            return True
 
-            return not (result.tolist() == self.dataSet.labels.tolist())
+        if result.shape == labels.shape:
+
+            return not (result.tolist() == labels.tolist())
 
         return True
 
@@ -189,6 +196,46 @@ class FileProcessor:
             events.append(event)
 
         return events
+
+    def getNavigators(self):
+
+        eventList = self.getEvents()
+
+        def configureNavigator(events):
+
+            navigator = Navigator(events, self.dataSet.changesMade)
+
+            return navigator
+
+            #self.addUserEventsToNavigator(navigator)
+
+        return [ configureNavigator(events) for events in eventList ]
+
+
+    def getEvents(self):
+
+        def configureEvent(label, tag, dataSource):
+
+            if label.shape[0] == 1:
+
+                eventClass = PointEvent
+
+            elif label.shape[0] == 2:
+
+                eventClass = IntervalEvent
+
+            else:
+
+                raise EventTypeNotSupported
+
+            event = eventClass(*label, dataSource, self.applicationSettings)
+
+            if tag > 0:
+                event.switchTag()
+
+            return event
+
+        return self.dataSet.forEachChannel(configureEvent)
 
     def deriveEvent(self, labelIndex, dataSource):
 

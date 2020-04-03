@@ -206,7 +206,17 @@ class TaggingControl:
         """
 
         self.fileLoader = fileLoader
-        navigator, dataset = self.fileLoader.load()
+        navigators, dataset = self.fileLoader.load()
+
+        self.installNavigator(navigators[0])
+
+        self.navigators = navigators
+        self.dataset = dataset
+
+    def installNavigator(self, navigator):
+        """Installs a navigator to the control and checks whether the navigator
+        is valid.
+        """
 
         try:
             self.validate(navigator)
@@ -217,7 +227,32 @@ class TaggingControl:
             raise UserCancel
 
         self.navigator = navigator
-        self.dataset = dataset
+
+    @visualize
+    def nextChannel(self):
+        """Select the next channel and install the corresponding navigator
+        """
+
+        index = ( self.navigators.index(self.navigator) + 1 ) % len(self.navigators)
+
+        self.installNavigator(
+            self.navigators[index]
+        )
+
+        self.configureTimeline()
+
+    @visualize
+    def previousChannel(self):
+        """Select the previous channel and install the corresponding navigator
+        """
+
+        index = ( self.navigators.index(self.navigator) - 1 ) % len(self.navigators)
+
+        self.installNavigator(
+            self.navigators[index]
+        )
+
+        self.configureTimeline()
 
     def onAfterActivate(self):
         """Do visualization after the control has been set active. This involves

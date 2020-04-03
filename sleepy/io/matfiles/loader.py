@@ -1,5 +1,6 @@
 
 from sleepy.io.matfiles import MatDataSet
+from sleepy.io.matfiles.multi import MultiChannelMatDatSet
 from sleepy.io.core import FileLoader
 from sleepy.gui.exceptions import UserCancel
 from scipy.io import loadmat, savemat
@@ -17,7 +18,7 @@ class MatFileLoader(FileLoader):
 
             rawData = loadmat(self.path)
 
-            self._dataSet =  MatDataSet(rawData)
+            self._dataSet =  MultiChannelMatDatSet(rawData)
 
             return self._dataSet
 

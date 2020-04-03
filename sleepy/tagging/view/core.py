@@ -123,6 +123,12 @@ class TaggingView(QWidget):
         self.navigateLeft = QShortcut(QKeySequence("Left"), self.app)
         self.navigateLeft.activated.connect(self.control.onPreviousClick)
 
+        self.channelRight = QShortcut(QKeySequence("D"), self.app)
+        self.channelRight.activated.connect(self.control.nextChannel)
+
+        self.channelLeft = QShortcut(QKeySequence("A"), self.app)
+        self.channelLeft.activated.connect(self.control.previousChannel)
+
         self.selectPress = QShortcut(QKeySequence("P"), self.app)
         self.selectPress.activated.connect(self.control.onTaggingClick)
 

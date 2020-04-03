@@ -27,6 +27,8 @@ class Massimi(Algorithm):
         )
 
     def compute(self, signal):
+        """Make computations on epoch level
+        """
 
         def isEvent(peak):
 

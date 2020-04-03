@@ -25,40 +25,31 @@ class Engine:
 
         epochResult = self.computeResult(filter)
 
-        formattedResult = self.formatResult(epochResult)
+        pdb.set_trace()
 
-        return formattedResult
-
-    def formatResult(self, result):
-
-        concatResult = np.concatenate(result)
-
-        flatResult = self.flattenFirstDimension(concatResult)
-
-        return flatResult.astype(np.int32)
-
-    def flattenFirstDimension(self, result):
-
-        if result.shape[0] > 1:
-            return result.reshape(-1, result.shape[-1]).squeeze()
-        else:
-            return result
+        return np.array([ np.concatenate(x).astype(np.int32) for x in epochResult.transpose() ])
 
     def computeResult(self, filter):
 
-        channelDataSize = len(self.dataSet.channelData)
+        numberOfEpochs = len(self.dataSet.data)
 
-        maps = map(lambda i: self.computeEpoch(i, filter), range(channelDataSize))
+        maps = map(lambda i: self.computeEpoch(i, filter), range(numberOfEpochs))
 
         return np.array(list(maps))
 
     def computeEpoch(self, index, filter):
 
-        data = self.dataSet.channelData[index]
+        numberOfChannels = len(self.dataSet.data[index])
+
+        return [ self.computeChannelEpoch(index, channel, filter) for channel in range(len(self.dataSet.data[index]))]
+
+    def computeChannelEpoch(self, index, channel, filter):
+
+        data = self.dataSet.data[index][channel]
 
         filteredData = self.applyFilter(filter, data)
 
-        self.dataSet.setFilteredData(index, filteredData)
+        self.dataSet.setFilteredData(index, channel, filteredData)
 
         epochStart = self.dataSet.epochs[index][0]
 
@@ -84,4 +75,4 @@ class Engine:
 
         absoluteResult = relativeResult + epochStart
 
-        return absoluteResult
+        return absoluteResult.astype(np.int32).tolist()
