@@ -1,5 +1,9 @@
 
 from unittest.mock import MagicMock, Mock, patch, PropertyMock
+from sleepy.tagging.model import Navigator
+from sleepy.tagging.model.event import PointEvent
+from sleepy.tagging.model import DataSource
+import numpy as np
 
 class TestBase:
     """Provides a set of constructors for different sleepy objects, potentially
@@ -14,7 +18,9 @@ class TestBase:
 
         app = TestBase.getApp(settings, name)
 
-        env = TestBase.getEnvironment(app, active)
+        view = TestBase.getView()
+
+        env = TestBase.getEnvironment(view, app, active)
 
         return env, app, settings
 
@@ -55,12 +61,12 @@ class TestBase:
 
         return MagicMock()
 
-    def getFileLoader(path = "", dataset = None, navigator = None):
+    def getFileLoader(path = "", app = None, dataset = None, navigators = None):
 
         loader = MagicMock()
         loader.path = path
-        loader.app = self.app
-        loader.load = MagicMock(return_value=([navigator], dataset))
+        loader.app = app
+        loader.load = MagicMock(return_value=(navigators, dataset))
         return loader
 
     def getDataSource(filter = 1, samplingRate = 10, interval = (0,100)):

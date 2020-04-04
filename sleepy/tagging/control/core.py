@@ -194,7 +194,15 @@ class TaggingControl(MultiChannelControl):
         self.fileLoader = fileLoader
         navigators, dataset = self.fileLoader.load()
 
-        self.navigators = navigators
+        if len(navigators) > 0:
+
+            self.navigators = navigators
+        else:
+
+            self.view.tellUserNavigationFlawed()
+
+            raise UserCancel
+
         self.dataset = dataset
 
         if self.navigator:
@@ -205,6 +213,9 @@ class TaggingControl(MultiChannelControl):
         setting up the timeline, restoring checkpoints and visualizing the setup.
         This method should be called by the environment after it was activated.
         """
+
+        if not self.active:
+            return
 
         self.nextChannel()
 

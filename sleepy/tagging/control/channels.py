@@ -1,4 +1,6 @@
 
+from sleepy.gui.exceptions import UserCancel
+
 def visualize(function):
     """Decorator function for methods that should only apply changes if the
     control is active and whose actions neccesitate a rerender of the ui.
@@ -71,13 +73,20 @@ class MultiChannelControl:
 
     @visualize
     def nextChannel(self):
-        """Select the next channel and install the corresponding navigator
+        """Select the next channel and install the corresponding navigator.
+        Tries to confirm the next channel until a suitable is found. Before
+        trying to installing the same navigator twice, cancel.
         """
 
-        initialIndex = index = self.getNextChannel(self.channel)
+        initialIndex = -1
+
+        index = self.getNextChannel(self.channel)
 
         # Full round
-        while index != initialIndex - 1:
+        while index != initialIndex:
+
+            if initialIndex < 0:
+                initialIndex = index
 
             try:
                 self.installNavigator(
@@ -100,10 +109,15 @@ class MultiChannelControl:
         """Select the previous channel and install the corresponding navigator
         """
 
-        initialIndex = index = self.getPreviousChannel(self.channel)
+        initialIndex = -1
+
+        index = self.getPreviousChannel(self.channel)
 
         # Full round
-        while index != initialIndex + 1:
+        while index != initialIndex:
+
+            if initialIndex < 0:
+                initialIndex = index
 
             try:
                 self.installNavigator(

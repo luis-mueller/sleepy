@@ -1,36 +1,41 @@
 
+
 import unittest
-import pdb
-import numpy as np
-from unittest.mock import MagicMock, Mock, patch, PropertyMock
-from sleepy.tagging.environments import TaggingEnvironment
-from sleepy.tagging.model import Navigator
-from sleepy.tagging.model.event import PointEvent
+from unittest.mock import MagicMock
 from sleepy.tagging.control import TaggingControl
-from sleepy.tagging.model import DataSource
-from sleepy.gui.exceptions import UserCancel, NoNavigatorError
+from sleepy.gui.exceptions import UserCancel
 from PyQt5.QtWidgets import QMessageBox
 from sleepy.test.core import TestBase
 
 class ControlTest(unittest.TestCase):
 
-    def getBasics(active, name):
+    def standardScenario():
 
-        env, app, settings = TestBase.getBasics(active, name)
+        env, app, settings = TestBase.getBasics(active = True, name = 'TestApplication')
 
         control = TaggingControl(env, settings)
 
-        return control
+        events = TestBase.getEvents([1,2,3], settings, TestBase.getDataSource())
+
+        navigator = TestBase.getNavigator(events, changesMade = False)
+
+        loader = TestBase.getFileLoader(path = "test/path/TestFile", navigators = [navigator])
+
+        return env, app, settings, control, navigator, loader
 
     def test_open_no_navigator(self):
+        """Opening the loader should cause a UserCancel exception.
+        """
 
-        control = ControlTest.getBasics(active = False, name = 'TestApplication')
+        env, app, settings = TestBase.getBasics(active = False, name = 'TestApplication')
 
-        loader = TestBase.getFileLoader()
+        control = TaggingControl(env, settings)
+
+        loader = TestBase.getFileLoader(navigators = [])
 
         try:
             control.open(loader)
-            control.onAfterActivate()
+
         except UserCancel:
             self.assertTrue(True)
             return
@@ -38,13 +43,24 @@ class ControlTest(unittest.TestCase):
         self.assertTrue(False)
 
     def test_open_empty_navigator(self):
+        """Opening the loader should be possible but when the control tries to
+        find a navigator in the onAfterActivate method, there should be a UserCancel.
+        """
 
-        control = ControlTest.getBasics(active = False, name = 'TestApplication')
+        env, app, settings = TestBase.getBasics(active = False, name = 'TestApplication')
 
-        loader = TestBase.getFileLoader(navigator = )
+        control = TaggingControl(env, settings)
+
+        events = TestBase.getEvents([], settings)
+
+        loader = TestBase.getFileLoader(navigators = [TestBase.getNavigator(events)])
+
+        control.open(loader)
+
+        env.active = True
 
         try:
-            control.open(loader)
+            #pdb.set_trace()
             control.onAfterActivate()
         except UserCancel:
             self.assertTrue(True)
@@ -52,447 +68,368 @@ class ControlTest(unittest.TestCase):
 
         self.assertTrue(False)
 
-    def test_open_valid_navigator_changesMade_False_no_checkpoints_no_index_with_filename(self):
+    def test_open_valid_navigator_windowtitle_and_button_red(self):
+        """Window title must contain an asterisk.
+        """
 
-        self.settings.useCheckpoints = False
-        self.settings.showIndex = False
+        env, app, settings, control, navigator, loader = ControlTest.standardScenario()
 
-        control = TaggingControl(self.env, self.settings)
-
-        loader = self.getFileLoader('test/TestFile', self.getEvents([1,2,3]), changesMade = False)
-
-        self.navigator.switchSelectionTag()
+        navigator.switchSelectionTag()
 
         control.open(loader)
+
         control.onAfterActivate()
 
-        self.app.setWindowTitle.assert_called_with('TestApplication - TestFile*')
+        app.setWindowTitle.assert_called_with('TestApplication - TestFile*')
 
-        self.env.view.setButtonStyle.assert_not_called()
+    def test_open_valid_navigator_windowtitle_showIndex_no_asterisk(self):
+        """Window title must not contain an asterisk but channel and sample
+        counter information.
+        """
 
-    def test_open_valid_navigator_changesMade_False_no_checkpoints_with_index_with_filename(self):
+        env, app, settings, control, navigator, loader = ControlTest.standardScenario()
 
-        self.settings.useCheckpoints = False
-        self.settings.showIndex = True
-
-        control = TaggingControl(self.env, self.settings)
-
-        loader = self.getFileLoader('test/TestFile', self.getEvents([1,2,3]), changesMade = False)
-
-        self.navigator.switchSelectionTag()
+        settings.showIndex = True
 
         control.open(loader)
+
         control.onAfterActivate()
 
-        self.app.setWindowTitle.assert_called_with('TestApplication - TestFile* - Sample: 1/3')
+        app.setWindowTitle.assert_called_with('TestApplication - TestFile - Channel: 1/1 - Sample: 1/3')
 
-        self.env.view.setButtonStyle.assert_not_called()
+    def test_open_valid_navigator_windowtitle_showIndex(self):
+        """Window title must contain an asterisk as well as channel and sample
+        counter information.
+        """
 
-    def test_open_valid_navigator_changesMade_Initially_no_checkpoints_no_index_with_filename(self):
+        env, app, settings, control, navigator, loader = ControlTest.standardScenario()
 
-        self.settings.useCheckpoints = False
-        self.settings.showIndex = True
+        settings.showIndex = True
 
-        control = TaggingControl(self.env, self.settings)
-
-        loader = self.getFileLoader('test/TestFile', self.getEvents([1,2,3]), changesMade = True)
+        navigator.switchSelectionTag()
 
         control.open(loader)
+
         control.onAfterActivate()
 
-        self.app.setWindowTitle.assert_called_with('TestApplication - TestFile* - Sample: 1/3')
-
-        self.env.view.setButtonStyle.assert_not_called()
+        app.setWindowTitle.assert_called_with('TestApplication - TestFile* - Channel: 1/1 - Sample: 1/3')
 
     def test_open_valid_navigator_visualizeTag_active_tagged(self):
+        """Tagging button must be red on selection-tag switch.
+        """
 
-        control = TaggingControl(self.env, self.settings)
+        env, app, settings, control, navigator, loader = ControlTest.standardScenario()
 
-        self.env.active = True
-
-        loader = self.getFileLoader('test/TestFile', self.getEvents([1,2,3]), changesMade = False)
-
-        self.navigator.switchSelectionTag()
+        navigator.switchSelectionTag()
 
         control.open(loader)
         control.onAfterActivate()
 
-        self.env.view.setButtonStyle.assert_called_with(
+        env.view.setButtonStyle.assert_called_with(
             stylesheet = 'QPushButton { background-color: red; color: white; }',
             text = 'Tagged as False-Positive'
         )
 
-    def test_open_valid_navigator_visualizeTag_active_tagged(self):
+    def test_open_valid_navigator_visualizeTag_active_not_tagged(self):
+        """Button must be set gray if not tagged.
+        """
 
-        control = TaggingControl(self.env, self.settings)
-
-        self.env.active = True
-
-        loader = self.getFileLoader('test/TestFile', self.getEvents([1,2,3]), changesMade = True)
+        env, app, settings, control, navigator, loader = ControlTest.standardScenario()
 
         control.open(loader)
         control.onAfterActivate()
 
-        self.env.view.setButtonStyle.assert_called_with(
+        env.view.setButtonStyle.assert_called_with(
             stylesheet = '',
             text = 'Not Tagged'
         )
 
-    def test_open_valid_navigator_changesMade_False_with_checkpoints_user_yes(self):
+    def test_open_valid_navigator_with_checkpoints_user_yes(self):
+        """Position of navigator should be set to the checkpoint that the
+        user approved of.
+        """
 
-        self.settings.useCheckpoints = True
+        env, app, settings, control, navigator, loader = ControlTest.standardScenario()
 
-        self.env.view.askUserForCheckPointRestore = MagicMock(return_value = QMessageBox.Yes)
+        settings.useCheckpoints = True
 
-        control = TaggingControl(self.env, self.settings)
-
-        loader = self.getFileLoader('test/TestFile', self.getEvents([1,2,3]))
+        env.view.askUserForCheckPointRestore = MagicMock(return_value = QMessageBox.Yes)
 
         checkpoint = 2
-        self.dataset.getCheckpoint = MagicMock(return_value = checkpoint)
+        dataset = TestBase.getDataset()
+        dataset.getCheckpoint = MagicMock(return_value = checkpoint)
+
+        loader.load = MagicMock(return_value=([navigator], dataset))
 
         control.open(loader)
         control.onAfterActivate()
 
         self.assertEqual(
-            self.navigator.position,
+            navigator.position,
             checkpoint
         )
 
-    def test_open_valid_navigator_changesMade_False_with_checkpoints_user_no(self):
+    def test_open_valid_navigator_with_checkpoints_user_no(self):
+        """Position of navigator should not be set to the checkpoint that the
+        user did not approve of.
+        """
 
-        self.settings.useCheckpoints = True
+        env, app, settings, control, navigator, loader = ControlTest.standardScenario()
 
-        self.env.view.askUserForCheckPointRestore = MagicMock(return_value = QMessageBox.No)
+        settings.useCheckpoints = True
 
-        control = TaggingControl(self.env, self.settings)
-
-        loader = self.getFileLoader('test/TestFile', self.getEvents([1,2,3]))
+        env.view.askUserForCheckPointRestore = MagicMock(return_value = QMessageBox.No)
 
         checkpoint = 2
-        self.dataset.getCheckpoint = MagicMock(return_value = checkpoint)
+        dataset = TestBase.getDataset()
+        dataset.getCheckpoint = MagicMock(return_value = checkpoint)
+
+        loader.load = MagicMock(return_value=([navigator], dataset))
 
         control.open(loader)
         control.onAfterActivate()
 
         self.assertEqual(
-            self.navigator.position,
+            navigator.position,
             0
         )
 
     def test_open_timeline_intial_call(self):
+        """Timeline mock is called with proper arguments given a set of points
+        in a navigator.
+        """
 
-        control = TaggingControl(self.env, self.settings)
-
-        self.env.active = True
-
-        loader = self.getFileLoader('test/TestFile', self.getEvents([1,2,3]))
+        env, app, settings, control, navigator, loader = ControlTest.standardScenario()
 
         control.open(loader)
         control.onAfterActivate()
 
-        timeline = control.timeline
+        dataSource = navigator.events[0].dataSource
 
-        timeline.plot.assert_called_with(
-            [1/self.samplingRate, 2/self.samplingRate, 3/self.samplingRate],
-            1/self.samplingRate,
+        # Timeline is a mock supplied from the view
+        control.timeline.plot.assert_called_with(
+            [1/dataSource.samplingRate, 2/dataSource.samplingRate, 3/dataSource.samplingRate],
+            1/dataSource.samplingRate,
             (0.0, 1.1)
         )
 
-    def test_navigate_non_active(self):
-
-        control = TaggingControl(self.env, self.settings)
-
-        self.env.active = False
-
-        loader = self.getFileLoader('test/TestFile', self.getEvents([1,2,3]))
-
-        control.open(loader)
-        control.onAfterActivate()
-
-        self.assertEqual(
-            self.navigator.position,
-            0
-        )
-
-        # Supposed random sequence of navigation
-        control.onNextClick()
-        control.onNextClick()
-        control.onPreviousClick()
-        control.onNextClick()
-        control.onNextClick()
-        control.onPreviousClick()
-
-        self.assertEqual(
-            self.navigator.position,
-            0
-        )
-
-    def test_navigate_forward_active(self):
-
-        control = TaggingControl(self.env, self.settings)
-
-        self.env.active = True
-
-        loader = self.getFileLoader('test/TestFile', self.getEvents([1,2,3]))
-
-        control.open(loader)
-        control.onAfterActivate()
-
-        self.assertEqual(
-            self.navigator.position,
-            0
-        )
-
-        control.onNextClick()
-        control.onNextClick()
-
-        self.assertEqual(
-            self.navigator.position,
-            2
-        )
-
-    def test_navigate_backward_active(self):
-
-        control = TaggingControl(self.env, self.settings)
-
-        self.env.active = True
-
-        loader = self.getFileLoader('test/TestFile', self.getEvents([1,2,3,4,5]))
-
-        control.open(loader)
-        control.onAfterActivate()
-
-        self.assertEqual(
-            self.navigator.position,
-            0
-        )
-
-        control.onPreviousClick()
-        control.onPreviousClick()
-
-        self.assertEqual(
-            self.navigator.position,
-            3
-        )
-
-    def test_onTaggingClick_non_active(self):
-
-        control = TaggingControl(self.env, self.settings)
-
-        self.env.active = False
-
-        loader = self.getFileLoader('test/TestFile', self.getEvents([1,2,3]))
-
-        control.open(loader)
-        control.onAfterActivate()
-
-        self.assertEqual(
-            self.navigator.selectionTag,
-            0
-        )
-
-        control.onTaggingClick()
-
-        self.assertEqual(
-            self.navigator.selectionTag,
-            0
-        )
-
-    def test_onTaggingClick_active_set(self):
-
-        control = TaggingControl(self.env, self.settings)
-
-        self.env.active = True
-
-        loader = self.getFileLoader('test/TestFile', self.getEvents([1,2,3]))
-
-        control.open(loader)
-        control.onAfterActivate()
-
-        self.assertEqual(
-            self.navigator.selectionTag,
-            0
-        )
-
-        control.onTaggingClick()
-
-        self.assertEqual(
-            self.navigator.selectionTag,
-            1
-        )
-
-    def test_onTaggingClick_active_reset(self):
-
-        control = TaggingControl(self.env, self.settings)
-
-        self.env.active = False
-
-        loader = self.getFileLoader('test/TestFile', self.getEvents([1,2,3]))
-
-        control.open(loader)
-        control.onAfterActivate()
-
-        self.assertEqual(
-            self.navigator.selectionTag,
-            0
-        )
-
-        control.onTaggingClick()
-        control.onTaggingClick()
-
-        self.assertEqual(
-            self.navigator.selectionTag,
-            0
-        )
-
     def test_navigate_timeline_supplied(self):
+        """Timeline mock is called with proper arguments given a set of points
+        in a navigator on a position update.
+        """
 
-        control = TaggingControl(self.env, self.settings)
-
-        self.env.active = True
-
-        loader = self.getFileLoader('test/TestFile', self.getEvents([1,2,3]))
+        env, app, settings, control, navigator, loader = ControlTest.standardScenario()
 
         control.open(loader)
         control.onAfterActivate()
 
         control.onNextClick()
 
-        timeline = control.timeline
+        dataSource = navigator.events[0].dataSource
 
-        timeline.update.assert_called_with(
-            2/self.samplingRate,
+        control.timeline.update.assert_called_with(
+            2/dataSource.samplingRate,
             (0.0, 1.2)
         )
 
-    def test_notifyUserOfSwitch_no_checkpoints_no_changes(self):
+    def test_navigate_forward_active(self):
+        """Navigating forward two times increases the position of navigator about
+        two.
+        """
 
-        control = TaggingControl(self.env, self.settings)
+        env, app, settings, control, navigator, loader = ControlTest.standardScenario()
 
-        self.env.active = True
+        control.open(loader)
+        control.onAfterActivate()
 
-        self.env.view.askUserForSwitch = MagicMock()
+        self.assertEqual(navigator.position, 0)
+
+        control.onNextClick()
+        control.onNextClick()
+
+        self.assertEqual(navigator.position, 2)
+
+    def test_navigate_backward_active(self):
+        """Navigating forward two times decreases the position of navigator about
+        two.
+        """
+
+        env, app, settings, control, navigator, loader = ControlTest.standardScenario()
+
+        control.open(loader)
+        control.onAfterActivate()
+
+        self.assertEqual(
+            navigator.position,
+            0
+        )
+
+        control.onPreviousClick()
+        control.onPreviousClick()
+
+        self.assertEqual(
+            navigator.position,
+            1
+        )
+
+    def test_onTaggingClick_active_set(self):
+        """Clicking on tagging should set the tag of the selected event.
+        """
+
+        env, app, settings, control, navigator, loader = ControlTest.standardScenario()
+
+        control.open(loader)
+        control.onAfterActivate()
+
+        self.assertEqual(navigator.selectionTag, 0)
+
+        control.onTaggingClick()
+
+        self.assertEqual(navigator.selectionTag, 1)
+
+    def test_onTaggingClick_active_reset(self):
+        """Clicking twice on tagging should set and then reset the tag of the selected event.
+        """
+
+        env, app, settings, control, navigator, loader = ControlTest.standardScenario()
+
+        control.open(loader)
+        control.onAfterActivate()
+
+        self.assertEqual(navigator.selectionTag, 0)
+
+        control.onTaggingClick()
+        control.onTaggingClick()
+
+        self.assertEqual(navigator.selectionTag, 0)
+
+    def test_notifyUserOfSwitch_no_changes(self):
+        """Without changes made the user should not be asked for saving and
+        the save method should not be called.
+        """
+
+        env, app, settings, control, navigator, loader = ControlTest.standardScenario()
+        env.view.askUserForSwitch = MagicMock()
         control.save = MagicMock()
-
-        loader = self.getFileLoader('test/TestFile', self.getEvents([1,2,3]))
 
         control.open(loader)
         control.onAfterActivate()
 
         control.notifyUserOfSwitch()
 
-        self.env.view.askUserForSwitch.assert_not_called()
+        env.view.askUserForSwitch.assert_not_called()
         control.save.assert_not_called()
 
-    def test_notifyUserOfSwitch_no_checkpoints_changes_cancel(self):
+    def test_notifyUserOfSwitch_changes_cancel(self):
+        """Changes were made but checkpoints are disabled in the settings.
+        The user cancels the saving process.
+        """
 
-        control = TaggingControl(self.env, self.settings)
-
-        self.env.active = True
-
-        self.env.view.askUserForSwitch = MagicMock(return_value = QMessageBox.Cancel)
+        env, app, settings, control, navigator, loader = ControlTest.standardScenario()
+        env.view.askUserForSwitch = MagicMock(return_value = QMessageBox.Cancel)
         control.save = MagicMock()
-
-        loader = self.getFileLoader('test/TestFile', self.getEvents([1,2,3]), changesMade = True)
 
         control.open(loader)
         control.onAfterActivate()
+
+        navigator.switchSelectionTag()
 
         try:
             control.notifyUserOfSwitch()
 
             self.assertTrue(False)
         except UserCancel:
-            self.assertTrue(True)
+            pass
 
-        self.env.view.askUserForSwitch.assert_called()
+        env.view.askUserForSwitch.assert_called()
         control.save.assert_not_called()
 
-    def test_notifyUserOfSwitch_no_checkpoints_changes_save(self):
+    def test_notifyUserOfSwitch_changes_discard(self):
+        """Changes were made but checkpoints are disabled in the settings.
+        The user discards the saving process. No UserCancel but also no saving
+        methods are called
+        """
 
-        control = TaggingControl(self.env, self.settings)
-
-        self.env.active = True
-
-        self.env.view.askUserForSwitch = MagicMock(return_value = QMessageBox.Save)
+        env, app, settings, control, navigator, loader = ControlTest.standardScenario()
+        env.view.askUserForSwitch = MagicMock(return_value = QMessageBox.Discard)
         control.save = MagicMock()
-
-        loader = self.getFileLoader('test/TestFile', self.getEvents([1,2,3]), changesMade = True)
 
         control.open(loader)
         control.onAfterActivate()
 
-        control.notifyUserOfSwitch()
-
-        self.env.view.askUserForSwitch.assert_called()
-        control.save.assert_called()
-
-    def test_notifyUserOfSwitch_no_checkpoints_changes_answer_no(self):
-
-        control = TaggingControl(self.env, self.settings)
-
-        self.env.active = True
-
-        self.env.view.askUserForSwitch = MagicMock(return_value = QMessageBox.Discard)
-        control.save = MagicMock()
-
-        loader = self.getFileLoader('test/TestFile', self.getEvents([1,2,3]), changesMade = True)
-
-        control.open(loader)
-        control.onAfterActivate()
+        navigator.switchSelectionTag()
 
         control.notifyUserOfSwitch()
 
-        self.env.view.askUserForSwitch.assert_called()
+        env.view.askUserForSwitch.assert_called()
         control.save.assert_not_called()
 
-    def test_notifyUserOfSwitch_with_checkpoints_answer_no_no_changes(self):
+        self.assertEqual(navigator.changesMade, True)
 
-        control = TaggingControl(self.env, self.settings)
+    def test_notifyUserOfSwitch_changes_save(self):
+        """Changes were made but checkpoints are disabled in the settings.
+        The user accepts the saving process.
+        1. the loader was called to save the data.
+        2. the navigator's onSave method has been called, i.e. changes made are
+           reset.
+        """
 
-        self.settings.useCheckpoints = True
-        self.env.active = True
-
-        self.env.view.askUserForCheckPoint = MagicMock(return_value = QMessageBox.Yes)
-
-        loader = self.getFileLoader('test/TestFile', self.getEvents([1,2,3]))
+        env, app, settings, control, navigator, loader = ControlTest.standardScenario()
+        env.view.askUserForSwitch = MagicMock(return_value = QMessageBox.Save)
 
         control.open(loader)
         control.onAfterActivate()
 
-        control.dataset.setCheckpoint = MagicMock()
+        navigator.switchSelectionTag()
 
-        control.onNextClick()
         control.notifyUserOfSwitch()
 
-        self.env.view.askUserForCheckPoint.assert_called()
-        control.dataset.setCheckpoint.assert_called_with(1)
+        env.view.askUserForSwitch.assert_called()
+        loader.saveAs.assert_called()
 
-    def test_notifyUserOfSwitch_with_checkpoints_answer_cancel(self):
+        self.assertEqual(navigator.changesMade, False)
 
-        control = TaggingControl(self.env, self.settings)
+    def test_notifyUserOfSwitch_checkpoints_user_no(self):
+        """No changes but checkpoints are activated. User answers no.
+        """
 
-        self.settings.useCheckpoints = True
-        self.env.active = True
+        env, app, settings, control, navigator, loader = ControlTest.standardScenario()
+        env.view.askUserForCheckPoint = MagicMock(return_value = QMessageBox.No)
+        settings.useCheckpoints = True
 
-        self.env.view.askUserForCheckPoint = MagicMock(return_value = QMessageBox.Cancel)
+        dataset = TestBase.getDataset()
+        dataset.setCheckpoint = MagicMock()
 
-        loader = self.getFileLoader('test/TestFile', self.getEvents([1,2,3]))
+        loader.load = MagicMock(return_value=([navigator], dataset))
 
         control.open(loader)
         control.onAfterActivate()
 
-        control.dataset.setCheckpoint = MagicMock()
+        control.notifyUserOfSwitch()
+
+        env.view.askUserForCheckPoint.assert_called()
+        dataset.setCheckpoint.assert_not_called()
+
+    def test_notifyUserOfSwitch_checkpoints_user_yes(self):
+        """No changes but checkpoints are activated. User answers yes.
+        Checkpoint must be set in dataset.
+        """
+
+        env, app, settings, control, navigator, loader = ControlTest.standardScenario()
+        env.view.askUserForCheckPoint = MagicMock(return_value = QMessageBox.Yes)
+        settings.useCheckpoints = True
+
+        dataset = TestBase.getDataset()
+        dataset.setCheckpoint = MagicMock()
+
+        loader.load = MagicMock(return_value=([navigator], dataset))
+
+        control.open(loader)
+        control.onAfterActivate()
 
         control.onNextClick()
 
-        try:
-            control.notifyUserOfSwitch()
+        control.notifyUserOfSwitch()
 
-            self.assertFalse(True)
-        except UserCancel:
-            self.assertTrue(True)
-
-        self.env.view.askUserForCheckPoint.assert_called()
-        control.dataset.setCheckpoint.assert_not_called()
+        env.view.askUserForCheckPoint.assert_called()
+        dataset.setCheckpoint.assert_called_with(1)
