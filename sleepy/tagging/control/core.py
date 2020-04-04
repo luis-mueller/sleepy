@@ -1,24 +1,10 @@
 
-from sleepy.gui.exceptions import UserCancel, NoNavigatorError
+from sleepy.gui.exceptions import UserCancel, NoNavigatorError, NavigatorEmptyError
+from sleepy.tagging.control.channels import MultiChannelControl, visualize
 from PyQt5.QtWidgets import QMessageBox
 import pdb
 
-def visualize(function):
-    """Decorator function for methods that should only apply changes if the
-    control is active and whose actions neccesitate a rerender of the ui.
-    """
-
-    def visualizing(self, *args):
-
-        if self.active:
-
-            function(self, *args)
-
-            self.visualizeTag()
-
-    return visualizing
-
-class TaggingControl:
+class TaggingControl(MultiChannelControl):
 
     def __init__(self, environment, settings):
 
@@ -208,57 +194,19 @@ class TaggingControl:
         self.fileLoader = fileLoader
         navigators, dataset = self.fileLoader.load()
 
-        self.installNavigator(navigators[0])
-
         self.navigators = navigators
         self.dataset = dataset
 
-    def installNavigator(self, navigator):
-        """Installs a navigator to the control and checks whether the navigator
-        is valid.
-        """
-
-        try:
-            self.validate(navigator)
-        except NoNavigatorError:
-
-            self.view.tellUserNavigationFlawed()
-
-            raise UserCancel
-
-        self.navigator = navigator
-
-    @visualize
-    def nextChannel(self):
-        """Select the next channel and install the corresponding navigator
-        """
-
-        index = ( self.navigators.index(self.navigator) + 1 ) % len(self.navigators)
-
-        self.installNavigator(
-            self.navigators[index]
-        )
-
-        self.configureTimeline()
-
-    @visualize
-    def previousChannel(self):
-        """Select the previous channel and install the corresponding navigator
-        """
-
-        index = ( self.navigators.index(self.navigator) - 1 ) % len(self.navigators)
-
-        self.installNavigator(
-            self.navigators[index]
-        )
-
-        self.configureTimeline()
+        if self.navigator:
+            del self.navigator
 
     def onAfterActivate(self):
         """Do visualization after the control has been set active. This involves
         setting up the timeline, restoring checkpoints and visualizing the setup.
         This method should be called by the environment after it was activated.
         """
+
+        self.nextChannel()
 
         self.configureTimeline()
 
@@ -292,12 +240,7 @@ class TaggingControl:
             raise NoNavigatorError
 
         if navigator.maximumPosition == 0:
-
-            self.view.tellUserNoEventsFound()
-
-            # By accepting the information, the user automatically cancels
-            # the process
-            raise NoNavigatorError
+            raise NavigatorEmptyError
 
     @visualize
     def refresh(self):
@@ -367,6 +310,11 @@ class TaggingControl:
         if self.changesMade:
 
             windowTitle += '*'
+
+        channelCounterString = self.getChannelCounterString()
+
+        if channelCounterString != '':
+            windowTitle += " - Channel: {}".format(channelCounterString)
 
         counterString = self.getCounterString()
 

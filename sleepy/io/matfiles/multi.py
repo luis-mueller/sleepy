@@ -1,67 +1,11 @@
 
 from sleepy.tagging.model import DataSource
-from sleepy.io.dataset import mapping, Dataset
+from sleepy.io.matfiles.core import MultiChannelMatInterface
 import numpy as np
 import pdb
+from functools import partial
 
-def formatCheck(function):
-
-    def setterFunction(self, *args):
-
-        try:
-
-            function(self, *args)
-
-        except KeyError:
-            raise TypeError('Format not supported.')
-
-        except IndexError:
-            raise TypeError('Format not supported.')
-
-    return setterFunction
-
-class MultiChannelMatDatSet(Dataset):
-
-    def __init__(self, raw):
-
-        self.raw = raw
-
-        self.samplingRate = 500
-
-        self.changesMade = False
-
-        self.dataSources = {}
-
-        self.epochs()
-
-        self.data()
-
-        self.sleepyContent(
-            ['labels', 'tags', 'userLabels', 'filteredData', 'checkpoint']
-        )
-
-        pdb.set_trace()
-
-
-    @mapping
-    def epochs(self, data):
-
-        return data['data'][0][0][6]
-
-    @mapping
-    def data(self, data):
-
-        self.filteredData = data['data'][0][0][1][0].copy()
-
-        return data['data'][0][0][1][0]
-
-    def setLabels(self, labels):
-
-        self.labels = labels
-
-        numberOfChannels = self.labels.shape[0]
-
-        self.tags = [ np.zeros(self.labels[channel].shape[0]) for channel in range(numberOfChannels) ]
+class MultiChannelMatDatset(MultiChannelMatInterface):
 
     def forEachChannel(self, converter):
 
@@ -93,6 +37,8 @@ class MultiChannelMatDatSet(Dataset):
         Extracts the first element from the label.
         """
 
+        # We only use label[0] as we rely on events not overlapping samples.
+        # Therefore interval and point labels are both covered.
         dataSource = self.getDataSourceForLabel(channel, label[0])
 
         dataSource.addLabel(label)
@@ -101,8 +47,6 @@ class MultiChannelMatDatSet(Dataset):
 
     def getDataSourceForLabel(self, channel, label):
 
-        # We only use label[0] as we rely on events not overlapping samples.
-        # Therefore interval and point labels are both covered
         epochIndex = self.findIndexInInterval(self.epochs, label)
 
         return self.getBufferedDataSource(epochIndex, channel)

@@ -1,35 +1,9 @@
 
-import numpy as np
-
-def mapping(function):
-
-    def mapper(self):
-
-        object = function(self, self.raw)
-
-        setattr(self, function.__name__, object)
-
-    return mapper
-
-def sleepyContent(function):
-
-    def content(self):
-
-        if not 'sleepy' in self.raw:
-
-            self.raw['sleepy'] = {}
-
-        if not function.__name__ in self.raw['sleepy']:
-
-            self.raw['sleepy'][function.__name__] = np.array([])
-
-        mapping(function)(self)
-
-    return content
-
 class Dataset:
 
     def __init__(self, raw):
+        """Abstract Dataset class, serving as an interface for all implementations.
+        """
 
         self.raw = raw
 
@@ -39,16 +13,58 @@ class Dataset:
 
         self.dataSources = {}
 
-    def sleepyContent(self, attributes):
+    @property
+    def epochs(self):
+        raise NotImplementedError
 
-        if not 'sleepy' in self.raw:
+    @epochs.setter
+    def epochs(self, epochs):
+        raise NotImplementedError
 
-            self.raw['sleepy'] = {}
+    @property
+    def data(self):
+        raise NotImplementedError
 
-        for attribute in attributes:
+    @data.setter
+    def data(self, data):
+        raise NotImplementedError
 
-            if not attribute in self.raw['sleepy']:
+    @property
+    def labels(self):
+        raise NotImplementedError
 
-                self.raw['sleepy'][attribute] = np.array([])
+    @labels.setter
+    def labels(self, labels):
+        raise NotImplementedError
 
-            setattr(self, attribute, self.raw['sleepy'][attribute])
+    @property
+    def userLabels(self):
+        raise NotImplementedError
+
+    @userLabels.setter
+    def userLabels(self, userLabels):
+        raise NotImplementedError
+
+    @property
+    def filteredData(self):
+        raise NotImplementedError
+
+    @filteredData.setter
+    def filteredData(self, filteredData):
+        raise NotImplementedError
+
+    @property
+    def tags(self):
+        raise NotImplementedError
+
+    @tags.setter
+    def tags(self, tags):
+        raise NotImplementedError
+
+    @property
+    def checkpoint(self):
+        raise NotImplementedError
+
+    @checkpoint.setter
+    def checkpoint(self, checkpoint):
+        raise NotImplementedError

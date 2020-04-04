@@ -25,8 +25,6 @@ class Engine:
 
         epochResult = self.computeResult(filter)
 
-        pdb.set_trace()
-
         return np.array([ np.concatenate(x).astype(np.int32) for x in epochResult.transpose() ])
 
     def computeResult(self, filter):

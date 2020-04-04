@@ -1,10 +1,11 @@
 
 from sleepy.io.matfiles import MatDataSet
-from sleepy.io.matfiles.multi import MultiChannelMatDatSet
+from sleepy.io.matfiles.multi import MultiChannelMatDatset
 from sleepy.io.core import FileLoader
 from sleepy.gui.exceptions import UserCancel
 from scipy.io import loadmat, savemat
 import pdb
+import numpy as np
 
 class MatFileLoader(FileLoader):
 
@@ -18,21 +19,31 @@ class MatFileLoader(FileLoader):
 
             rawData = loadmat(self.path)
 
-            self._dataSet =  MultiChannelMatDatSet(rawData)
+            self._dataSet =  MultiChannelMatDatset(rawData)
 
             return self._dataSet
 
     def save(self):
 
-        computed, user = self.navigator.getLabelPartition()
+        computedList, userList, tagList = [], [], []
 
-        self.dataSet.labels = computed
+        for navigator in self.navigator:
 
-        self.dataSet.setUserLabels(user)
+            computed, user = navigator.getLabelPartition()
 
-        self.dataSet.tags = self.navigator.getCurrentTags()
+            tags = navigator.getCurrentTags()
 
-        savemat(self.path, self.dataSet.matData)
+            computedList.append(computed)
+            userList.append(user)
+            tagList.append(tags)
+
+        self.dataSet.userLabels = np.array(userList)
+
+        self.dataSet.tags = np.array(tagList)
+
+        #self.dataSet.raw.pop('data')
+
+        savemat(self.path, self.dataSet.raw)
 
     def saveAs(self):
 

@@ -133,14 +133,6 @@ class FileProcessor:
 
         changesMade = self.updateLabels(self.labels)
 
-        #events = self.convertLabelsToEvents()
-
-        #self.navigator = Navigator(events, changesMade)
-
-        #self.addUserEventsToNavigator(self.navigator)
-
-        #return self.navigator
-
         return self.getNavigators()
 
     def checkComputeLabelsCalled(self):
@@ -152,7 +144,7 @@ class FileProcessor:
 
         changesMade = self.resultDiffers(labels) or self.dataSet.changesMade
 
-        self.dataSet.setLabels(labels)
+        self.dataSet.labels = labels
 
         if changesMade:
             self.dataSet.removeCheckpoint()
@@ -163,7 +155,10 @@ class FileProcessor:
 
         self.checkComputeLabelsCalled()
 
-        self.optionView.showNumberOfLabels(len(self.labels))
+        self.optionView.showNumberOfLabels(
+            sum([ len(labels) for labels in self.labels ]),
+            len(self.labels)
+        )
 
     def resultDiffers(self, result):
 
@@ -177,25 +172,6 @@ class FileProcessor:
             return not (result.tolist() == labels.tolist())
 
         return True
-
-    def convertLabelsToEvents(self):
-
-        events = []
-
-        for labelIndex in range(self.dataSet.numberOfLabels):
-
-            dataSource = self.dataSet.getDataSourceFor(labelIndex)
-
-            tag = self.dataSet.tags[labelIndex]
-
-            event = self.deriveEvent(labelIndex, dataSource)
-
-            if tag > 0:
-                event.switchTag()
-
-            events.append(event)
-
-        return events
 
     def getNavigators(self):
 

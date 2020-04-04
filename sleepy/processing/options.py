@@ -144,8 +144,8 @@ class OptionView:
 
             self.filterParameters.setCurrentWidget(options)
 
-    def showNumberOfLabels(self, numberOfLabels):
+    def showNumberOfLabels(self, numberOfLabels, numberOfChannels):
 
-        self.computationStatus.setText("{} labels found.".format(numberOfLabels))
+        self.computationStatus.setText("{} labels found in {} channels.".format(numberOfLabels, numberOfChannels))
 
         QApplication.processEvents()

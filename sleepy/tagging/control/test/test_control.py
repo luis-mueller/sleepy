@@ -10,71 +10,23 @@ from sleepy.tagging.control import TaggingControl
 from sleepy.tagging.model import DataSource
 from sleepy.gui.exceptions import UserCancel, NoNavigatorError
 from PyQt5.QtWidgets import QMessageBox
+from sleepy.test.core import TestBase
 
 class ControlTest(unittest.TestCase):
 
-    def getEnvironment(self):
+    def getBasics(active, name):
 
-        env = MagicMock()
-        env.view = MagicMock()
-        env.view.setButtonStyle = MagicMock()
-        env.active = False
-        env.app = self.app
-        return env
+        env, app, settings = TestBase.getBasics(active, name)
 
-    def getNewApp(self):
+        control = TaggingControl(env, settings)
 
-        app = MagicMock()
-        app.name = 'TestApplication'
-        app.applicationSettings = MagicMock()
-        app.applicationSettings.setWindowTitle = MagicMock()
-        return app
-
-    def getFileLoader(self, path, events = None, changesMade = False):
-
-        loader = MagicMock()
-        loader.path = path
-        loader.app = self.app
-
-        self.dataset = MagicMock()
-
-        if events is not None:
-            self.navigator = Navigator(events, changesMade)
-            loader.load = MagicMock(return_value=(self.navigator, self.dataset))
-        else:
-            loader.load = MagicMock(return_value=(None, self.dataset))
-        return loader
-
-    def getEvents(self, points):
-
-        self.samplingRate = 10
-        self.interval = (0,100)
-        self.dataSource = DataSource(
-            np.arange(*self.interval,1),np.arange(*self.interval,1), self.interval, samplingRate = self.samplingRate
-        )
-
-        return list(
-            map(lambda i: self.customPointSample(i), points)
-        )
-
-    def customPointSample(self, point):
-        return PointEvent(point, self.dataSource, self.app.applicationSettings)
-
-    def setUp(self):
-
-        self.app = self.getNewApp()
-
-        self.env = self.getEnvironment()
-
-        self.settings = MagicMock()
-        self.settings.showIndex = False
-        self.settings.useCheckpoints = False
+        return control
 
     def test_open_no_navigator(self):
 
-        control = TaggingControl(self.env, self.settings)
+        control = ControlTest.getBasics(active = False, name = 'TestApplication')
 
-        loader = self.getFileLoader('test/path')
+        loader = TestBase.getFileLoader()
 
         try:
             control.open(loader)
@@ -87,9 +39,9 @@ class ControlTest(unittest.TestCase):
 
     def test_open_empty_navigator(self):
 
-        control = TaggingControl(self.env, self.settings)
+        control = ControlTest.getBasics(active = False, name = 'TestApplication')
 
-        loader = self.getFileLoader('test/path', self.getEvents([]), changesMade = False)
+        loader = TestBase.getFileLoader(navigator = )
 
         try:
             control.open(loader)
