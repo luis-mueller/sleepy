@@ -60,7 +60,6 @@ class ControlTest(unittest.TestCase):
         env.active = True
 
         try:
-            #pdb.set_trace()
             control.onAfterActivate()
         except UserCancel:
             self.assertTrue(True)
