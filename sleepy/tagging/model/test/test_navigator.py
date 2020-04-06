@@ -43,7 +43,7 @@ class NavigatorTest(unittest.TestCase):
 
         self.assertEqual(
             navigator.position,
-            self.base.numberOfPoints - 1
+            2
         )
 
     def test_selectNext_cyclic(self):
@@ -96,46 +96,24 @@ class NavigatorTest(unittest.TestCase):
             3
         )
 
-    def test_plot_nonfilteredData(self):
+    def test_changesMade_switchSelectionTag(self):
+        """When tag is switched, changes made should be changed.
+        """
 
-        settings, dataSource, events, navigator = NavigatorTest.standardScenario(points)
+        _, _, _, navigator = NavigatorTest.standardScenario([1,2,3,4,5])
 
-        settings.plotFiltered = False
-        settings.pointSize = MagicMock()
+        self.assertFalse(navigator.changesMade)
 
-        axis = MagicMock()
-        axis.plot = MagicMock(return_value = [0])
+        navigator.switchSelectionTag()
 
-        navigator.plot(axis)
-
-        axis.plot.assert_called_with(
-            0.5, 5, color="gray", marker="o",
-            markersize=settings.pointSize
-        )
-
-    def test_plot_filteredData(self):
-
-        self.base.app.applicationSettings.plotFiltered = True
-        self.base.app.applicationSettings.pointSize = MagicMock()
-
-        loader, nav, dataset = self.base.create()
-
-        axis = MagicMock()
-        axis.plot = MagicMock(return_value = [0])
-
-        navigator.plot(axis)
-
-        axis.plot.assert_called_with(
-            0.5, 2.5, color="gray", marker="o",
-            markersize=self.base.app.applicationSettings.pointSize
-        )
+        self.assertTrue(navigator.changesMade)
 
     def test_addUserEvent_getLabelPartition(self):
         """Add two user event and check whether the method getLabelPartition
         returns exactly those two events and no others.
         """
 
-        loader, nav, dataset = self.base.create()
+        _, dataSource, _, navigator = NavigatorTest.standardScenario([1,2,3,4,5])
 
         event = MagicMock()
         event.xdata = 2
@@ -149,15 +127,15 @@ class NavigatorTest(unittest.TestCase):
 
         computed, user = navigator.getLabelPartition()
 
-        self.assertEqual(user[0], 2 * self.base.samplingRate)
-        self.assertEqual(user[1], 4 * self.base.samplingRate)
+        self.assertEqual(user[0], 2 * dataSource.samplingRate)
+        self.assertEqual(user[1], 4 * dataSource.samplingRate)
         self.assertEqual(len(user), 2)
 
     def test_addUserEvent_changesMade(self):
         """Test whether adding a user event causes a positive changesMade flag.
         """
 
-        loader, nav, dataset = self.base.create()
+        _, _, _, navigator = NavigatorTest.standardScenario([1,2,3,4,5])
 
         event = MagicMock()
         event.xdata = 2

@@ -3,14 +3,6 @@ import numpy as np
 from functools import partial
 from sleepy.processing.signal import Signal
 
-class Labels(np.array):
-
-    self __init__(self, labels, data):
-
-        super().__init__(labels)
-
-        self.
-
 class Engine:
 
     def run(algorithm, filter, dataset):
@@ -49,8 +41,6 @@ class Engine:
             dataset.epochs,
             dataset.samplingRate
         )
-
-        import pdb; pdb.set_trace()
 
         filterStepResult = algorithm.filter(computeStepResult, dataset.filteredData)
 
