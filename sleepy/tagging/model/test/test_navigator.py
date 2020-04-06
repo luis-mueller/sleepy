@@ -1,65 +1,116 @@
 
-from unittest.mock import MagicMock, Mock, patch, PropertyMock
+from unittest.mock import MagicMock
 import unittest
-from sleepy.tagging.test.core import TestBase
+from sleepy.test.core import TestBase
 import numpy as np
 
 class NavigatorTest(unittest.TestCase):
 
-    def setUp(self):
+    def standardScenario(points):
+        """Set up a standard scenario for mocking.
+        """
 
-        self.base = TestBase(numberOfPoints = 5)
+        settings = TestBase.getSettings()
+
+        dataSource = TestBase.getDataSource()
+
+        events = TestBase.getEvents(points, settings, dataSource)
+
+        navigator = TestBase.getNavigator(events, changesMade = False)
+
+        return settings, dataSource, events, navigator
 
     def test_selectNext(self):
+        """Navigation forward should increase the position by one.
+        """
 
-        loader, nav, dataset = self.base.create()
+        settings, dataSource, events, navigator = NavigatorTest.standardScenario([1,2,3])
 
-        nav.selectNext()
+        navigator.selectNext()
 
         self.assertEqual(
-            nav.position,
+            navigator.position,
             1
         )
 
     def test_selectPrevious(self):
+        """Navigation backward should decrease the position by one.
+        """
 
-        loader, nav, dataset = self.base.create()
+        settings, dataSource, events, navigator = NavigatorTest.standardScenario([1,2,3])
 
-        nav.selectPrevious()
+        navigator.selectPrevious()
 
         self.assertEqual(
-            nav.position,
+            navigator.position,
             self.base.numberOfPoints - 1
         )
 
-    def test_selectClosestToTime(self):
+    def test_selectNext_cyclic(self):
+        """Navigation forward as many times as there are events should reset
+        the position to 0.
+        """
 
-        loader, nav, dataset = self.base.create()
+        points = [1,2,3,4,5]
 
-        time = 3 / self.base.samplingRate + .003
+        settings, dataSource, events, navigator = NavigatorTest.standardScenario(points)
 
-        nav.selectClosestToTime(time)
+        for _ in points:
+            navigator.selectNext()
 
         self.assertEqual(
-            nav.selectedEvent.point,
+            navigator.position,
+            0
+        )
+
+    def test_selectPrevious_cyclic(self):
+        """Navigation backward as many times as there are events should reset
+        the position to 0.
+        """
+
+        points = [1,2,3,4,5]
+
+        settings, dataSource, events, navigator = NavigatorTest.standardScenario(points)
+
+        for _ in points:
+            navigator.selectNext()
+
+        self.assertEqual(
+            navigator.position,
+            0
+        )
+
+    def test_selectClosestToTime(self):
+        """Construct as time that is very close to the third position. Method
+        selectClosestToTime should select the third position.
+        """
+
+        _, dataSource, _, navigator = NavigatorTest.standardScenario([1,2,3,4,5])
+
+        time = 3 / dataSource.samplingRate + .003
+
+        navigator.selectClosestToTime(time)
+
+        self.assertEqual(
+            navigator.selectedEvent.point,
             3
         )
 
     def test_plot_nonfilteredData(self):
 
-        self.base.app.applicationSettings.plotFiltered = False
-        self.base.app.applicationSettings.pointSize = MagicMock()
+        settings, dataSource, events, navigator = NavigatorTest.standardScenario(points)
 
-        loader, nav, dataset = self.base.create()
+        settings.plotFiltered = False
+        settings.pointSize = MagicMock()
 
         axis = MagicMock()
         axis.plot = MagicMock(return_value = [0])
 
-        nav.plot(axis)
+        navigator.plot(axis)
 
         axis.plot.assert_called_with(
             0.5, 5, color="gray", marker="o",
-            markersize=self.base.app.applicationSettings.pointSize
+            markersize=settings.pointSize
         )
 
     def test_plot_filteredData(self):
@@ -72,7 +123,7 @@ class NavigatorTest(unittest.TestCase):
         axis = MagicMock()
         axis.plot = MagicMock(return_value = [0])
 
-        nav.plot(axis)
+        navigator.plot(axis)
 
         axis.plot.assert_called_with(
             0.5, 2.5, color="gray", marker="o",
@@ -89,14 +140,14 @@ class NavigatorTest(unittest.TestCase):
         event = MagicMock()
         event.xdata = 2
 
-        nav.addUserEvent(event)
+        navigator.addUserEvent(event)
 
         event = MagicMock()
         event.xdata = 4
 
-        nav.addUserEvent(event)
+        navigator.addUserEvent(event)
 
-        computed, user = nav.getLabelPartition()
+        computed, user = navigator.getLabelPartition()
 
         self.assertEqual(user[0], 2 * self.base.samplingRate)
         self.assertEqual(user[1], 4 * self.base.samplingRate)
@@ -111,6 +162,6 @@ class NavigatorTest(unittest.TestCase):
         event = MagicMock()
         event.xdata = 2
 
-        nav.addUserEvent(event)
+        navigator.addUserEvent(event)
 
-        self.assertEqual(nav.changesMade, True)
+        self.assertEqual(navigator.changesMade, True)

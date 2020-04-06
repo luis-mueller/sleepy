@@ -54,6 +54,8 @@ class EventTest(unittest.TestCase):
         return settings
 
     def newPointEvent(point, start, end, samplingRate = 10):
+        """Creates a new point event for mocking.
+        """
 
         dataSource = EventTest.newDataSource((start, end), samplingRate)
         settings = EventTest.newSettings()
@@ -63,6 +65,8 @@ class EventTest(unittest.TestCase):
         return event, dataSource, settings
 
     def newIntervalEvent(intervalStart, intervalEnd, start, end, samplingRate = 10):
+        """Creates a new interval event for mocking.
+        """
 
         dataSource = EventTest.newDataSource((start, end), samplingRate)
         settings = EventTest.newSettings()
@@ -72,6 +76,8 @@ class EventTest(unittest.TestCase):
         return event, dataSource, settings
 
     def test_switchTag_single(self):
+        """Switching the tag once should set the tag.
+        """
 
         event, _, _ = EventTest.newPointEvent(2, 0, 7, 10)
 
@@ -83,6 +89,8 @@ class EventTest(unittest.TestCase):
         )
 
     def test_switchTag_double(self):
+        """Switching the tag double should reset the tag.
+        """
 
         event, _, _  = EventTest.newPointEvent(2, 0, 7, 10)
 
