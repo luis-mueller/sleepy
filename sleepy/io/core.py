@@ -2,6 +2,7 @@
 from sleepy.processing import FileProcessor
 from sleepy.gui.exceptions import UserCancel
 from sleepy.io.gui import FileLoaderControl, FileLoaderView
+from sleepy.processing._engine import Engine
 import pdb
 
 class FileLoader:
@@ -36,7 +37,7 @@ class FileLoader:
 
             self.showOptionsAndUpdate()
 
-        self.navigator = self.fileProcessor.computeNavigator()
+        self.navigator = Engine.run()
 
         return self.navigator, self.dataSet
 
