@@ -1,3 +1,0 @@
-
-SLASH = '/'
-PATH = "settingTree"

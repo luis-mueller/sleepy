@@ -1,7 +1,7 @@
 
 from PyQt5.QtWidgets import QApplication
 from sleepy.gui.view import View
-from sleepy.gui.settings.v2.core import Settings
+from sleepy.gui.settings.core import Settings
 from sleepy.gui.exceptions import UserCancel
 
 class Gui(QApplication):

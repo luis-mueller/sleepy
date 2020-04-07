@@ -2,8 +2,9 @@ from PyQt5.QtWidgets import QMainWindow, QAction, QShortcut
 from PyQt5.QtGui import QKeySequence
 from PyQt5.QtWidgets import QStackedWidget
 from PyQt5.QtGui import QIcon
-from sleepy.tagging.view import NullView, TaggingView
-from sleepy.tagging.control import TaggingControl
+from sleepy.gui.tagging.view import NullView, TaggingView
+from sleepy.gui.tagging.control import TaggingControl
+from sleepy.gui.processing.core import Preprocessing
 import os
 
 def closingTagging(function):
@@ -56,7 +57,9 @@ class View:
         """Abstraction around setting the tagging view as the current widget.
         """
 
-        self.taggingControl.open()
+        preprocessing = Preprocessing(self.control)
+
+        self.taggingControl.open(preprocessing)
 
         self.views.setCurrentWidget(self.taggingView)
 
