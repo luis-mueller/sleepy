@@ -1,5 +1,6 @@
 
 from sleepy.io.dataset import Dataset
+from scipy.io import loadmat, savemat
 import numpy as np
 
 def sleepyProperty(function):
@@ -20,7 +21,7 @@ def sleepyProperty(function):
 
     return installer
 
-class MultiChannelMatInterface(Dataset):
+class MatDataset(Dataset):
     """Implements the :class:`Dataset` interface of getters and setters. The
     sleepy-properties make use of a decorator that prepares the sleepy structure
     in mat-file before calling the getter or setter.
@@ -28,6 +29,10 @@ class MultiChannelMatInterface(Dataset):
     which implements the logic behind the dataset. This class merely provides
     the bridge between the file-format and a convenient numpy format.
     """
+
+    def load(path):
+        #cfg
+        return loadmat(path)
 
     @property
     def epochs(self):
@@ -56,11 +61,14 @@ class MultiChannelMatInterface(Dataset):
 
         self.setChangesMadeFrom(labels)
 
-        self.raw['sleepy'][0] = np.as_array(labels).copy()
+        self.raw['sleepy'][0] = np.asarray(labels).copy()
 
     @property
     @sleepyProperty
     def tags(self):
+
+        self.raw['sleepy'][1] = super().tags
+
         return self.raw['sleepy'][1]
 
     @tags.setter

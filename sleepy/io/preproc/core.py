@@ -3,6 +3,7 @@ from sleepy.io.preproc.supported import SUPPORTED_FILTERS, SUPPORTED_ALGORITHMS,
 from sleepy.io.preproc.view import PreprocessingView
 from sleepy.gui.exceptions import UserCancel
 from sleepy.tagging.model import Navigator
+from sleepy.processing._engine import Engine
 from PyQt5.QtWidgets import QFileDialog
 
 class Preprocessing:
@@ -10,6 +11,19 @@ class Preprocessing:
     select a dataset, a filter and a algorithm. Uses the :class:`Engine` class
     to produce a list of navigators and returns them to the caller.
     """
+
+    def run(parent):
+        """Static twin of Preprocessing.__run. Called like an API. Maintaining
+        an instance to the outside is not necessary.
+
+        :param parent: The parent application.
+
+        :returns: A list of navigators, one for each channel.
+
+        :raises UserCancel: Window was rejected by the user.
+        """
+
+        return Preprocessing(parent).__run()
 
     def __init__(self, parent):
         """Configures the application by setting a default path, creating the
@@ -21,31 +35,18 @@ class Preprocessing:
         wants to abort the preprocessing.
         """
 
+        self.path = ""
         self.parent = parent
+        self.algorithms = self.__renderAlgorithms()
+        self.filters = self.__renderFilters()
+        self.view = PreprocessingView(parent.view.window, self)
 
         # Initially do not catch the UserCancel to signal the initial cancel
         # to the parent
-        self.path = self.selectPath()
-        self.algorithms = self.renderAlgorithms()
-        self.filters = self.renderFilters()
-        self.view = PreprocessingView(parent, self)
+        self.selectPath()
 
-    def run(self):
-        """Runs the preprocessing by starting the view's window and returns the
-        computed navigators in Preprocessing.load. If the navigators were not
-        computed then the window must have been rejected. This is propagated
-        forward by raising UserCancel.
+        if self.path == "":
 
-        :returns: A list of navigators, one for each channel.
-
-        :raises UserCancel: Window was rejected by the user.
-        """
-
-        self.view.exec_()
-
-        try:
-            return self.navigators
-        except AttributeError:
             raise UserCancel
 
     def compute(self):
@@ -53,7 +54,7 @@ class Preprocessing:
         yet. The result of the computation is displayed to the user via the view.
         """
 
-        events = self.__computeEvents()
+        events, _ = self.__computeEvents()
 
         numberOfEvents = sum([ len(eventList) for eventList in events ])
         numberOfChannels = len(events)
@@ -66,9 +67,11 @@ class Preprocessing:
         calling method (Preprocessing.run).
         """
 
-        events = self.__computeEvents()
+        events, dataset = self.__computeEvents()
 
-        self.navigators = [ Navigator(eventList, changesMade) for eventList in events ]
+        self.navigators = [ Navigator(eventList, dataset.changesMade) for eventList in events ]
+
+        self.dataset = dataset
 
         self.view.accept()
 
@@ -108,6 +111,31 @@ class Preprocessing:
 
             self.view.setNoFilterParameters()
 
+    def selectPath(self):
+        """Tries to load the path to a new dataset.
+        """
+
+        path, _ = QFileDialog.getOpenFileName(self.parent.view.window, 'Open File')
+        if path != '':
+
+            self.view.setPath(path)
+
+            self.path = path
+
+    def __run(self):
+        """Runs the preprocessing by starting the view's window and returns the
+        computed navigators in Preprocessing.load. If the navigators were not
+        computed then the window must have been rejected. This is propagated
+        forward by raising UserCancel.
+        """
+
+        self.view.exec_()
+
+        try:
+            return self.navigators, self.dataset
+        except AttributeError:
+            raise UserCancel
+
     def __computeEvents(self):
         """Computes the events given algorithm and filter. The dataset is also
         loaded at this step based on the path that is currently selected.
@@ -124,10 +152,10 @@ class Preprocessing:
 
                 settings = self.parent.settings
 
-                return Engine.run(self.algorithm, self.filter, dataset, settings)
+                return Engine.run(self.algorithm, self.filter, dataset, settings), dataset
 
         except AttributeError:
-            return dataset.labels
+            return dataset.labels, dataset
 
     def __loadDataset(self):
         """Loads a :class:`Dataset` instance based on the path currently selected.
@@ -141,23 +169,9 @@ class Preprocessing:
 
         DatasetClass = SUPPORTED_DATASETS[extension]
 
-        raw = DatasetClass.load()
+        raw = DatasetClass.load(self.path)
 
-        return DatasetClass(raw)
-
-    def __selectPath(self):
-        """Tries to load the path to a new dataset. If no path was selected
-        raise a UserCancel.
-        """
-
-        path, _ = QFileDialog.getOpenFileName(self.parent, 'Open File')
-        if path != '':
-
-            self.view.setPath(path)
-
-            return path
-        else:
-            raise UserCancel
+        return DatasetClass(raw, self.path)
 
     def __renderFilters(self):
         """Renders the list of supported filters, drawn from the supported

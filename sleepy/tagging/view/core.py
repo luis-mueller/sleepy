@@ -22,25 +22,23 @@ class NullView(QWidget):
     The :class:`CustomStackedWidget` stacks an instance of this class. Inherits
     from :class:`ContextWidget`.
     """
-    def __init__(self, app):
+    def __init__(self, parent):
 
-        super().__init__(app)
+        super().__init__(parent.window)
 
-        self.app = app
+        self.wrapping = parent
 
         self.initializeLayout()
 
     def initializeLayout(self):
-
-        #self.app.setStyleSheet("QMainWindow { background-color: #2F2F2F }")
 
         self.labelLayout = QVBoxLayout()
 
         self.nullLabel = QLabel("Load a dataset to get started.")
         self.nullLabel.setStyleSheet("QLabel { font: 11pt; font-family: 'Arial'; color : black; }")
         self.nullLabel.move(
-            ( self.app.width() - self.nullLabel.width() ) / 2,
-            ( self.app.height() - self.nullLabel.height() ) / 2
+            ( self.wrapping.window.width() - self.nullLabel.width() ) / 2,
+            ( self.wrapping.window.height() - self.nullLabel.height() ) / 2
         )
         self.nullLabel.setAlignment(Qt.Qt.AlignCenter)
 
@@ -51,31 +49,33 @@ class NullView(QWidget):
     def open(self):
         """Disables unnecessary menu features and resets the window title."""
 
-        self.app.clearFile.setDisabled(True)
-        self.app.saveFile.setDisabled(True)
-        self.app.reloadFile.setDisabled(True)
+        self.wrapping.clearFile.setDisabled(True)
+        self.wrapping.saveFile.setDisabled(True)
+        self.wrapping.reloadFile.setDisabled(True)
 
-        self.app.setWindowTitle(self.app.name)
+        self.wrapping.window.setWindowTitle(self.wrapping.control.name)
 
 class TaggingView(QWidget):
 
-    def __init__(self, app, control):
+    def __init__(self, parent, control, settings):
         """UI-part of the tagging environment. Does not implement application
         logic but abstracts UI-functionality to the control. The :class:`TaggingView`
         also creates all PyQt5-objects and connects them to the control (if needed).
         """
 
-        super().__init__(app)
+        super().__init__(parent.window)
 
-        self.app = app
+        # parent is reserved for QWidget
+        self.wrapping = parent
         self.control = control
+        self.settings = settings
         self.plotFunction = None
 
         self.initializeLayout()
 
         self.initializeShortcuts()
 
-        self.app.saveFile.triggered.connect(self.control.onSaveFile)
+        self.wrapping.saveFile.triggered.connect(self.control.onSaveFile)
 
     def initializeLayout(self):
 
@@ -117,33 +117,33 @@ class TaggingView(QWidget):
 
     def initializeShortcuts(self):
 
-        self.navigateRight = QShortcut(QKeySequence("Right"), self.app)
+        self.navigateRight = QShortcut(QKeySequence("Right"), self.wrapping.window)
         self.navigateRight.activated.connect(self.control.onNextClick)
 
-        self.navigateLeft = QShortcut(QKeySequence("Left"), self.app)
+        self.navigateLeft = QShortcut(QKeySequence("Left"), self.wrapping.window)
         self.navigateLeft.activated.connect(self.control.onPreviousClick)
 
-        self.channelRight = QShortcut(QKeySequence("D"), self.app)
+        self.channelRight = QShortcut(QKeySequence("D"), self.wrapping.window)
         self.channelRight.activated.connect(self.control.nextChannel)
 
-        self.channelLeft = QShortcut(QKeySequence("A"), self.app)
+        self.channelLeft = QShortcut(QKeySequence("A"), self.wrapping.window)
         self.channelLeft.activated.connect(self.control.previousChannel)
 
-        self.selectPress = QShortcut(QKeySequence("P"), self.app)
+        self.selectPress = QShortcut(QKeySequence("P"), self.wrapping.window)
         self.selectPress.activated.connect(self.control.onTaggingClick)
 
-        self.selectPressAlternative = QShortcut(QKeySequence("Up"), self.app)
+        self.selectPressAlternative = QShortcut(QKeySequence("Up"), self.wrapping.window)
         self.selectPressAlternative.activated.connect(self.control.onTaggingClick)
 
-        self.savePress = QShortcut(QKeySequence("Ctrl+S"), self.app)
+        self.savePress = QShortcut(QKeySequence("Ctrl+S"), self.wrapping.window)
         self.savePress.activated.connect(self.control.onSaveFile)
 
     def open(self):
 
         self.addToolBar()
 
-        self.app.clearFile.setDisabled(False)
-        self.app.reloadFile.setDisabled(False)
+        self.wrapping.clearFile.setDisabled(False)
+        self.wrapping.reloadFile.setDisabled(False)
 
     def setButtonStyle(self, stylesheet, text):
 
@@ -152,11 +152,11 @@ class TaggingView(QWidget):
 
     def removeToolBar(self):
 
-        self.app.removeToolBar(self.plotToolBar)
+        self.wrapping.window.removeToolBar(self.plotToolBar)
 
     def addToolBar(self):
 
-        self.app.addToolBar(self.plotToolBar)
+        self.wrapping.window.addToolBar(self.plotToolBar)
 
     def plot(self, plotFunction):
 
@@ -165,7 +165,7 @@ class TaggingView(QWidget):
 
         self.axis.cla()
 
-        if self.app.applicationSettings.plotGrid:
+        if self.settings.plotGrid:
             self.axis.grid()
 
         plotFunction(self.axis)
@@ -195,7 +195,7 @@ class TaggingView(QWidget):
         proper axis to plot to.
         """
 
-        return Timeline(self.timelineAxis, self.app.applicationSettings)
+        return Timeline(self.timelineAxis, self.settings)
 
     def onClick(self, event):
         """Called when user clicks any plot. Can be used to redirect clicks
@@ -216,9 +216,9 @@ class TaggingView(QWidget):
 
     def showMenuUserEventRemove(self, userEvent):
 
-        menu = QMenu(self.app)
+        menu = QMenu(self.wrapping.window)
 
-        remove = QAction("Remove User-Event", self.app)
+        remove = QAction("Remove User-Event", self.wrapping.window)
 
         removeUserEvent = partial(self.control.removeUserEvent, userEvent)
         remove.triggered.connect(removeUserEvent)
@@ -230,9 +230,9 @@ class TaggingView(QWidget):
 
     def showMenuUserEventCreate(self, event):
 
-        menu = QMenu(self.app)
+        menu = QMenu(self.wrapping.window)
 
-        create = QAction("Create User-Event", self.app)
+        create = QAction("Create User-Event", self.wrapping.window)
 
         createUserEvent = partial(self.control.createUserEvent, event)
         create.triggered.connect(createUserEvent)
@@ -244,9 +244,9 @@ class TaggingView(QWidget):
 
     def showMenuTimlineRightClick(self):
 
-        menu = QMenu(self.app)
+        menu = QMenu(self.wrapping.window)
 
-        reset = QAction("Reset Timeline", self.app)
+        reset = QAction("Reset Timeline", self.wrapping.window)
 
         reset.triggered.connect(self.control.configureTimeline)
 
@@ -258,14 +258,14 @@ class TaggingView(QWidget):
     def tellUserNavigationFlawed(self):
 
         return QMessageBox.critical(
-            self.app, 'Event Detection', '[INTERNAL ERROR]: Unable to load events, please try again.',
+            self.wrapping.window, 'Event Detection', '[INTERNAL ERROR]: Unable to load events, please try again.',
             QMessageBox.Ok
         )
 
     def askUserForCheckPoint(self):
 
         return QMessageBox.question(
-            self.app, 'Checkpoints', 'Would you like to set a checkpoint for the current sample? Warning: This will be stored in the dataset.',
+            self.wrapping.window, 'Checkpoints', 'Would you like to set a checkpoint for the current sample? Warning: This will be stored in the dataset.',
             QMessageBox.Yes | QMessageBox.No | QMessageBox.Cancel,
             QMessageBox.Cancel
         )
@@ -273,7 +273,7 @@ class TaggingView(QWidget):
     def askUserForCheckPointRestore(self, checkpoint):
 
         return QMessageBox.question(
-            self.app, 'Checkpoints', 'Recover checkpoint at sample {}?'.format(checkpoint),
+            self.wrapping.window, 'Checkpoints', 'Recover checkpoint at sample {}?'.format(checkpoint),
             QMessageBox.Yes | QMessageBox.No,
             QMessageBox.Yes
         )
@@ -281,14 +281,14 @@ class TaggingView(QWidget):
     def tellUserNoEventsFound(self):
 
         return QMessageBox.information(
-            self.app, 'Event Detection', 'The algorithm was unable to find events with the given parameters.',
+            self.wrapping.window, 'Event Detection', 'The algorithm was unable to find events with the given parameters.',
             QMessageBox.Ok
         )
 
     def askUserForSwitch(self):
 
         return QMessageBox.question(
-            self.app, 'Confirm', 'Save changes?',
+            self.wrapping.window, 'Confirm', 'Save changes?',
             QMessageBox.Discard | QMessageBox.Save | QMessageBox.Cancel,
             QMessageBox.Cancel
         )

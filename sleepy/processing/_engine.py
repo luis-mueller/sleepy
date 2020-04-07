@@ -82,14 +82,14 @@ class Engine:
         """
 
         filteredData = [
-            [
+            np.array([
                 filter.filter(dataset.data[epoch][channel], dataset.samplingRate)
                     for channel in range(len(dataset.data[epoch]))
-            ]
+            ])
                 for epoch in epochs
         ]
 
-        return np.array(filteredData)
+        return filteredData
 
     def __getComputeMethod(algorithm, data):
         """Executes the extract step and attaches the parameters to the compute

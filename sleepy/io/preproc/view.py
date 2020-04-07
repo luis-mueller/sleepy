@@ -1,6 +1,6 @@
 
 from PyQt5.QtWidgets import QVBoxLayout, QPushButton, QLineEdit, QDialogButtonBox, QDialog
-from PyQt5.QtWidgets import QHBoxLayout, QAction, QFileDialog, QGroupBox
+from PyQt5.QtWidgets import QHBoxLayout, QGroupBox, QWidget, QComboBox, QStackedWidget, QLabel
 
 class PreprocessingView(QDialog):
 
@@ -19,9 +19,7 @@ class PreprocessingView(QDialog):
         self.layout = QVBoxLayout(self)
 
         self.initializePathSelector()
-
-        self.layout.addWidget(self.control.options)
-
+        self.initializeOptions()
         self.initializeButtonBox()
 
     def initializePathSelector(self):
@@ -64,9 +62,9 @@ class PreprocessingView(QDialog):
 
         self.optionsLayout = QVBoxLayout()
 
-        self.optionsLayout.addWidget(self.filterOptions)
+        self.optionsLayout.addWidget(self.filterOptions())
 
-        self.optionsLayout.addWidget(self.algorithmOptions)
+        self.optionsLayout.addWidget(self.algorithmOptions())
 
         self.optionsLayout.addWidget(self.computationStatus)
 
@@ -84,7 +82,6 @@ class PreprocessingView(QDialog):
             self._computationStatus = QLabel("")
             return self._computationStatus
 
-    @property
     def filterOptions(self):
 
         self.filterSelection = QComboBox()
@@ -93,7 +90,7 @@ class PreprocessingView(QDialog):
 
         list(map(
             lambda f: self.filterSelection.addItem(f.name),
-            self.control.filters
+            self.control.filters[1:]
         ))
 
         self.filterBox = QGroupBox('Filters')
@@ -109,7 +106,7 @@ class PreprocessingView(QDialog):
 
         list(map(
             lambda f: self.filterParameters.addWidget(f.options),
-            self.control.filters
+            self.control.filters[1:]
         ))
 
         layout.addWidget(self.filterParameters)
@@ -120,7 +117,6 @@ class PreprocessingView(QDialog):
 
         return self.filterBox
 
-    @property
     def algorithmOptions(self):
 
         self.algorithmSelection = QComboBox()
@@ -129,7 +125,7 @@ class PreprocessingView(QDialog):
 
         list(map(
             lambda a: self.algorithmSelection.addItem(a.name),
-            self.control.algorithms
+            self.control.algorithms[1:]
         ))
 
         self.algorithmBox = QGroupBox('Algorithms')
@@ -145,7 +141,7 @@ class PreprocessingView(QDialog):
 
         list(map(
             lambda a: self.algorithmParameters.addWidget(a.options),
-            self.control.algorithms
+            self.control.algorithms[1:]
         ))
 
         layout.addWidget(self.algorithmParameters)
@@ -164,19 +160,19 @@ class PreprocessingView(QDialog):
 
     def setNoAlgorithmParameters(self):
 
-        self.algorithmSelection.setCurrentWidget(self.noParameters)
+        self.algorithmParameters.setCurrentWidget(self.noParameters)
 
     def setNoFilterParameters(self):
 
-        self.filterSelection.setCurrentWidget(self.noFilterParameters)
+        self.filterParameters.setCurrentWidget(self.noFilterParameters)
 
     def setAlgorithmParameters(self, parameters):
 
-        self.algorithmSelection.setCurrentWidget(parameters)
+        self.algorithmParameters.setCurrentWidget(parameters)
 
     def setFilterParameters(self, parameters):
 
-        self.filterSelection.setCurrentWidget(parameters)
+        self.filterParameters.setCurrentWidget(parameters)
 
     def showNumberOfEvents(self, numberOfEvents, numberOfChannels):
         """Abstraction around setting the text to the computationStatus

@@ -1,31 +1,17 @@
 
 from sleepy.gui.exceptions import UserCancel, NoNavigatorError, NavigatorEmptyError
 from sleepy.tagging.control.channels import MultiChannelControl, visualize
+from sleepy.io.preproc.core import Preprocessing
 from PyQt5.QtWidgets import QMessageBox
 import pdb
 
 class TaggingControl(MultiChannelControl):
 
-    def __init__(self, environment, settings):
+    def __init__(self, parent, settings):
 
-        self.environment = environment
+        self.parent = parent
         self.settings = settings
-
-    @property
-    def view(self):
-        return self.environment.view
-
-    @property
-    def app(self):
-        return self.environment.app
-
-    @property
-    def active(self):
-        return self.environment.active
-
-    @property
-    def filename(self):
-        return self.fileLoader.path.split('/')[-1]
+        self.active = False
 
     @property
     def navigator(self):
@@ -59,6 +45,50 @@ class TaggingControl(MultiChannelControl):
     @navigator.deleter
     def navigator(self):
         del self._navigator
+
+    def close(self):
+        """If any navigators are currently installed, the user must be asked
+        to confirm the change. After closing the navigators and the buffered
+        dataset have to be removed.
+
+        :raises UserCancel: Raised if user aborts the closing process.
+        """
+
+        try:
+
+            self.navigators
+
+            self.notifyUserOfSwitch()
+
+        except AttributeError:
+            pass
+
+        self.onClose()
+
+        self.active = False
+
+    def onClose(self):
+        """Removes navigators and dataset from the control and tells the view
+        to remove the toolbar.
+        """
+
+        try:
+            del self.navigators
+        except AttributeError:
+            pass
+
+        try:
+            del self.navigator
+        except AttributeError:
+            pass
+
+        try:
+            del self.dataset
+        except AttributeError:
+            pass
+
+        self.view.removeToolBar()
+
 
     @visualize
     def onNextClick(self, *args):
@@ -181,18 +211,23 @@ class TaggingControl(MultiChannelControl):
 
         self.configureTimeline()
 
-    def open(self, fileLoader):
-        """Loads a navigator and a dataset from a specified file loader.
+    def open(self):
+        """Loads a navigator and a dataset from a preprocessing instance.
         Before accepting the new data, this method validates whether the
         navigator contains displayable data and tells the user that the
         navigation is flawed otherwise.
         If the navigator is valid, this method buffers navigator and dataset,
         configures the timeline with data from the navigator, restores potential
         checkpoints and fires an initial visualization of the view.
+
+        :raises UserCancel: Raised if either the user cancels the preprocessing
+        or there are no empty navigators.
         """
 
-        self.fileLoader = fileLoader
-        navigators, dataset = self.fileLoader.load()
+        try:
+            navigators, dataset = Preprocessing.run(self.parent.control)
+        except UserCancel:
+            raise
 
         if len(navigators) > 0:
 
@@ -207,6 +242,10 @@ class TaggingControl(MultiChannelControl):
 
         if self.navigator:
             del self.navigator
+
+        self.active = True
+
+        self.onAfterActivate()
 
     def onAfterActivate(self):
         """Do visualization after the control has been set active. This involves
@@ -267,7 +306,7 @@ class TaggingControl(MultiChannelControl):
         needs reflection in the navigator (e.g. reset changesMade flag).
         """
 
-        self.fileLoader.saveAs()
+        self.dataset.save()
 
         self.navigator.onSave()
 
@@ -280,16 +319,6 @@ class TaggingControl(MultiChannelControl):
             self.save()
         except UserCancel:
             return
-
-    def onDeactivate(self):
-        """Removes navigator and file loader from the control and tells the view
-        to remove the toolbar.
-        """
-
-        del self.navigator
-        del self.fileLoader
-
-        self.view.removeToolBar()
 
     def onChangesMade(self, changesMade):
         """Event handler for the changesMade event of the navigator. Keeps track
@@ -310,13 +339,13 @@ class TaggingControl(MultiChannelControl):
         respect to the number of events detected.
         """
 
-        if self.filename != '':
+        if self.dataset.filename != '':
 
-            windowTitle = '{} - {}'.format(self.app.name, self.filename)
+            windowTitle = '{} - {}'.format(self.parent.control.name, self.dataset.filename)
 
         else:
 
-            windowTitle = self.app.name
+            windowTitle = self.parent.control.name
 
         if self.changesMade:
 
@@ -332,7 +361,7 @@ class TaggingControl(MultiChannelControl):
         if counterString != '':
             windowTitle += " - Sample: {}".format(counterString)
 
-        self.app.setWindowTitle(windowTitle)
+        self.parent.window.setWindowTitle(windowTitle)
 
     def getCounterString(self):
         """Creates a string containing the current position + 1 and the
@@ -355,10 +384,10 @@ class TaggingControl(MultiChannelControl):
         """
 
         disableSaveOption = not self.changesMade
-        self.app.saveFile.setDisabled(disableSaveOption)
+        self.parent.saveFile.setDisabled(disableSaveOption)
 
         disableClearOption = not self.active
-        self.app.clearFile.setDisabled(disableClearOption)
+        self.parent.clearFile.setDisabled(disableClearOption)
 
     def notifyUserOfSwitch(self):
         """Starts the creation of a potential checkpoint and asks the user

@@ -4,17 +4,33 @@ from sleepy.tagging.model import DataSource
 
 class Dataset:
 
-    def __init__(self, raw = None):
+    def load(path):
+        """Static API-method that returns a raw data object for a given path.
+        Must be implemented by direct subclasses.
+
+        :param path: An absolute path to a file whose contents should be loaded
+        as a raw data object.
+        """
+
+        raise NotImplementedError
+
+    def __init__(self, raw = None, path = ""):
         """Abstract Dataset class, serving as an interface for all implementations.
         """
 
         self.raw = raw
+
+        self.path = path
 
         self.samplingRate = 500
 
         self.changesMade = False
 
         self.dataSources = {}
+
+    @property
+    def filename(self):
+        return self.path.split('/')[-1]
 
     @property
     def epochs(self):
@@ -86,6 +102,10 @@ class Dataset:
     @checkpoint.setter
     def checkpoint(self, checkpoint):
         self._checkpoint = checkpoint
+
+    def save(self):
+        """Call to the dataset to save its contents on disk.
+        """
 
     def setChangesMadeFrom(self, result):
         """Sets changesMade to true if the result array is equal to the labels
