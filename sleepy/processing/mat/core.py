@@ -30,17 +30,46 @@ class MatDataset(Dataset):
     the bridge between the file-format and a convenient numpy format.
     """
 
+    def importData(filename, structName='data'):
+
+        '''Load Matlab file with EEG data and save all fields in a Python dictionary'''
+
+        try:
+
+            fullDictData = loadmat(filename)
+
+            keys = fullDictData[structName][0, 0].dtype.descr
+
+            vals = fullDictData[structName][0, 0]
+
+        except:
+            raise
+
+        dictData = {}
+
+        for i in range(len(keys)):
+
+            key = keys[i][0]
+
+            dictData[key] = np.squeeze(vals[key]) #Converts Matlab arrays into Python numpy arrays
+
+        return dictData
+
     def load(path):
-        #cfg
-        return loadmat(path)
+
+        raw = MatDataset.importData(path)
+
+        raw.pop("cfg", None)
+
+        return raw
 
     @property
     def epochs(self):
-        return self.raw['data'][0][0][6].copy()
+        return self.raw['sampleinfo'].copy()#[0][0][6].copy()
 
     @property
     def data(self):
-        return self.raw['data'][0][0][1][0].copy()
+        return self.raw['trial'].copy()#[0][0][1][0].copy()
 
     @property
     @sleepyProperty
@@ -119,42 +148,39 @@ class MatDataset(Dataset):
 
         self.raw['sleepy'][3] = userLabels.copy()
 
-    def setCheckpoint(self, checkpoint):
-
-        self.raw['sleepy-metadata-checkpoint'] = str(checkpoint)
-
-    def getCheckpoint(self):
+    @property
+    def checkpoint(self):
 
         try:
 
-            return int(self.raw['sleepy-metadata-checkpoint'])
+            return tuple(self.raw['sleepy-metadata-checkpoint'].tolist())
         except KeyError:
             pass
+
+    @checkpoint.setter
+    def checkpoint(self, checkpoint):
+
+        self.raw['sleepy-metadata-checkpoint'] = np.array(list(checkpoint))
 
     def removeCheckpoint(self):
 
         # Removes the metadata if it exists in the dictionary
         self.raw.pop('sleepy-metadata-checkpoint', None)
 
+    def save(self, path, navigators):
+        """Collects potentially changed data from a list of navigators and
+        stores the data in the raw structure. Then, saves the raw data in the
+        .mat file.
+        """
 
-    def save(self):
+        self.userLabels = np.array([
+            navigator.getLabelPartition()[1]
+                for navigator in navigators
+        ])
 
-        computedList, userList, tagList = [], [], []
+        self.tags = np.array([
+            navigator.getCurrentTags()
+                for navigator in navigators
+        ])
 
-        for navigator in self.navigator:
-
-            computed, user = navigator.getLabelPartition()
-
-            tags = navigator.getCurrentTags()
-
-            computedList.append(computed)
-            userList.append(user)
-            tagList.append(tags)
-
-        self.dataSet.userLabels = np.array(userList)
-
-        self.dataSet.tags = np.array(tagList)
-
-        #self.dataSet.raw.pop('data')
-
-        savemat(self.path, self.dataSet.raw)
+        savemat(path, {'data' : self.raw})

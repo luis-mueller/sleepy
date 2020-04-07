@@ -15,6 +15,8 @@ matplotlib.rcParams['axes.formatter.useoffset'] = False
 import pdb
 from sleepy.gui.tagging.model.timeline import Timeline
 import time
+from sleepy.gui.exceptions import UserCancel
+from PyQt5.QtCore import QSettings
 
 class NullView(QWidget):
     """Implements the null context. The null context disables save and clear
@@ -270,10 +272,10 @@ class TaggingView(QWidget):
             QMessageBox.Cancel
         )
 
-    def askUserForCheckPointRestore(self, checkpoint):
+    def askUserForCheckPointRestore(self, index, position):
 
         return QMessageBox.question(
-            self.wrapping.window, 'Checkpoints', 'Recover checkpoint at sample {}?'.format(checkpoint),
+            self.wrapping.window, 'Checkpoints', 'Recover checkpoint at event {} in channel {}?'.format(index, position),
             QMessageBox.Yes | QMessageBox.No,
             QMessageBox.Yes
         )
@@ -292,3 +294,18 @@ class TaggingView(QWidget):
             QMessageBox.Discard | QMessageBox.Save | QMessageBox.Cancel,
             QMessageBox.Cancel
         )
+
+    def getSaveFileName(self):
+        """Asks user for a path to store the data in.
+        """
+
+        path, _ = QFileDialog.getSaveFileName(
+            self.wrapping.window, 'Save File', QSettings().value("recentPath")
+        )
+
+        if path == "":
+            raise UserCancel
+
+        QSettings().setValue("recentPath", path)
+
+        return path

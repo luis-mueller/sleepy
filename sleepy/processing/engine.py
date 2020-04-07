@@ -3,6 +3,7 @@ import numpy as np
 from functools import partial
 from sleepy.processing.signal import Signal
 from sleepy.gui.tagging.model.event import EventTypeNotSupported, PointEvent, IntervalEvent
+from scipy.sparse import dia_matrix
 
 class Engine:
 
@@ -30,6 +31,8 @@ class Engine:
 
         :returns: A list of navigators, one for each channel.
         """
+
+        import pdb; pdb.set_trace()
 
         if filter:
             Engine.__applyPreFilter(filter, dataset)
@@ -72,13 +75,20 @@ class Engine:
         """Filters the entire dataset for the extract step.
         """
 
-        filteredData = [
+        numberOfEpochs = len(epochs)
+
+        filteredData = np.empty(numberOfEpochs, dtype = object)
+
+        data = [
             np.array([
                 filter.filter(dataset.data[epoch][channel], dataset.samplingRate)
                     for channel in range(len(dataset.data[epoch]))
             ])
                 for epoch in epochs
         ]
+
+        for index in epochs:
+            filteredData[index] = data[index]
 
         return filteredData
 

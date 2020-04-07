@@ -308,7 +308,9 @@ class TaggingControl(MultiChannelControl):
         needs reflection in the navigator (e.g. reset changesMade flag).
         """
 
-        self.dataset.save()
+        path = self.view.getSaveFileName()
+
+        self.dataset.save(path, self.navigators)
 
         self.navigator.onSave()
 
@@ -429,11 +431,13 @@ class TaggingControl(MultiChannelControl):
 
             if checkpoint:
 
-                answer = self.view.askUserForCheckPointRestore(checkpoint + 1)
+                index, position = checkpoint
+
+                answer = self.view.askUserForCheckPointRestore(index + 1, position + 1)
 
                 if answer == QMessageBox.Yes:
 
-                    self.navigator.position = checkpoint
+                    self.navigators[index].position = position
 
     def setCheckpoint(self):
         """Tries to save the current position as a checkpoint in the dataset.
@@ -445,9 +449,11 @@ class TaggingControl(MultiChannelControl):
 
             if answer == QMessageBox.Yes:
 
-                checkpoint = self.navigator.position
+                position = self.navigator.position
 
-                self.dataset.checkpoint = checkpoint
+                index = self.navigators.index(self.navigator)
+
+                self.dataset.checkpoint = (index, position)
 
                 self.navigator.changesMade = True
 

@@ -156,7 +156,7 @@ class ControlTest(unittest.TestCase):
 
         checkpoint = 2
         _, dataset = processing.run()
-        dataset.checkpoint = checkpoint
+        dataset.checkpoint = (0, checkpoint)
 
         control.open(processing)
 
@@ -177,13 +177,10 @@ class ControlTest(unittest.TestCase):
         view.askUserForCheckPointRestore = MagicMock(return_value = QMessageBox.No)
 
         checkpoint = 2
-        dataset = TestBase.getDataset()
-        dataset.getCheckpoint = MagicMock(return_value = checkpoint)
-
-        processing.load = MagicMock(return_value=([navigator], dataset))
+        _, dataset = processing.run()
+        dataset.checkpoint = (0, checkpoint)
 
         control.open(processing)
-
 
         self.assertEqual(
             navigator.position,
@@ -389,8 +386,6 @@ class ControlTest(unittest.TestCase):
 
         _, dataset = processing.run()
 
-        processing.load = MagicMock(return_value=([navigator], dataset))
-
         control.open(processing)
 
         control.notifyUserOfSwitch()
@@ -417,4 +412,4 @@ class ControlTest(unittest.TestCase):
 
         view.askUserForCheckPoint.assert_called()
 
-        self.assertEqual(dataset.checkpoint, 1)
+        self.assertEqual(dataset.checkpoint, (0,1))

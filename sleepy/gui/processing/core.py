@@ -27,6 +27,8 @@ class Preprocessing:
         self.parent = parent
         self.algorithms = self.__renderAlgorithms()
         self.filters = self.__renderFilters()
+        self.algorithm = None
+        self.filter = None
 
     def compute(self):
         """Compute events with the given settings but do not create navigators
@@ -157,11 +159,9 @@ class Preprocessing:
 
         try:
 
-            if self.algorithm and self.filter:
+            settings = self.parent.settings
 
-                settings = self.parent.settings
-
-                return Engine.run(self.algorithm, self.filter, dataset, settings), dataset
+            return Engine.run(self.algorithm, self.filter, dataset, settings), dataset
 
         except AttributeError:
             return dataset.labels, dataset
