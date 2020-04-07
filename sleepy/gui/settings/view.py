@@ -1,67 +1,31 @@
 
-from PyQt5.QtWidgets import QDialog, QTabWidget, QGroupBox, QVBoxLayout, QWidget
-from PyQt5.QtWidgets import QDialogButtonBox
-from PyQt5.QtCore import QSettings
+from PyQt5.QtWidgets import QDialogButtonBox, QDialog
+from sleepy.gui.builder import Builder
+from sleepy import SLEEPY_ROOT_DIR
 
-class ApplicationSettingsView(QDialog):
-    """Handles the display of the global settings (as saved and restored with
-    :class:`QSettings`).
-    """
+class SettingsView(QDialog):
 
-    def __init__(self, app, api):
+    def __init__(self, control, application):
 
-        super().__init__(app)
+        super().__init__(application)
 
-        self.app = app
-        self.api = api
+        layout = Builder.build(SLEEPY_ROOT_DIR + '/gui/settings/view.json', control, level = 3)
 
-        self.setMinimumWidth(600)
+        layout.addStretch()
 
-        self.layout = QVBoxLayout()
-        self.tabWidget = QTabWidget()
+        layout.addWidget(self.buildButtonBox(control))
 
-    def initializeButtonBox(self):
+        self.setLayout(layout)
 
-        self.buttonBox = QDialogButtonBox()
-        self.buttonBox.addButton("Save", QDialogButtonBox.AcceptRole)
-        self.buttonBox.accepted.connect(self.save)
+    def buildButtonBox(self, control):
 
-        self.buttonBox.addButton("Cancel", QDialogButtonBox.RejectRole)
-        self.buttonBox.rejected.connect(self.reject)
+        buttonBox = QDialogButtonBox()
+        buttonBox.addButton("Save", QDialogButtonBox.AcceptRole)
+        buttonBox.accepted.connect(control.update)
+        buttonBox.accepted.connect(super().accept)
 
-        self.layout.addWidget(self.buttonBox)
+        buttonBox.addButton("Cancel", QDialogButtonBox.RejectRole)
+        buttonBox.rejected.connect(control.reset)
+        buttonBox.rejected.connect(super().reject)
 
-    def addSettingsTab(self, tab):
-
-        self.tab = QWidget()
-        self.tabName = tab
-
-        self.tabWidget.addTab(self.tab, tab)
-
-        self.tabLayout = QVBoxLayout()
-
-    def addSettingsBoxes(self, boxesLayout):
-
-        self.tabLayout.addLayout(boxesLayout)
-
-    def doneWithTab(self):
-
-        self.tab.setLayout(self.tabLayout)
-
-    def doneBuilding(self):
-
-        self.layout.addWidget(self.tabWidget)
-
-        self.initializeButtonBox()
-
-        self.setLayout(self.layout)
-
-    def save(self):
-
-        self.app.onRefresh()
-
-        self.accept()
-
-    def onExecute(self):
-
-        self.exec_()
+        return buttonBox

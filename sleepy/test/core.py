@@ -1,8 +1,9 @@
 
-from unittest.mock import MagicMock, Mock, patch, PropertyMock
-from sleepy.tagging.model import Navigator
-from sleepy.tagging.model.event import PointEvent
-from sleepy.tagging.model import DataSource
+from unittest.mock import MagicMock
+from sleepy.gui.tagging.model import Navigator
+from sleepy.gui.tagging.model.event import PointEvent
+from sleepy.gui.tagging.model import DataSource
+from sleepy.processing.dataset import Dataset
 import numpy as np
 
 class TestBase:
@@ -20,24 +21,20 @@ class TestBase:
 
         view = TestBase.getView()
 
-        env = TestBase.getEnvironment(view, app, active)
-
-        return env, app, settings
-
-    def getEnvironment(view, app, active):
-
-        env = MagicMock()
-        env.view = view
-        env.app = app
-        env.active = active
-        return env
+        return view, app, settings
 
     def getApp(settings, name = 'TestApplication'):
 
         app = MagicMock()
         app.name = name
         app.settings = settings
-        return app
+
+        appView = MagicMock()
+        appView.control = app
+
+        appView.window = MagicMock()
+
+        return appView
 
     def getSettings():
 
@@ -57,17 +54,21 @@ class TestBase:
 
         return Navigator(events, changesMade)
 
-    def getDataset():
+    def getDataset(path = ""):
 
-        return MagicMock()
+        dataset = Dataset(None, path)
+        dataset.save = MagicMock()
 
-    def getFileLoader(path = "", app = None, dataset = None, navigators = None):
+        # Is usually a property but cannot be mocked properly. As long as it
+        # exists as an attribute, everything's fine.
+        dataset.checkpoint = None
+        return dataset
 
-        loader = MagicMock()
-        loader.path = path
-        loader.app = app
-        loader.load = MagicMock(return_value=(navigators, dataset))
-        return loader
+    def getPreprocessing(dataset = None, navigators = None):
+
+        processing = MagicMock()
+        processing.run = MagicMock(return_value=(navigators, dataset))
+        return processing
 
     def getDataSource(filter = 1, samplingRate = 10, interval = (0,100)):
 
