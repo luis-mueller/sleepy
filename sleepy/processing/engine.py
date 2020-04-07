@@ -32,8 +32,6 @@ class Engine:
         :returns: A list of navigators, one for each channel.
         """
 
-        import pdb; pdb.set_trace()
-
         if filter:
             Engine.__applyPreFilter(filter, dataset)
 

@@ -3,24 +3,6 @@ from sleepy.processing.dataset import Dataset
 from scipy.io import loadmat, savemat
 import numpy as np
 
-def sleepyProperty(function):
-
-    def installer(self, *args):
-
-        if not 'sleepy' in self.raw:
-
-            self.raw['sleepy'] = np.array([None]*4)
-
-        value = function(self, *args)
-
-        if isinstance(value, np.ndarray):
-
-            return value.copy()
-
-        return value
-
-    return installer
-
 class MatDataset(Dataset):
     """Implements the :class:`Dataset` interface of getters and setters. The
     sleepy-properties make use of a decorator that prepares the sleepy structure
@@ -72,17 +54,19 @@ class MatDataset(Dataset):
         return self.raw['trial'].copy()#[0][0][1][0].copy()
 
     @property
-    @sleepyProperty
     def labels(self):
 
-        if self.raw['sleepy'][0] is None:
+        if 'sleepy-labels' not in self.raw:
 
-            self.raw['sleepy'][0] = np.array([])
+            self.raw['sleepy-labels'] = np.array([])
 
-        return self.raw['sleepy'][0]
+        labels = self.raw['sleepy-labels'].copy()
+
+        self.convertToPy(labels)
+
+        return labels
 
     @labels.setter
-    @sleepyProperty
     def labels(self, labels):
         """Sets labels as a numpy array to the sleepy addition and derives the
         tags from the new labels too.
@@ -90,63 +74,63 @@ class MatDataset(Dataset):
 
         self.setChangesMadeFrom(labels)
 
-        self.raw['sleepy'][0] = np.asarray(labels).copy()
+        self.raw['sleepy-labels'] = np.asarray(labels).copy()
 
     @property
-    @sleepyProperty
     def tags(self):
 
-        self.raw['sleepy'][1] = super().tags
+        if not 'sleepy-tags' in self.raw:
 
-        return self.raw['sleepy'][1]
+            self.raw['sleepy-tags'] = super().tags
+
+        tags = self.raw['sleepy-tags'].copy()
+
+        self.convertToPy(tags)
+
+        return tags
 
     @tags.setter
-    @sleepyProperty
     def tags(self, tags):
-        self.raw['sleepy'][1] = tags.copy()
+        self.raw['sleepy-tags'] = tags.copy()
 
     @property
-    @sleepyProperty
     def filteredData(self):
         """Copies the content from the dataset's data if no filtered data is
         available.
         """
 
-        if self.raw['sleepy'][2] is None:
+        if 'sleepy-filteredData' not in self.raw:
 
-            self.raw['sleepy'][2] = self.data.copy()
+            self.raw['sleepy-filteredData'] = self.data.copy()
 
-        return self.raw['sleepy'][2]
+        return self.raw['sleepy-filteredData']
 
     @filteredData.setter
-    @sleepyProperty
     def filteredData(self, filteredData):
 
         if not np.array_equal(filteredData, self.filteredData):
 
             self.changesMade = True
 
-        self.raw['sleepy'][2] = filteredData.copy()
+        self.raw['sleepy-filteredData'] = filteredData.copy()
 
     @property
-    @sleepyProperty
     def userLabels(self):
 
-        if self.raw['sleepy'][3] is None:
+        if 'sleepy-userLabels' not in self.raw:
 
-            self.raw['sleepy'][3] = np.array([])
+            self.raw['sleepy-userLabels'] = np.array([])
 
-        return self.raw['sleepy'][3]
+        return self.raw['sleepy-userLabels'].copy()
 
     @userLabels.setter
-    @sleepyProperty
     def userLabels(self, userLabels):
 
         if not np.array_equal(userLabels, self.userLabels):
 
             self.changesMade = True
 
-        self.raw['sleepy'][3] = userLabels.copy()
+        self.raw['sleepy-userLabels'] = userLabels.copy()
 
     @property
     def checkpoint(self):
@@ -167,6 +151,15 @@ class MatDataset(Dataset):
         # Removes the metadata if it exists in the dictionary
         self.raw.pop('sleepy-metadata-checkpoint', None)
 
+    def convertToPy(self, array):
+        """Convert the given array into pythonic format.
+        """
+
+        for index in range(len(array)):
+
+            array[index] = array[index].squeeze()
+
+
     def save(self, path, navigators):
         """Collects potentially changed data from a list of navigators and
         stores the data in the raw structure. Then, saves the raw data in the
@@ -177,6 +170,8 @@ class MatDataset(Dataset):
             navigator.getLabelPartition()[1]
                 for navigator in navigators
         ])
+
+        import pdb; pdb.set_trace()
 
         self.tags = np.array([
             navigator.getCurrentTags()

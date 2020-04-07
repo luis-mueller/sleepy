@@ -86,8 +86,9 @@ class TaggingControl(MultiChannelControl):
         except AttributeError:
             pass
 
-        self.view.removeToolBar()
+        import gc; gc.collect()
 
+        self.view.removeToolBar()
 
     @visualize
     def onNextClick(self, *args):
