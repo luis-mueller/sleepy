@@ -90,13 +90,5 @@ class MultiChannelMatDatset(MultiChannelMatInterface):
 
         return self.dataSources[channel][epochIndex]
 
-    def setFilteredData(self, index, channel, filteredData):
-
-        if not np.array_equal(filteredData, self.filteredData[index][channel]):
-
-            self.changesMade = True
-
-        self.filteredData[index][channel] = filteredData
-
     def removeCheckpoint(self):
         pass

@@ -14,6 +14,13 @@ class PointEvent(Event):
         return self.point
 
     @property
+    def amplitude(self):
+
+        relativePoint = self.point - self.epochInterval[0]
+
+        return self.getVoltage(relativePoint)
+
+    @property
     def interval(self):
 
         point = self.point

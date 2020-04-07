@@ -50,12 +50,13 @@ class MultiChannelMatInterface(Dataset):
     @labels.setter
     @sleepyProperty
     def labels(self, labels):
+        """Sets labels as a numpy array to the sleepy addition and derives the
+        tags from the new labels too.
+        """
 
-        self.raw['sleepy'][0] = labels.copy()
+        self.setChangesMadeFrom(labels)
 
-        numberOfChannels = self.labels.shape[0]
-
-        self.tags = [ np.zeros(self.labels[channel].shape[0]) for channel in range(numberOfChannels) ]
+        self.raw['sleepy'][0] = np.as_array(labels).copy()
 
     @property
     @sleepyProperty
@@ -78,12 +79,16 @@ class MultiChannelMatInterface(Dataset):
 
             self.raw['sleepy'][2] = self.data.copy()
 
-        return self.data.copy()
         return self.raw['sleepy'][2]
 
     @filteredData.setter
     @sleepyProperty
     def filteredData(self, filteredData):
+
+        if not np.array_equal(filteredData, self.filteredData):
+
+            self.changesMade = True
+
         self.raw['sleepy'][2] = filteredData.copy()
 
     @property
