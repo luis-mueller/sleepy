@@ -3,7 +3,7 @@ import numpy as np
 from functools import partial
 from sleepy.processing.signal import Signal
 from sleepy.gui.tagging.model.event import EventTypeNotSupported, PointEvent, IntervalEvent
-from scipy.sparse import dia_matrix
+from sleepy.test.debug import tracing
 
 class Engine:
 
@@ -57,17 +57,12 @@ class Engine:
                 for x in labels
         ])
 
-
     def __applyPreFilter(filter, dataset):
         """Applies a given filter to a given dataset and hands the result to
         the dataset in the appropriate format (channel by epoch).
         """
 
         epochs = range(len(dataset.data))
-
-        dataset.filteredData = None
-
-        #import pdb; pdb.set_trace()
 
         filteredData = Engine.__preFilter(filter, dataset, epochs)
 
@@ -79,9 +74,7 @@ class Engine:
 
         numberOfEpochs = len(epochs)
 
-        filteredData = np.empty(numberOfEpochs, dtype = object)
-
-        data = [
+        filteredData = [
             np.array([
                 filter.filter(dataset.data[epoch][channel], dataset.samplingRate)
                     for channel in range(len(dataset.data[epoch]))
@@ -89,10 +82,7 @@ class Engine:
                 for epoch in epochs
         ]
 
-        for index in epochs:
-            filteredData[index] = data[index]
-
-        return filteredData
+        return np.array(filteredData)
 
     def __getComputeMethod(algorithm, data):
         """Executes the extract step and attaches the parameters to the compute

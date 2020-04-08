@@ -172,8 +172,6 @@ class MatDataset(Dataset):
                 for navigator in navigators
         ])
 
-        import pdb; pdb.set_trace()
-
         self.tags = np.array([
             navigator.getCurrentTags()
                 for navigator in navigators

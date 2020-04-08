@@ -164,3 +164,6 @@ class View:
 
         openSettings = QShortcut(QKeySequence("Ctrl+R"), self.window)
         openSettings.activated.connect(self.control.onReloadFile)
+
+        #openSettings2 = QShortcut(QKeySequence("Ctrl+S"), self.window)
+        #openSettings2.activated.connect(self.taggingControl.onSaveFile)

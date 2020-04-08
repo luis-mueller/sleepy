@@ -309,6 +309,9 @@ class TaggingControl(MultiChannelControl):
         needs reflection in the navigator (e.g. reset changesMade flag).
         """
 
+        if not self.active:
+            return
+
         path = self.view.getSaveFileName()
 
         self.dataset.save(path, self.navigators)
