@@ -187,7 +187,7 @@ class PreprocessingView(QDialog):
             )
         )
 
-        QApplication.processEvents()
+        self.computationStatus.repaint()
 
     def showFileNotSupported(self, extension):
         """Show a pop-up window, notifying the user that the file type is not
