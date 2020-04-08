@@ -35,3 +35,11 @@ class Walkthrough(Algorithm):
         # List comprehension to filter all the samples that satisfy our filter
         # condition
         return np.array([ sample for sample in range(signalLength) if isEvent(sample) ])
+
+    def filter(self, events, data):
+
+        # Sort the events ascending by amplitude.
+        sortedByAmplitude = sorted(events, key = lambda event: event.amplitude )
+
+        # cut off the first 50% of the events
+        return sortedByAmplitude[:len(sortedByAmplitude) // 2]
