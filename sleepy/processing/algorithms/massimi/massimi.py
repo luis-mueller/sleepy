@@ -1,6 +1,6 @@
 
-from sleepy.processing.algorithms.core import Algorithm
-from sleepy.processing.algorithms.parameter import Parameter
+from sleepy.processing.processor import Algorithm
+from sleepy.processing.parameter import Parameter
 
 class Massimi(Algorithm):
 
@@ -27,6 +27,8 @@ class Massimi(Algorithm):
         )
 
     def compute(self, signal):
+        """Make computations on epoch level
+        """
 
         def isEvent(peak):
 

@@ -1,3 +1,0 @@
-
-WINDOW_TITLE = 'Prepare File'
-WINDOW_WIDTH = 600

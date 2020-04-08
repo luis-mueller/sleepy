@@ -1,7 +1,6 @@
 
 from PyQt5.QtWidgets import QVBoxLayout, QHBoxLayout, QGroupBox, QLabel, QCheckBox, QTabWidget, QWidget
 from PyQt5.QtWidgets import QDoubleSpinBox, QSpinBox
-from sleepy.gui.builder.exceptions import NoBuildTreeAvailable
 from sleepy.gui.builder.customwidgets import CustomQSpinBox, CustomQCheckBox, CustomQDoubleSpinBox, Custom0To1DoubleSpinBox, CustomQColorPicker
 from functools import partial
 from pydoc import locate

@@ -1,87 +1,214 @@
 
 import numpy as np
-from scipy.signal import find_peaks
-from PyQt5.QtWidgets import QVBoxLayout, QLineEdit, QDoubleSpinBox, QLabel, QHBoxLayout, QWidget
-from PyQt5.QtGui import QDoubleValidator
-from sleepy.processing.constants import MU
-from sleepy.gui.builder import Builder
+from functools import partial
 from sleepy.processing.signal import Signal
-import pdb
+from sleepy.gui.tagging.model.event import EventTypeNotSupported, PointEvent, IntervalEvent
+from sleepy.test.debug import tracing
 
 class Engine:
 
-    def __init__(self):
+    def run(algorithm, filter, dataset, settings = None):
+        """Executes an algorithm and a filter on a dataset. The execution follows
+        a pipeline concept. The algorithm first gets called with the entire data
+        and produces a set of parameters. Then every epoch in every channel is
+        processed by the algorithm isolatedly and is additionally supplied the
+        parameters pre-processed. Afterwards the result of each call is
+        aggregated and filtered by a post-processing step.
 
-        self.builder = Builder()
+        :param algorithm: Algorithm object that implements a subset of the
+        methods extract, compute and filter. Extracts receives the entire data
+        and returns a set of parameters. These parameters are plugged into
+        compute which is called for each signal in every epoch and every channel.
+        The results are aggregated and filtered in the filter method.
 
-    def buffer(self, algorithm, dataSet):
+        :param filter: Filter object. Must support a call via the
+        filter-method.
 
-        self.algorithm = algorithm
-        self.dataSet = dataSet
+        :param dataset: Data-set object that provides the properties data,
+        samplingRate and epochs.
 
-    def run(self, algorithm, dataSet, filter):
+        :param settings: Optional parameter that is passed to all created events.
 
-        self.buffer(algorithm, dataSet)
-
-        epochResult = self.computeResult(filter)
-
-        formattedResult = self.formatResult(epochResult)
-
-        return formattedResult
-
-    def formatResult(self, result):
-
-        concatResult = np.concatenate(result)
-
-        flatResult = self.flattenFirstDimension(concatResult)
-
-        return flatResult.astype(np.int32)
-
-    def flattenFirstDimension(self, result):
-
-        if result.shape[0] > 1:
-            return result.reshape(-1, result.shape[-1]).squeeze()
-        else:
-            return result
-
-    def computeResult(self, filter):
-
-        channelDataSize = len(self.dataSet.channelData)
-
-        maps = map(lambda i: self.computeEpoch(i, filter), range(channelDataSize))
-
-        return np.array(list(maps))
-
-    def computeEpoch(self, index, filter):
-
-        data = self.dataSet.channelData[index]
-
-        filteredData = self.applyFilter(filter, data)
-
-        self.dataSet.setFilteredData(index, filteredData)
-
-        epochStart = self.dataSet.epochs[index][0]
-
-        return self.computeEpochAbsolute(filteredData, epochStart)
-
-    def applyFilter(self, filter, data):
+        :returns: A list of navigators, one for each channel.
+        """
 
         if filter:
+            Engine.__applyPreFilter(filter, dataset)
 
-            fs = self.dataSet.samplingRate
+        if algorithm:
+            computing = Engine.__getComputeMethod(algorithm, dataset.filteredData)
 
-            return filter.filter(data, fs)
+            Engine.__computeStep(computing, dataset)
+
+        events = Engine.__getEvents(dataset, settings)
+
+        if algorithm:
+            events = Engine.__filterStep(algorithm, events, dataset)
+
+        return events
+
+    def __format(labels):
+        """Formats labels from channel by epoch by label to channel by concatenated
+        epoch labels.
+        """
+
+        return np.array([
+            np.concatenate(x).astype(np.int32)
+                for x in labels
+        ])
+
+    def __applyPreFilter(filter, dataset):
+        """Applies a given filter to a given dataset and hands the result to
+        the dataset in the appropriate format (channel by epoch).
+        """
+
+        epochs = range(len(dataset.data))
+
+        filteredData = Engine.__preFilter(filter, dataset, epochs)
+
+        dataset.filteredData = filteredData
+
+    def __preFilter(filter, dataset, epochs):
+        """Filters the entire dataset for the extract step.
+        """
+
+        numberOfEpochs = len(epochs)
+
+        filteredData = [
+            np.array([
+                filter.filter(dataset.data[epoch][channel], dataset.samplingRate)
+                    for channel in range(len(dataset.data[epoch]))
+            ])
+                for epoch in epochs
+        ]
+
+        return np.array(filteredData)
+
+    def __getComputeMethod(algorithm, data):
+        """Executes the extract step and attaches the parameters to the compute
+        method of the algorithm.
+        """
+
+        extractParameters = algorithm.extract(data)
+
+        if extractParameters is not None:
+
+            if isinstance(extractParameters, tuple):
+
+                return partial(algorithm.compute, *extractParameters)
+
+            else:
+
+                return partial(algorithm.compute, extractParameters)
 
         else:
 
-            return data
+            return algorithm.compute
 
-    def computeEpochAbsolute(self, data, epochStart):
+    def __computeStep(computing, dataset):
+        """Performs the compute step for each signal in the filtered dataset.
+        Converts the resulting, aggregated labels into event instances and
+        returns these.
+        """
 
-        signal = Signal(data, self.dataSet.samplingRate)
+        compute = partial(Engine.__compute, computing, dataset.samplingRate)
 
-        relativeResult = self.algorithm.compute(signal)
+        epochs = range(len(dataset.filteredData))
 
-        absoluteResult = relativeResult + epochStart
+        labels = [
+            [
+                compute(dataset.filteredData[epoch][channel], dataset.epochs[epoch][0])
+                    for channel in range(len(dataset.filteredData[epoch]))
+            ]
+            for epoch in epochs
+        ]
 
-        return absoluteResult
+        dataset.labels = Engine.__format(
+            Engine.__transposeFirstTwoDimensions(np.array(labels))
+        )
+
+    def __compute(computing, samplingRate, data, epochStart):
+        """Computes the result of a signal applied to a given algorithm.
+        """
+
+        signal = Signal(data, samplingRate)
+
+        labels = computing(signal)
+
+        return ( labels + epochStart ).astype(np.int32).tolist()
+
+    def __filterStep(algorithm, events, dataset):
+        """Performs the filter step. The algorithm is supplied with the events
+        and the filtered data. The result is used to filter the events.
+        The events are first concatenated into one array. The result reduces the
+        events array which consists of one array per channel.
+        """
+
+        allEvents = np.concatenate(events)
+
+        filteredEvents = algorithm.filter(allEvents, dataset.filteredData)
+
+        return [
+            [
+                event for event in channelEvents if event in filteredEvents
+            ]
+            for channelEvents in events
+        ]
+
+    def __transposeFirstTwoDimensions(array):
+        """Transposes the first two dimensions of a given array
+        """
+
+        lengthOfShape = len(array.shape)
+
+        flippedShape = list(range(lengthOfShape))
+
+        flippedShape[0] = 1
+        flippedShape[1] = 0
+
+        return array.transpose(tuple(flippedShape))
+
+    def __getEvents(dataset, settings):
+        """Creates events from a fully computed dataset (labels, tags, filteredData).
+        Labels are stored in the dataset channel-wise. Calls a creator function
+        for each label, appending the settings object.
+        """
+
+        createEvents = partial(Engine.__createEvent, settings)
+
+        return np.array(dataset.forEachChannel(createEvents))
+
+    def __createEvent(settings, label, tag, dataSource):
+        """Creates an event from a given label, a given data source and a given
+        tag.
+        """
+
+        if Engine.__isPoint(label):
+
+            event = PointEvent(*label, dataSource, settings)
+
+        elif Engine.__isInterval(label):
+
+            event = IntervalEvent(*label, dataSource, settings)
+
+        else:
+            raise EventTypeNotSupported
+
+        if tag:
+            event.switchTag()
+
+        return event
+
+    def __isPoint(label):
+        """Checks whether the label satisfies all criterias to be used as
+        a PointEvent.
+        """
+
+        return label.shape == (1,)
+
+    def __isInterval(label):
+        """Checks whether the label satisfies all criterias to be used as
+        a IntervalEvent.
+        """
+
+        return label.shape == (2,)

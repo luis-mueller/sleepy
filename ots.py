@@ -1,5 +1,5 @@
 
-from sleepy.gui import SleePyGUI
+from sleepy.gui.core import Gui
 
-gui = SleePyGUI()
+gui = Gui()
 gui.run()

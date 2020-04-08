@@ -4,3 +4,6 @@ class UserCancel(Exception):
 
 class NoNavigatorError(Exception):
     pass
+
+class NavigatorEmptyError(Exception):
+    pass

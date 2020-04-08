@@ -1,45 +1,86 @@
 
-import os
 from PyQt5.QtWidgets import QApplication
-from PyQt5.QtGui import QIcon
-from PyQt5.QtCore import QSettings
-from sleepy.gui.window import Window
-from sleepy.gui.constants import ORGANIZATION, APPLICATION, ICON
+from sleepy.gui.view import View
+from sleepy.gui.settings.core import Settings
+from sleepy.gui.exceptions import UserCancel
 
-class SleePyGUI(QApplication):
+class Gui(QApplication):
     """Used to load the GUI. It builds the starting window and sets a provisional
-    GUI title as well as an icon. Inherits form :class:`PyQt5.QApplication`
+    GUI title as well as an icon. Inherits form :class:`PyQt5.QApplication`.
     """
 
-    def __init__(self, supportedLoaders = None):
+    def __init__(self):
+        """Configures the application, creates application settings and creates
+        the view that wraps around every GUI element.
+        """
 
         super().__init__(list())
 
-        self.setOrganizationName(ORGANIZATION)
-        self.setApplicationName(APPLICATION)
+        self.name = "Sleepy"
+
+        self.setOrganizationName("pupuis@github")
+        self.setApplicationName(self.name)
 
         #QSettings().clear()
 
-        self.name = APPLICATION
-        self.icon = ICON
+        self.settings = Settings(self, self.onRefresh)
 
-        self.supportedLoaders = supportedLoaders
+        self.view = View(self)
+
+        self.view.setNull()
+
+        self.tagging = False
 
     def run(self):
-        """Creates a new main window, sets title and icon and starts it. For a
-        rich documentation of the features inside of the window refer to the
-        corresponding class, namely :class:`Window`
+        """Start the application.
         """
 
-        window = Window(self.name, self.supportedLoaders)
-
-        window.setWindowTitle(self.name)
-
-        if self.icon:
-            path = os.path.dirname(os.path.realpath(__file__))
-            iconObject = QIcon(path + os.path.sep + self.icon)
-            window.setWindowIcon(iconObject)
-
-        window.show()
+        self.view.open()
 
         self.exec_()
+
+    def onOpenFile(self):
+        """Triggered when the user wants to open a new file to work with.
+        """
+
+        try:
+            self.view.setTagging()
+        except UserCancel:
+            pass
+
+    def onRefresh(self):
+        """Refreshes the tagging view which e.g. applies all latest changes to
+        the changes.
+        """
+
+        self.view.refreshTagging()
+
+    def onClearFile(self):
+        """Triggered when the user wants to clear the currently loaded file.
+        """
+
+        try:
+            self.view.setNull()
+        except UserCancel:
+            pass
+
+    def onReloadFile(self):
+        """Reload the latest fileLoader. This should only work if a file has
+        recently been opened.
+        """
+
+        pass
+
+    def closeEvent(self, event):
+        """Triggered when the user wants to close the application.
+        """
+
+        try:
+
+            self.view.setNull()
+
+            event.accept()
+
+        except UserCancel:
+
+            event.ignore()

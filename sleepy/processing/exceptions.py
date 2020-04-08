@@ -1,3 +1,0 @@
-
-class ComputeLabelsNotCalled(Exception):
-    pass
