@@ -434,11 +434,13 @@ class TaggingControl(MultiChannelControl):
 
                 index, position = checkpoint
 
-                answer = self.view.askUserForCheckPointRestore(index + 1, position + 1)
+                answer = self.view.askUserForCheckPointRestore(position + 1, index + 1)
 
                 if answer == QMessageBox.Yes:
 
                     self.navigators[index].position = position
+
+                    self.nextChannel(index)
 
     def setCheckpoint(self):
         """Tries to save the current position as a checkpoint in the dataset.

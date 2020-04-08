@@ -65,6 +65,10 @@ class Engine:
 
         epochs = range(len(dataset.data))
 
+        dataset.filteredData = None
+
+        #import pdb; pdb.set_trace()
+
         filteredData = Engine.__preFilter(filter, dataset, epochs)
 
         dataset.filteredData = filteredData

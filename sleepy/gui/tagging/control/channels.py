@@ -72,15 +72,17 @@ class MultiChannelControl:
         return ( index - 1 ) % len(self.navigators)
 
     @visualize
-    def nextChannel(self):
+    def nextChannel(self, startingFrom = None):
         """Select the next channel and install the corresponding navigator.
         Tries to confirm the next channel until a suitable is found. Before
         trying to installing the same navigator twice, cancel.
         """
 
+        channel = (startingFrom - 1) if startingFrom is not None else self.channel
+
         initialIndex = -1
 
-        index = self.getNextChannel(self.channel)
+        index = self.getNextChannel(channel)
 
         # Full round
         while index != initialIndex:

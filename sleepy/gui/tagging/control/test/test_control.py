@@ -27,6 +27,28 @@ class ControlTest(unittest.TestCase):
 
         return view, app, settings, control, navigator, processing
 
+    def multipleNavigatorScenario():
+
+        view, app, settings = TestBase.getBasics(active = True, name = 'TestApplication')
+
+        control = TaggingControl(app, settings)
+
+        control.view = view
+
+        events1 = TestBase.getEvents([1,2,3], settings, TestBase.getDataSource())
+        events2 = TestBase.getEvents([3,4,5], settings, TestBase.getDataSource())
+
+        navigator1 = TestBase.getNavigator(events1, changesMade = False)
+
+        navigator2 = TestBase.getNavigator(events2, changesMade = False)
+
+        dataset = TestBase.getDataset("test/path/TestFile")
+
+        processing = TestBase.getPreprocessing(dataset = dataset, navigators = [navigator1, navigator2])
+
+        return view, app, settings, control, [navigator1, navigator2], processing
+
+
     def test_open_no_navigator(self):
         """Opening the processing should cause a UserCancel exception.
         """
@@ -162,6 +184,30 @@ class ControlTest(unittest.TestCase):
 
         self.assertEqual(
             navigator.position,
+            checkpoint
+        )
+
+    def test_open_valid_navigator_with_checkpoints_user_yes_different_channel(self):
+        """Position of navigator should be set to the checkpoint that the
+        user approved of and the correct navigator should be selected.
+        """
+
+        view, app, settings, control, navigators, processing = ControlTest.multipleNavigatorScenario()
+
+        settings.useCheckpoints = True
+
+        view.askUserForCheckPointRestore = MagicMock(return_value = QMessageBox.Yes)
+
+        checkpoint = 2
+        _, dataset = processing.run()
+        dataset.checkpoint = (1, checkpoint)
+
+        control.open(processing)
+
+        self.assertEqual(control.navigator, navigators[1])
+
+        self.assertEqual(
+            navigators[1].position,
             checkpoint
         )
 

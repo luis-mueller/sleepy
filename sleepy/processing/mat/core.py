@@ -108,11 +108,12 @@ class MatDataset(Dataset):
     @filteredData.setter
     def filteredData(self, filteredData):
 
-        if not np.array_equal(filteredData, self.filteredData):
+        if filteredData is not None:
+            if not np.array_equal(filteredData, self.filteredData):
 
-            self.changesMade = True
+                self.changesMade = True
 
-        self.raw['sleepy-filteredData'] = filteredData.copy()
+        self.raw['sleepy-filteredData'] = filteredData
 
     @property
     def userLabels(self):
