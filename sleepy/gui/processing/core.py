@@ -1,9 +1,9 @@
 
-from sleepy.gui.processing.supported import SUPPORTED_FILTERS, SUPPORTED_ALGORITHMS, SUPPORTED_DATASETS
 from sleepy.gui.processing.view import PreprocessingView
 from sleepy.gui.exceptions import UserCancel
 from sleepy.gui.tagging.model import Navigator
 from sleepy.processing.engine import Engine
+from sleepy.gui.tagging.model.event.user import UserPointEvent
 from PyQt5.QtWidgets import QFileDialog, QMessageBox
 from PyQt5.QtCore import QSettings
 
@@ -56,9 +56,14 @@ class Preprocessing:
         except UserCancel:
             return
 
-        self.navigators = [ Navigator(eventList, dataset.changesMade) for eventList in events ]
-
         self.dataset = dataset
+
+        channels = range(len(events))
+
+        self.navigators = [
+            self.__prepareNavigator(channel, events[channel], dataset)
+                for channel in channels
+        ]
 
         self.view.accept()
 
@@ -147,6 +152,29 @@ class Preprocessing:
         except AttributeError:
             raise UserCancel
 
+    def __prepareNavigator(self, channel, eventList, dataset):
+        """Creates a new navigator instance and adds the user labels from the
+        dataset.
+        """
+
+        navigator = Navigator(eventList, dataset.changesMade)
+
+        if channel < len(dataset.userLabels):
+
+            for userLabel in dataset.userLabels[channel].squeeze():
+
+                #userLabel = userLabel.squeeze().tolist()
+
+                dataSource = self.dataset.getDataSourceForLabel(channel, userLabel)
+
+                userEvent = UserPointEvent(userLabel, dataSource, self.parent.settings)
+
+                navigator.addCreatedUserEvent(userEvent)
+
+                navigator.onSave()
+
+        return navigator
+
     def __computeEvents(self):
         """Computes the events given algorithm and filter. The dataset is also
         loaded at this step based on the path that is currently selected.
@@ -189,7 +217,7 @@ class Preprocessing:
         """
 
         try:
-            return SUPPORTED_DATASETS[extension]
+            return self.parent.supportedDatasets[extension]
         except KeyError:
 
             self.view.showFileNotSupported(extension)
@@ -202,7 +230,7 @@ class Preprocessing:
         filter was selected.
         """
 
-        return [None] + [ f().render() for f in SUPPORTED_FILTERS ]
+        return [None] + [ f().render() for f in self.parent.supportedFilters ]
 
     def __renderAlgorithms(self):
         """Renders the list of supported algorithms, drawn from the supported
@@ -210,7 +238,7 @@ class Preprocessing:
         algorithm was selected.
         """
 
-        return [None] + [ a().render() for a in SUPPORTED_ALGORITHMS ]
+        return [None] + [ a().render() for a in self.parent.supportedAlgorithms ]
 
     def __getFileExtension(self):
         """Returns the file extension of the current path in upper-case letters.

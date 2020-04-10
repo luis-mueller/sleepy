@@ -79,6 +79,13 @@ class TestBase:
             samplingRate = samplingRate
         )
 
+    def getChannelEvents(points, settings, dataSource = None):
+
+        return [
+            TestBase.getEvents(pointList, settings, dataSource)
+                for pointList in points
+        ]
+
     def getEvents(points, settings, dataSource = None):
 
         return [ PointEvent(point, dataSource, settings) for point in points ]

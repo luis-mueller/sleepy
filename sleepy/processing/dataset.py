@@ -12,7 +12,7 @@ class Dataset:
         as a raw data object.
         """
 
-        raise NotImplementedError
+        pass
 
     def __init__(self, raw = None, path = ""):
         """Abstract Dataset class, serving as an interface for all implementations.
@@ -64,7 +64,11 @@ class Dataset:
 
     @property
     def userLabels(self):
-        return self._userLabels
+
+        try:
+            return self._userLabels
+        except AttributeError:
+            return []
 
     @userLabels.setter
     def userLabels(self, userLabels):
