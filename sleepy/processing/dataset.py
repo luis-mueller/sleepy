@@ -87,6 +87,8 @@ class Dataset:
 
             self.filteredData = self.data.copy()
 
+            return self._filteredData
+
     @filteredData.setter
     def filteredData(self, filteredData):
         self._filteredData = filteredData
@@ -125,6 +127,7 @@ class Dataset:
     def save(self):
         """Call to the dataset to save its contents on disk.
         """
+        pass
 
     def setChangesMadeFrom(self, result):
         """Sets changesMade to true if the result array is equal to the labels
@@ -139,12 +142,59 @@ class Dataset:
         self.changesMade = not np.array_equal(result, labels)
 
     def forEachChannel(self, converter):
+        """Supplies a converter function for each pair of channel and label that
+        is stored in this dataset. The converter function is supplied with the
+        following arguments:
+
+        * Label
+        * Tag of the corresponding event
+        * Data source containing the data of the epoch that contains the label
+
+        The goal of this method is to abstract extracting the necessary data
+        from the dataset to create a new event. The converter function can
+        create an event based on this input and return it.
+
+        :param converter: A function that respects the said format.
+
+        :returns: A list of lists of the return values of each converter function
+        call.
+        """
 
         numberOfChannels = self.labels.shape[0]
 
-        return [ self.forEachLabel(channel, converter) for channel in range(numberOfChannels) ]
+        return [ self.__forEachLabel(channel, converter) for channel in range(numberOfChannels) ]
 
-    def forEachLabel(self, channel, converter):
+    def getDataSource(self, channel, label):
+        """Returns a data source for a given channel and a given label.
+        Extracts the first element from the label. The goal is to create one
+        data source for each epoch such that events in the same epoch can share
+        the data source (and data must not be copied that often). This instance
+        buffers the data sources it has already created. If the epoch to which
+        the given label belongs did not occur already, a new data source is
+        allocated.
+
+        :param channel: The index of the channel for which the data source shall
+        be retrieved.
+
+        :param label: The label containing a point or an interval in samples
+        indicating where the event occurs.
+
+        :returns: An instance of :class:`sleepy.gui.tagging.model.datasource.DataSource`
+        containing the epoch data of the label.
+        """
+
+        if isinstance(label, np.ndarray):
+            label = label[0]
+
+        epochIndex = self.__findIndexInInterval(label)
+
+        dataSource = self.__getBufferedDataSource(epochIndex, channel)
+
+        dataSource.addLabel(label)
+
+        return dataSource
+
+    def __forEachLabel(self, channel, converter):
         """Supplies a set of parameters to a converter and returns
         the result to the caller. Parameters a numpy array type of a label
         """
@@ -163,29 +213,12 @@ class Dataset:
 
         return [ getObject(idx) for idx in range(numberOfLabels) ]
 
-    def getDataSource(self, channel, label):
-        """Returns a data source for a given channel and a given label.
-        Extracts the first element from the label.
+    def __findIndexInInterval(self, point):
+        """Finds the epoch interval by index to which a given point belongs.
         """
 
-        # We only use label[0] as we rely on events not overlapping samples.
-        # Therefore interval and point labels are both covered.
-        dataSource = self.getDataSourceForLabel(channel, label[0])
-
-        dataSource.addLabel(label)
-
-        return dataSource
-
-    def getDataSourceForLabel(self, channel, label):
-
-        epochIndex = self.findIndexInInterval(self.epochs, label)
-
-        return self.getBufferedDataSource(epochIndex, channel)
-
-    def findIndexInInterval(self, data, point):
-
-        startPoints = data[:,0]
-        endPoints = data[:,1]
+        startPoints = self.epochs[:,0]
+        endPoints = self.epochs[:,1]
 
         startIndices = np.where(
             startPoints <= point
@@ -201,25 +234,48 @@ class Dataset:
         # it can only be one index match in both queries
         return intersection[0]
 
-    def getBufferedDataSource(self, epochIndex, channel):
+    def __getBufferedDataSource(self, epochIndex, channel):
+        """Checks the buffer if the data source for the epoch specified by
+        epochIndex and channel. If the data source does not exist, creates
+        a new data source for this epoch. Returns the data source in both cases.
+        """
+
+        self.__ensureChannelInDataSources(channel)
+
+        if not epochIndex in self.dataSources[channel]:
+
+            self.__allocateDataSource(epochIndex, channel)
+
+        return self.dataSources[channel][epochIndex]
+
+    def __allocateDataSource(self, epochIndex, channel):
+        """Creates a new data source for an epoch specified by epochIndex and
+        channel.
+        """
+
+        epochInterval = self.epochs[epochIndex]
+
+        epochData = self.__getEpochData(epochIndex, channel)
+
+        self.dataSources[channel][epochIndex] = DataSource(
+            *epochData, epochInterval, self.samplingRate
+        )
+
+    def __getEpochData(self, epochIndex, channel):
+        """Retrieves the raw and the filtered data of the epoch, specified by
+        epochIndex and channel, from the dataset.
+        """
+
+        epoch = self.data[epochIndex][channel]
+
+        epochFiltered = self.filteredData[epochIndex][channel]
+
+        return epoch, epochFiltered
+
+    def __ensureChannelInDataSources(self, channel):
+        """Ensures that the buffer contains an entry for a given channel.
+        """
 
         if not channel in self.dataSources:
 
             self.dataSources[channel] = {}
-
-        if not epochIndex in self.dataSources[channel]:
-
-            epochInterval = self.epochs[epochIndex]
-
-            epoch = self.data[epochIndex][channel]
-
-            epochFiltered = self.filteredData[epochIndex][channel]
-
-            self.dataSources[channel][epochIndex] = DataSource(
-                epoch, epochFiltered, epochInterval, self.samplingRate
-            )
-
-        return self.dataSources[channel][epochIndex]
-
-    def removeCheckpoint(self):
-        pass

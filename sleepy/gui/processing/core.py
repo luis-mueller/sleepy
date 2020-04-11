@@ -165,7 +165,7 @@ class Preprocessing:
 
                 #userLabel = userLabel.squeeze().tolist()
 
-                dataSource = self.dataset.getDataSourceForLabel(channel, userLabel)
+                dataSource = self.dataset.getDataSource(channel, userLabel)
 
                 userEvent = UserPointEvent(userLabel, dataSource, self.parent.settings)
 

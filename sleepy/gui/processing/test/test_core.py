@@ -16,7 +16,7 @@ class MockingDataset(Dataset):
         """
         return [np.array([3,4]),np.array([3,5])]
 
-    def getDataSourceForLabel(self, channel, label):
+    def getDataSource(self, channel, label):
         return TestBase.getDataSource()
 
 class MockingProcessor:
