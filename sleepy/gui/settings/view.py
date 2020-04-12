@@ -6,6 +6,12 @@ from sleepy import SLEEPY_ROOT_DIR
 class SettingsView(QDialog):
 
     def __init__(self, control, application):
+        """View displaying the settings managed by an instance of :class:`Settings`.
+
+        :param control: The instance of :class:`Settings` managing the settings.
+
+        :param application: The calling application.
+        """
 
         super().__init__(application)
 
@@ -13,11 +19,13 @@ class SettingsView(QDialog):
 
         layout.addStretch()
 
-        layout.addWidget(self.buildButtonBox(control))
+        layout.addWidget(self.__buildButtonBox(control))
 
         self.setLayout(layout)
 
-    def buildButtonBox(self, control):
+    def __buildButtonBox(self, control):
+        """Constructs a button box for the dialog.
+        """
 
         buttonBox = QDialogButtonBox()
         buttonBox.addButton("Save", QDialogButtonBox.AcceptRole)

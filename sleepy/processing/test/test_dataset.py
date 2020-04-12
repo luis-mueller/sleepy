@@ -57,3 +57,16 @@ class DatasetTest(unittest.TestCase):
         dataSource = dataset.getDataSource(channel = 0, label = 16)
 
         self.assertEqual(dataSource.epochInterval.tolist(), [10, 19])
+
+    def test_getDataSource_with_buffer(self):
+        """Having a data source in buffer, the dataset should not create a new data source
+        but retrieve the existing data source over the method getDataSource.
+        """
+
+        dataset = DatasetTest.standardScenario()
+
+        dataSource = dataset.getDataSource(channel = 0, label = 16)
+
+        sameDataSource = dataset.getDataSource(channel = 0, label = 16)
+
+        self.assertEqual(dataSource, sameDataSource)
