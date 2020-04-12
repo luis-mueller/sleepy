@@ -11,6 +11,8 @@ class UserPointEvent(PointEvent):
 
         self.artist = None
 
+        self.binaryTag = 1
+
     def plotSelected(self, axis):
 
         self.artist = axis.plot(
@@ -34,3 +36,9 @@ class UserPointEvent(PointEvent):
     def onRemove(self):
 
         self.dataSource.removeEvent(self)
+
+    def switchTag(self):
+        """Override super method. User events' tag cannot be switched.
+        """
+
+        pass
