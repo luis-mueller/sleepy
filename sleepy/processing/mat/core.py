@@ -176,11 +176,13 @@ class MatDataset(Dataset):
                 for navigator in navigators
         ])
 
-        self.__saveToDisk(path)
+        self.saveToDisk(path)
 
-    def __saveToDisk(self, path):
+    def saveToDisk(self, path):
         """I/O method writing the contents of this dataset to the disk. Override
         this in a test environment to avoid I/O.
+
+        :param path: Location of the saved file.
         """
 
         savemat(path, {'data' : self.raw})
