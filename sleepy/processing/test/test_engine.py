@@ -49,6 +49,23 @@ class MockAlgorithmExtractMulti:
     def filter(self, events, data):
         return events
 
+class Dummy:
+    def __init__(self, entries):
+        self.entries = entries
+
+class MockAlgorithmReturnInterval:
+
+    def extract(self, data):
+        pass
+
+    def compute(self, signal):
+        # Returns samples whose corresponding amplitudes are lower equal .2
+        # (after filtering)
+        return [ [x, x + 1] for x in range(len(signal.data)) if signal.data[x] <= .2]
+
+    def filter(self, events, data):
+        return events
+
 class EngineTest(unittest.TestCase):
 
     def simpleData():
@@ -114,6 +131,16 @@ class EngineTest(unittest.TestCase):
 
         return algorithm, filter, dataset, settings
 
+    def intervalReturnScenario():
+        """Like the standard scenario but the algorithm returns a list of tuples.
+        """
+
+        _, filter, dataset, settings = EngineTest.simpleScenario(lambda x, y: x*2)
+
+        algorithm = MockAlgorithmReturnInterval()
+
+        return algorithm, filter, dataset, settings
+
     def test_simple_algorithm_computeStep_result(self):
         """Tests whether the correct labels are set to the dataset.
         """
@@ -130,6 +157,23 @@ class EngineTest(unittest.TestCase):
         self.assertEqual(dataset.labels[0].tolist(), [])
         self.assertEqual(dataset.labels[1].tolist(), [0, 7])
         self.assertEqual(dataset.labels[2].tolist(), [3])
+
+    def test_intervalReturn_algorithm_computeStep_result(self):
+        """Tests whether the correct labels are set to the dataset, given interval
+        return values in the compute step.
+        """
+
+        algorithm, filter, dataset, _ = EngineTest.intervalReturnScenario()
+
+        #import pdb; pdb.set_trace()
+
+        result = Engine.run(algorithm, filter, dataset)
+
+        self.assertEqual(len(dataset.labels), 3)
+
+        self.assertEqual(dataset.labels[0].tolist(), [])
+        self.assertEqual(dataset.labels[1].tolist(), [[0,1], [7,8]])
+        self.assertEqual(dataset.labels[2].tolist(), [[3,4]])
 
     def test_simple_algorithm_result_not_filtered(self):
         """If the dataset calls the engine with the correct parameters,
