@@ -52,10 +52,29 @@ class Engine:
         epoch labels.
         """
 
-        return np.array([
-            np.concatenate(x).astype(np.int32)
-                for x in labels
-        ])
+        #return np.array([
+        #    np.concatenate(x).astype(np.int32)
+        #        for x in labels
+        #])
+
+        #import pdb; pdb.set_trace()
+
+        result = []
+
+        for x in labels:
+
+            line = []
+
+            for a in x:
+
+                for e in a:
+
+                    line.append(e)
+
+            result.append(np.array(line))
+
+        return np.array(result)
+
 
     def __applyPreFilter(filter, dataset):
         """Applies a given filter to a given dataset and hands the result to
