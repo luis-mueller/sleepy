@@ -3,6 +3,7 @@ from PyQt5.QtWidgets import QApplication
 from sleepy.gui.view import View
 from sleepy.gui.settings.core import Settings
 from sleepy.gui.exceptions import UserCancel
+from sleepy.gui.processing.supported import SUPPORTED_FILTERS, SUPPORTED_ALGORITHMS, SUPPORTED_DATASETS
 
 class Gui(QApplication):
     """Used to load the GUI. It builds the starting window and sets a provisional
@@ -20,6 +21,8 @@ class Gui(QApplication):
 
         self.setOrganizationName("pupuis@github")
         self.setApplicationName(self.name)
+
+        self.__setSupported()
 
         #QSettings().clear()
 
@@ -84,3 +87,11 @@ class Gui(QApplication):
         except UserCancel:
 
             event.ignore()
+
+    def __setSupported(self):
+        """Sets the constant supported objects as an attribute of this class.
+        """
+
+        self.supportedDatasets   = SUPPORTED_DATASETS
+        self.supportedFilters    = SUPPORTED_FILTERS
+        self.supportedAlgorithms = SUPPORTED_ALGORITHMS

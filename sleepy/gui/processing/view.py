@@ -5,6 +5,15 @@ from PyQt5.QtWidgets import QHBoxLayout, QGroupBox, QWidget, QComboBox, QStacked
 class PreprocessingView(QDialog):
 
     def __init__(self, app, control):
+        """The view corresponding to controller class :class:`Preprocessing`.
+        Constructs the widgets and displays them in a dialog window.
+
+        :param app: Instance of :class:`QMainWindow`.
+
+        :param control: Instance of :class:`Preprocessing` which functions as
+        the controller of this view.
+        """
+
         super().__init__(app)
 
         self.control = control
@@ -12,17 +21,25 @@ class PreprocessingView(QDialog):
         self.setWindowTitle("Preprocessing")
         self.setMinimumWidth(600)
 
-        self.initializeLayout()
+        self.__initializeLayout()
 
-    def initializeLayout(self):
+    def __initializeLayout(self):
+        """Constructs the outer layout of the dialog and calls all initializations
+        of the elements of that layout: A path selector for the dataset, an options
+        layout containing algorithm and filter selection and a button box controlling
+        the interactions with the dialog.
+        """
 
         self.layout = QVBoxLayout(self)
 
-        self.initializePathSelector()
-        self.initializeOptions()
-        self.initializeButtonBox()
+        self.__initializePathSelector()
+        self.__initializeOptions()
+        self.__initializeButtonBox()
 
-    def initializePathSelector(self):
+    def __initializePathSelector(self):
+        """Constructs a group box containing a path selector with which the user
+        can choose the path to the dataset.
+        """
 
         self.pathSelectorBox = QGroupBox('Dataset')
 
@@ -41,7 +58,10 @@ class PreprocessingView(QDialog):
         self.layout.addWidget(self.pathSelectorBox)
 
     # https://doc.qt.io/archives/qq/qq19-buttons.html#
-    def initializeButtonBox(self):
+    def __initializeButtonBox(self):
+        """Constructs the buttons at the bottom margin of the dialog. Supported
+        actions are load, compute and cancel.
+        """
 
         self.buttonBox = QDialogButtonBox()
         self.buttonBox.addButton("Load", QDialogButtonBox.AcceptRole)
@@ -56,15 +76,18 @@ class PreprocessingView(QDialog):
 
         self.layout.addWidget(self.buttonBox)
 
-    def initializeOptions(self):
+    def __initializeOptions(self):
+        """Constructs two group boxes. One for the filter and one for the algorithm
+        selection.
+        """
 
         self.optionsWidget = QWidget()
 
         self.optionsLayout = QVBoxLayout()
 
-        self.optionsLayout.addWidget(self.filterOptions())
+        self.optionsLayout.addWidget(self.__getFilterOptions())
 
-        self.optionsLayout.addWidget(self.algorithmOptions())
+        self.optionsLayout.addWidget(self.__getAlgorithmOptions())
 
         self.optionsLayout.addWidget(self.computationStatus)
 
@@ -74,6 +97,8 @@ class PreprocessingView(QDialog):
 
     @property
     def computationStatus(self):
+        """Returns a label containing the written result of the latest computation.
+        """
 
         try:
             return self._computationStatus
@@ -82,7 +107,9 @@ class PreprocessingView(QDialog):
             self._computationStatus = QLabel("")
             return self._computationStatus
 
-    def filterOptions(self):
+    def __getFilterOptions(self):
+        """Constructs the layout containing the filter selection.
+        """
 
         self.filterSelection = QComboBox()
 
@@ -117,7 +144,9 @@ class PreprocessingView(QDialog):
 
         return self.filterBox
 
-    def algorithmOptions(self):
+    def __getAlgorithmOptions(self):
+        """Constructs the layout containing the algorithm selection.
+        """
 
         self.algorithmSelection = QComboBox()
 
@@ -154,23 +183,37 @@ class PreprocessingView(QDialog):
 
     def setPath(self, path):
         """Abstraction around setting the text of the pathEdit widget.
+
+        :param path: The updating path to the dataset.
         """
 
         self.pathEdit.setText(path)
 
     def setNoAlgorithmParameters(self):
+        """Select that no algorithm parameters can be chosen.
+        """
 
         self.algorithmParameters.setCurrentWidget(self.noParameters)
 
     def setNoFilterParameters(self):
+        """Select that no filter parameters can be chosen.
+        """
 
         self.filterParameters.setCurrentWidget(self.noFilterParameters)
 
     def setAlgorithmParameters(self, parameters):
+        """Set the options view displaying the algorithm parameters.
+
+        :param parameters: A :class:`QWidget` containing the parameters.
+        """
 
         self.algorithmParameters.setCurrentWidget(parameters)
 
     def setFilterParameters(self, parameters):
+        """Set the options view displaying the filter parameters.
+
+        :param parameters: A :class:`QWidget` containing the parameters.
+        """
 
         self.filterParameters.setCurrentWidget(parameters)
 
@@ -178,6 +221,10 @@ class PreprocessingView(QDialog):
         """Abstraction around setting the text to the computationStatus
         widget, formatting the number of events and the number of channels
         supplied.
+
+        :param numberOfEvents: The number of events.
+
+        :param numberOfChannels: The number of channels.
         """
 
         self.computationStatus.setText(
@@ -192,6 +239,8 @@ class PreprocessingView(QDialog):
     def showFileNotSupported(self, extension):
         """Show a pop-up window, notifying the user that the file type is not
         supported.
+
+        :param extension: The unsupported exension as a string.
         """
 
         error = QMessageBox(self.window)

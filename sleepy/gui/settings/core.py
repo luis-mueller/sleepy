@@ -18,6 +18,11 @@ class Settings:
         An instance of this class, much like QSettings itself, can be created
         at any point in the application and still the latest values are drawn
         from the disk.
+
+        :param application: The calling application of type :class:`Gui`.
+
+        :param applicationCallback: Function that is called when the settings are
+        updated on the disk.
         """
 
         self.application = application
@@ -27,20 +32,24 @@ class Settings:
 
         Builder.setAttributesFromJSON(SLEEPY_ROOT_DIR + '/gui/settings/view.json', self, level = 3)
 
-        self.load()
+        self.__load()
 
     def getCallbackDefault(self, key):
         """Returns a partial function is called with the key as the first
         argument. Called by the builder when default values are set. By default
         this adds an attribute to the control. However, this control requires
         that the values are stored in a dict, so they can be translated to json.
+
+        :param key: The key for which the callback should be created.
         """
 
-        return partial(self.updateValues, key)
+        return partial(self.__updateValues, key)
 
     def getCallback(self, key):
         """Returns a partial function is called with the key as the first
         argument. Called by the builder when layout is built.
+
+        :param key: The key for which the callback should be created.
         """
 
         return partial(self.onCallback, key)
@@ -50,12 +59,16 @@ class Settings:
         """Gets called on callback in the builder. Receives a
         key value pair and updates the internal dict accordingly. This dict
         collects updates until a save event is fired.
+
+        :param key: The key for which the value changes.
+
+        :param value: The new value.
         """
 
-        self.updateValues(key, value)
+        self.__updateValues(key, value)
 
-    def updateValues(self, key, value):
-        """Updates values with a key value pair
+    def __updateValues(self, key, value):
+        """Updates values with a key value pair.
         """
 
         self.values[key] = value
@@ -68,7 +81,7 @@ class Settings:
         # Make values accessible like attributes (settings.value)
         self.__dict__.update(self.values)
 
-        self.dump(self.values)
+        self.__dump(self.values)
 
         self.applicationCallback()
 
@@ -76,7 +89,7 @@ class Settings:
         """Resets the values dict to the values before updating.
         """
 
-        Settings.updateExistingValues(self.__dict__, self.values)
+        Settings.__updateExistingValues(self.__dict__, self.values)
 
     def asDialog(self):
         """Open a QDialog, displaying the current state. Embedds the view in an
@@ -88,14 +101,14 @@ class Settings:
 
         view.exec_()
 
-    def load(self):
+    def __load(self):
         """Settings values are recovered from QSettings and written to the
         __dict__ dict.
         """
 
         try:
 
-            values = self.loadValuesFromDisk()
+            values = self.__loadValuesFromDisk()
 
             self.values.update(values)
 
@@ -104,7 +117,7 @@ class Settings:
 
         self.__dict__.update(self.values)
 
-    def loadValuesFromDisk(self):
+    def __loadValuesFromDisk(self):
         """Disk access. Redefine this in a testing environment and return a
         dict with values. This method is encapsulated to make the class
         mockable under test with little to no effort.
@@ -114,7 +127,7 @@ class Settings:
 
         return json.loads(jsonString)
 
-    def dump(self, settings):
+    def __dump(self, settings):
         """Settings values are stored in the values dict and are now converted
         to json and dumped via QSettings.
         """
@@ -123,7 +136,7 @@ class Settings:
 
         QSettings().setValue("json_settings", jsonString)
 
-    def updateExistingValues(source, target):
+    def __updateExistingValues(source, target):
         """Updates the value in target from the values in source if and only if
         the corresponding keys exist in both dicts.
         """

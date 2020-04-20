@@ -143,3 +143,63 @@ class NavigatorTest(unittest.TestCase):
         navigator.addUserEvent(event)
 
         self.assertEqual(navigator.changesMade, True)
+
+    def test_addUserEvent_always_tagged(self):
+        """User events are always tagged and cannot be untagged.
+        """
+
+        _, dataSource, events, navigator = NavigatorTest.standardScenario([1,5,6,7,8])
+
+        event = MagicMock()
+        event.xdata = 2 / dataSource.samplingRate
+
+        navigator.addUserEvent(event)
+
+        self.assertEqual(navigator.getCurrentTags().tolist(), [0,1,0,0,0,0])
+
+        navigator.events[1].switchTag()
+
+        self.assertEqual(navigator.getCurrentTags().tolist(), [0,1,0,0,0,0])
+
+
+    def test_addUserEvent_tags_consistent(self):
+        """If an user event is inserted a tag is inserted appropriately and does
+        not shift other tags.
+        """
+
+        _, dataSource, events, navigator = NavigatorTest.standardScenario([1,5,6,7,8])
+
+        event = MagicMock()
+        event.xdata = 2 / dataSource.samplingRate
+
+        eventAfter = MagicMock()
+        eventAfter.xdata = 9 / dataSource.samplingRate
+
+        events[1].switchTag()
+
+        self.assertEqual(navigator.getCurrentTags().tolist(), [0,1,0,0,0])
+
+        navigator.addUserEvent(event)
+        navigator.addUserEvent(eventAfter)
+
+        self.assertEqual(navigator.getCurrentTags().tolist(), [0,1,1,0,0,0,1])
+
+    def test_getComputedEventTags_returns_only_computed_event_tags(self):
+        """The method getComputedEventTags only returns the tags that belong to
+        events that are not user events.
+        """
+
+        _, dataSource, events, navigator = NavigatorTest.standardScenario([1,5,6,7,8])
+
+        event = MagicMock()
+        event.xdata = 2 / dataSource.samplingRate
+
+        events[1].switchTag()
+
+        self.assertEqual(navigator.getCurrentTags().tolist(), [0,1,0,0,0])
+
+        navigator.addUserEvent(event)
+
+        self.assertEqual(navigator.getCurrentTags().tolist(), [0,1,1,0,0,0])
+
+        self.assertEqual(navigator.getComputedEventTags().tolist(), [0,1,0,0,0])

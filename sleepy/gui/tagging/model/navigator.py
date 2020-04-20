@@ -89,6 +89,9 @@ class Navigator:
         self.selectedEvent.plot(axis)
 
     def switchSelectionTag(self):
+        """Switch the tag of the currently selected event.
+        """
+
         self.selectedEvent.switchTag()
 
         self.updateChangesMade()
@@ -261,3 +264,11 @@ class Navigator:
             self.currentPointInSeconds,
             self.currentLimitsInSeconds
         )
+
+    def getComputedEventTags(self):
+        """Returns the tags that belong to events that are not user events.
+        """
+
+        tags = [ e.tagged for e in self.events if e not in self.userEvents ]
+
+        return np.array(tags)

@@ -51,12 +51,14 @@ class Engine:
         """Formats labels from channel by epoch by label to channel by concatenated
         epoch labels.
         """
-        '''
-        return np.array([
-            np.concatenate(x).astype(np.int32)
-                for x in labels
-        ])
-        '''
+
+        #return np.array([
+        #    np.concatenate(x).astype(np.int32)
+        #        for x in labels
+        #])
+
+        #import pdb; pdb.set_trace()
+
         result = []
 
         for x in labels:

@@ -160,7 +160,6 @@ class MatDataset(Dataset):
 
             array[index] = array[index].squeeze()
 
-
     def save(self, path, navigators):
         """Collects potentially changed data from a list of navigators and
         stores the data in the raw structure. Then, saves the raw data in the
@@ -173,9 +172,18 @@ class MatDataset(Dataset):
         ])
 
         self.tags = np.array([
-            navigator.getCurrentTags()
+            navigator.getComputedEventTags()
                 for navigator in navigators
         ])
+
+        self.saveToDisk(path)
+
+    def saveToDisk(self, path):
+        """I/O method writing the contents of this dataset to the disk. Override
+        this in a test environment to avoid I/O.
+
+        :param path: Location of the saved file.
+        """
 
         savemat(path, {'data' : self.raw})
 

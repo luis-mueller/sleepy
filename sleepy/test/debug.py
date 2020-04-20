@@ -16,8 +16,10 @@ def tracing(function):
 
         pyqtRemoveInputHook()
 
-        function(*args)
+        result = function(*args)
 
         pyqtRestoreInputHook()
+
+        return result
 
     return debug
