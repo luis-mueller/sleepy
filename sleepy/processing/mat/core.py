@@ -78,8 +78,15 @@ class MatDataset(Dataset):
 
     @property
     def tags(self):
+        """Constructs the tags using the parent method constructTags. This method
+        guarantees that the tags have a valid form. Converts the result into a
+        more pythonic form and returns the result.
 
-        tags = self.raw['sleepy-tags'] if 'sleepy-tags' in self.raw else None
+        :returns: A np.array with a valid shape, representing the tags of this
+        dataset.
+        """
+
+        tags = self.convertToPy(self.raw['sleepy-tags']) if 'sleepy-tags' in self.raw else None
 
         self.raw['sleepy-tags'] = self.constructTags(tags)
 
@@ -154,11 +161,17 @@ class MatDataset(Dataset):
 
     def convertToPy(self, array):
         """Convert the given array into pythonic format.
+
+        :param array: Input array to convert.
+
+        :returns: The converted array for chaining.
         """
 
         for index in range(len(array)):
 
             array[index] = array[index].squeeze()
+
+        return array
 
     def save(self, path, navigators):
         """Collects potentially changed data from a list of navigators and

@@ -35,15 +35,21 @@ class Engine:
         if filter:
             Engine.__applyPreFilter(filter, dataset)
 
+        labels = dataset.labels
+
         if algorithm:
             computing = Engine.__getComputeMethod(algorithm, dataset.filteredData)
 
-            Engine.__computeStep(computing, dataset)
+            labels = Engine.__computeStep(computing, dataset)
 
-        events = Engine.__getEvents(dataset, settings)
+        events = Engine.__getEvents(dataset, labels, settings)
 
         if algorithm:
             events = Engine.__filterStep(algorithm, events, dataset)
+
+        Engine.__setLabelsFromEvents(dataset, events)
+
+        Engine.__setTagsFromDataset(events, dataset)
 
         return events
 
@@ -51,13 +57,6 @@ class Engine:
         """Formats labels from channel by epoch by label to channel by concatenated
         epoch labels.
         """
-
-        #return np.array([
-        #    np.concatenate(x).astype(np.int32)
-        #        for x in labels
-        #])
-
-        #import pdb; pdb.set_trace()
 
         result = []
 
@@ -140,7 +139,7 @@ class Engine:
             for epoch in epochs
         ]
 
-        dataset.labels = Engine.__format(
+        return Engine.__format(
             Engine.__transposeFirstTwoDimensions(np.array(labels))
         )
 
@@ -165,12 +164,51 @@ class Engine:
 
         filteredEvents = algorithm.filter(allEvents, dataset.filteredData)
 
+        Engine.__handleRemovedEvents(allEvents, filteredEvents)
+
         return [
             [
                 event for event in channelEvents if event in filteredEvents
             ]
             for channelEvents in events
         ]
+
+    def __setLabelsFromEvents(dataset, events):
+        """Extracts the labels from an array of events and sets the resulting
+        array as the new labels of the dataset.
+        """
+
+        labels = [
+            np.array([
+                event.label for event in channelEvents
+            ])
+            for channelEvents in events
+        ]
+
+        dataset.labels = np.array(labels)
+
+    def __setTagsFromDataset(events, dataset):
+        """Sets the tags of the dataset to the corresponding events
+        """
+
+        for channel in range(len(dataset.tags)):
+
+            for label in range(len(dataset.tags[channel])):
+
+                if dataset.tags[channel][label] == 1:
+
+                    events[channel][label].switchTag()
+
+    def __handleRemovedEvents(allEvents, filteredEvents):
+        """Calculates the diff of the input arrays and calls the onRemove method
+        for each event that has been removed by the algorithm.
+        """
+
+        removedEvents = [ event for event in allEvents if event not in filteredEvents]
+
+        for event in removedEvents:
+
+            event.onRemove()
 
     def __transposeFirstTwoDimensions(array):
         """Transposes the first two dimensions of a given array
@@ -185,7 +223,7 @@ class Engine:
 
         return array.transpose(tuple(flippedShape))
 
-    def __getEvents(dataset, settings):
+    def __getEvents(dataset, labels, settings):
         """Creates events from a fully computed dataset (labels, tags, filteredData).
         Labels are stored in the dataset channel-wise. Calls a creator function
         for each label, appending the settings object.
@@ -193,11 +231,10 @@ class Engine:
 
         createEvents = partial(Engine.__createEvent, settings)
 
-        return np.array(dataset.forEachChannel(createEvents))
+        return np.array(dataset.forEachChannel(labels, createEvents))
 
-    def __createEvent(settings, label, tag, dataSource):
-        """Creates an event from a given label, a given data source and a given
-        tag.
+    def __createEvent(settings, label, dataSource):
+        """Creates an event from a given label, and a given data source.
         """
 
         if Engine.__isPoint(label):
@@ -210,9 +247,6 @@ class Engine:
 
         else:
             raise EventTypeNotSupported
-
-        if tag:
-            event.switchTag()
 
         return event
 

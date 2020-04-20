@@ -83,7 +83,7 @@ class DatasetTest(unittest.TestCase):
         def converter(self, *args):
             pass
 
-        result = dataset.forEachChannel(converter)
+        result = dataset.forEachChannel(dataset.labels, converter)
 
         self.assertEqual(result, [[None] * 5])
 
@@ -106,6 +106,25 @@ class DatasetTest(unittest.TestCase):
         def converter(self, *args):
             pass
 
-        result = dataset.forEachChannel(converter)
+        result = dataset.forEachChannel(dataset.labels, converter)
 
         self.assertEqual(result, [[None] * 4, [None] * 3, [None] * 6])
+
+    def test_valid_tags_shape_are_loaded(self):
+        """If the tags have a valid shape the stored tags are loaded and not
+        overwritten.
+        """
+
+        dataset = DatasetTest.standardScenario()
+
+        dataset.labels = np.array([
+            np.array(range(4)),
+            np.array(range(3)),
+            np.array(range(6))
+        ])
+
+        dataset._tags = np.array([np.array(range(4)), np.array(range(3)), np.array(range(6))])
+
+        self.assertEqual(dataset.tags[0].tolist(), list(range(4)))
+        self.assertEqual(dataset.tags[1].tolist(), list(range(3)))
+        self.assertEqual(dataset.tags[2].tolist(), list(range(6)))

@@ -130,3 +130,17 @@ class MatDatasetTest(unittest.TestCase):
         dataset = MatDataset(raw, None)
 
         self.assertEqual(dataset.tags.tolist(), [[0,0,0]])
+
+    def test_valid_tags_shape_are_loaded(self):
+        """If the tags have a valid shape the stored tags are loaded and not
+        overwritten.
+        """
+
+        raw = MatDatasetTest.basicRaw()
+
+        raw['sleepy-labels'] = np.array([[[1,2],[3,4],[5,6]]])
+        raw['sleepy-tags'] = np.array([[0,1,0]])
+
+        dataset = MatDataset(raw, None)
+
+        self.assertEqual(dataset.tags.tolist(), [[0,1,0]])

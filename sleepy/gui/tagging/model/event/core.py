@@ -180,6 +180,13 @@ class Event:
 
         return self.lineArtist.contains(event)[0]
 
+    def onRemove(self):
+        """Should be called if this event is removed from the list of tracked
+        events for whatever reason. Removes itself from the dataSource.
+        """
+
+        self.dataSource.removeEvent(self)
+
     def plotSelected(self, axis):
         """Plot additional content if event is selected.
         """

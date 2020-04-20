@@ -180,6 +180,8 @@ class EngineTest(unittest.TestCase):
         then the filter method should produce the desired result.
         """
 
+        #import pdb; pdb.set_trace()
+
         result = Engine.run(*EngineTest.simpleScenario(lambda x, y: x*2))
 
         self.assertEqual(len(result), 3)
@@ -187,6 +189,41 @@ class EngineTest(unittest.TestCase):
         self.assertEqual([e.point for e in result[0]], [])
         self.assertEqual([e.point for e in result[1]], [7])
         self.assertEqual([e.point for e in result[2]], [3])
+
+    def test_filter_points_also_removed_from_dataset_labels(self):
+        """Filtering out events also removes the corresponding points from the
+        labels array in the dataset.
+        """
+
+        algorithm, filter, dataset, settings = EngineTest.simpleScenario(lambda x, y: x*2)
+
+        result = Engine.run(algorithm, filter, dataset, settings)
+
+        for channel, channelValue in dataset.dataSources.items():
+            for key, dataSource in channelValue.items():
+                for event in dataSource.events:
+
+                    self.assertTrue(channel != 1 or event.point == 7)
+
+                    self.assertTrue(channel != 2 or event.point == 3)
+
+    def test_filter_events_also_removed_from_dataSource(self):
+        """Filtering out events also removes the from the dataSource. Checks every
+        dataSource. The only events that should have remained after the filter step
+        are at sample 7 and sample 3.
+        """
+
+        algorithm, filter, dataset, settings = EngineTest.simpleScenario(lambda x, y: x*2)
+
+        result = Engine.run(algorithm, filter, dataset, settings)
+
+        for channel, channelValue in dataset.dataSources.items():
+            for key, dataSource in channelValue.items():
+                for event in dataSource.events:
+
+                    self.assertTrue(channel != 1 or event.point == 7)
+
+                    self.assertTrue(channel != 2 or event.point == 3)
 
     def test_extract_algorithm_single_parameter(self):
         """Passes an extract parameter to the compute step.

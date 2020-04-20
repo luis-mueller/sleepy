@@ -159,21 +159,19 @@ class Dataset:
 
         self.changesMade = not np.array_equal(result, labels)
 
-
-    #from sleepy.test.debug import tracing
-    #@tracing
-    def forEachChannel(self, converter):
+    def forEachChannel(self, labels, converter):
         """Supplies a converter function for each pair of channel and label that
         is stored in this dataset. The converter function is supplied with the
         following arguments:
 
         * Label
-        * Tag of the corresponding event
         * Data source containing the data of the epoch that contains the label
 
         The goal of this method is to abstract extracting the necessary data
         from the dataset to create a new event. The converter function can
         create an event based on this input and return it.
+
+        :param labels: A np.array (channel * labelsPerEpoch) containing the labels.
 
         :param converter: A function that respects the said format.
 
@@ -181,11 +179,9 @@ class Dataset:
         call.
         """
 
-        numberOfChannels = self.labels.shape[0]
+        numberOfChannels = labels.shape[0]
 
-        #import pdb; pdb.set_trace()
-
-        return [ self.__forEachLabel(channel, converter) for channel in range(numberOfChannels) ]
+        return [ self.__forEachLabel(labels, channel, converter) for channel in range(numberOfChannels) ]
 
     def getDataSource(self, channel, label):
         """Returns a data source for a given channel and a given label.
@@ -217,22 +213,22 @@ class Dataset:
 
         return dataSource
 
-    def __forEachLabel(self, channel, converter):
+    def __forEachLabel(self, labels, channel, converter):
         """Supplies a set of parameters to a converter and returns
         the result to the caller. Parameters a numpy array type of a label
         """
 
-        numberOfLabels = self.labels[channel].shape[0]
+        numberOfLabels = labels[channel].shape[0]
 
         def getObject(labelIndex):
 
-            label = np.array([self.labels[channel][labelIndex]]).ravel()
+            label = np.array([labels[channel][labelIndex]]).ravel()
 
             dataSource = self.getDataSource(channel, label)
 
-            tag = self.tags[channel][labelIndex]
+            #tag = self.tags[channel][labelIndex]
 
-            return converter(label, tag, dataSource)
+            return converter(label, dataSource)
 
         return [ getObject(idx) for idx in range(numberOfLabels) ]
 

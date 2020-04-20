@@ -33,10 +33,6 @@ class UserPointEvent(PointEvent):
             markersize=self.applicationSettings.pointSize
         )[0]
 
-    def onRemove(self):
-
-        self.dataSource.removeEvent(self)
-
     def switchTag(self):
         """Override super method. User events' tag cannot be switched.
         """
