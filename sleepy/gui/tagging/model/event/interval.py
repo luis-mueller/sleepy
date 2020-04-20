@@ -1,5 +1,6 @@
 
 from sleepy.gui.tagging.model.event import Event
+from scipy.signal import find_peaks
 import numpy as np
 
 class IntervalEvent(Event):

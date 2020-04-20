@@ -12,7 +12,7 @@ class Relative(Algorithm):
 		self.durationLow = Parameter(
 			title = "Lower bound for duration interval [sec]",
 			fieldType = float,
-			default = 0.8
+			default = 0.9
 		)
 
 		self.durationHigh = Parameter(
@@ -41,10 +41,9 @@ class Relative(Algorithm):
 
 			currDuration = interval[1] - interval[0]
 
-			if currDuration >= self.durationLow * signal.samplingRate:
-					if currDuration <= self.durationHigh * signal.samplingRate:
+			if self.durationLow * signal.samplingRate <= currDuration <= self.durationHigh * signal.samplingRate:
 						
-						return True
+				return True
 			
 			return False
 
@@ -52,27 +51,13 @@ class Relative(Algorithm):
 
 	def filter(self, events, data):
 
-		neg_threshold = 0
-		amplitude_threshold = 0
-		idx = 0
+		amplitudes = [ event.maxVoltage - event.minVoltage for event in events ]
 
-		for event in events:
-			neg_threshold = neg_threshold + event.minVoltage
-			amplitude_threshold = amplitude_threshold + event.maxVoltage - event.minVoltage
-			idx += 1
+		amplitudeThreshold = np.mean(amplitudes) * self.scalingAmplitude
 
-		neg_threshold = neg_threshold / idx
-		neg_threshold = self.scalingNegPeak * neg_threshold
+		negAmplitudes = [ event.minVoltage for event in events ]
 
-		amplitude_threshold = amplitude_threshold / idx
-		amplitude_threshold = self.scalingAmplitude * amplitude_threshold
+		negThreshold = np.mean(negAmplitudes) * self.scalingNegPeak
 
-		final_events = []
-		idx = 0
-		for event in events:
-			if event.minVoltage <= neg_threshold:
-				if event.maxVoltage - event.minVoltage >= amplitude_threshold:
-					final_events.append(event)
-			idx += 1
-
-		return final_events
+		return [ event for event in events if event.minVoltage <= negThreshold and \
+				(event.maxVoltage - event.minVoltage) >= amplitudeThreshold ]
