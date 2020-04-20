@@ -87,6 +87,10 @@ class MatDatasetTest(unittest.TestCase):
 
         raw = MatDatasetTest.basicRaw()
 
+        # Labels must match the shape of the tags that are extracted from
+        # the navigator in the save method
+        raw['sleepy-labels'] = np.array([[1,2,3],[1,2,3]])
+
         path = "/path/to/a/file"
 
         dataset = MatDataset(raw, None)
@@ -96,6 +100,33 @@ class MatDatasetTest(unittest.TestCase):
         dataset.save(path, [navigator, navigator])
 
         self.assertEqual(dataset.userLabels.tolist(), [[2],[2]])
+
         self.assertEqual(dataset.tags.tolist(), [[0,0,0],[0,0,0]])
 
         dataset.saveToDisk.assert_called_with(path)
+
+    def test_tags_change_of_labels(self):
+        """When the labels change and do not fit to the tags anymore, the tags
+        should be reset to 0 and align with the shape of the labels.
+        """
+
+        raw = MatDatasetTest.basicRaw()
+
+        raw['sleepy-labels'] = np.array([[[1,2],[3,4],[5,6]]])
+        raw['sleepy-tags'] = np.array([[0,1,0,1,0,0]])
+
+        dataset = MatDataset(raw, None)
+
+        self.assertEqual(dataset.tags.tolist(), [[0,0,0]])
+
+    def test_tags_no_tags_stored(self):
+        """When no tags are stored, the tags should be created from the labels.
+        """
+
+        raw = MatDatasetTest.basicRaw()
+
+        raw['sleepy-labels'] = np.array([[[1,2],[3,4],[5,6]]])
+
+        dataset = MatDataset(raw, None)
+
+        self.assertEqual(dataset.tags.tolist(), [[0,0,0]])

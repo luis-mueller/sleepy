@@ -79,9 +79,9 @@ class MatDataset(Dataset):
     @property
     def tags(self):
 
-        if not 'sleepy-tags' in self.raw or self.__tagsShapeObsolete():
+        tags = self.raw['sleepy-tags'] if 'sleepy-tags' in self.raw else None
 
-            self.raw['sleepy-tags'] = super().tags
+        self.raw['sleepy-tags'] = self.constructTags(tags)
 
         tags = self.raw['sleepy-tags'].copy()
 
@@ -186,15 +186,3 @@ class MatDataset(Dataset):
         """
 
         savemat(path, {'data' : self.raw})
-
-    def __tagsShapeObsolete(self):
-        """Compares the shape of the tags in the dataset to the labels in the
-        dataset. Returns true if the tags do not fit to the labels.
-        """
-
-        tags = self.raw['sleepy-tags']
-
-        labelShape = self.labels.shape
-        tagShape = tags.shape
-
-        return labelShape == tagShape
