@@ -1,5 +1,5 @@
 # sleepy
-`sleepy` is a Python tool for semi-automatic slow wave detection and labelling. Its user interface is built for data augmentation and helps the user to quickly eliminate false-positives that are usually detected by purely automated approaches. 
+`sleepy` is a Python tool for semi-automatic slow wave detection and labelling. Its user interface is built for data augmentation and helps the user to quickly eliminate false-positives that are usually detected by purely automated approaches.
 
 The project consists of two parts. The `sleepy.processing` package provides a range of algorithms for slow wave detection, a bandpass filter,
 an I/O adapter for `.mat` files exported from [fieldtrip](http://www.fieldtriptoolbox.org/) and an engine
@@ -33,13 +33,37 @@ script, which is provided in the top-level-folder of `sleepy`.
 python ots.py
 ```
 
+## Quickstart GUI
+
+This quick tutorial walks you through the most important features of the `sleepy` GUI application
+and demonstrates how you can work with your dataset using this tool.
+Upon running `sleepy`, you can open a new dataset by navigating to `File -> Open` as demonstrated in the following
+picture or by using the shortcut `Ctrl + O`. Note that the examples are taken from the Windows version of `sleepy`.
+For shortcuts for Mac please refer to the section [Keyboard-Shortcuts](#keyboard-shortcuts).
+
+![initial-screen][initial-screen]
+
+
+[checkpoints-message]: https://github.com/pupuis/sleepy/docs/quickstart-screenshots/checkpoints-message.png
+[initial-screen]: https://github.com/pupuis/sleepy/docs/quickstart-screenshots/initial-screen.png
+[preprocessing-choosing-algorithm]: https://github.com/pupuis/sleepy/docs/quickstart-screenshots/preprocessing-choosing-algorithm.png
+[preprocessing-choosing-filter]: https://github.com/pupuis/sleepy/docs/quickstart-screenshots/preprocessing-choosing-filter.png
+[preprocessing-compute-hit]: https://github.com/pupuis/sleepy/docs/quickstart-screenshots/preprocessing-compute-hit.png
+[preprocessing-dataset-selection]: https://github.com/pupuis/sleepy/docs/quickstart-screenshots/preprocessing-dataset-selection.png
+[preprocessing-screen]: https://github.com/pupuis/sleepy/docs/quickstart-screenshots/preprocessing-screen.png
+[settings-open]: https://github.com/pupuis/sleepy/docs/quickstart-screenshots/settings-open.png
+[settings-show-case]: https://github.com/pupuis/sleepy/docs/quickstart-screenshots/settings-show-case.png
+[tagging-at-first-sight]: https://github.com/pupuis/sleepy/docs/quickstart-screenshots/tagging-at-first-sight.png
+[tagging-tagging-an-event]: https://github.com/pupuis/sleepy/docs/quickstart-screenshots/tagging-tagging-an-event.png
+[tagging-user-event-create]: https://github.com/pupuis/sleepy/docs/quickstart-screenshots/tagging-user-event-create.png
+[tagging-user-event-remove]: https://github.com/pupuis/sleepy/docs/quickstart-screenshots/tagging-user-event-remove.png
+
 ## Keyboard-Shortcuts
 
 The `sleepy` GUI supports the following keyboard-shortcuts:
 
 * ```Ctrl+O / ⌘+O``` to open a new dataset
 * ```Left``` and ```Right``` arrow keys to navigate backward and forward between the events.
-* ```Ctrl+P / ⌘+P``` or the ```Up``` key to tag the selected event in the tagging environment 
+* ```Ctrl+P / ⌘+P``` or the ```Up``` key to tag the selected event in the tagging environment
 * ```A``` for navigating backwards through channels and ```D``` for navigating forward through channels.
 * ```Ctrl+Q``` to open the settings on Windows and ```⌘+,``` on Mac
-
