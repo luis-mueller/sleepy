@@ -46,6 +46,14 @@ class MatDataset(Dataset):
         return raw
 
     @property
+    def samplingRate(self):
+        return self.raw['fsample']
+
+    @samplingRate.setter
+    def samplingRate(self, value):
+        self.raw['fsample'] = value
+
+    @property
     def epochs(self):
         return self.raw['sampleinfo'].copy()#[0][0][6].copy()
 
