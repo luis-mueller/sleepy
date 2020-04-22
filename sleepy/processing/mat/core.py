@@ -177,7 +177,7 @@ class MatDataset(Dataset):
 
         for index in range(len(array)):
 
-            array[index] = array[index].squeeze() if len(array[index]) > 1 else array[index]
+            array[index] = array[index].squeeze() if array[index].shape != (1,) else array[index]
 
             #array[index] = np.array([array[index].squeeze()]).ravel()
 
