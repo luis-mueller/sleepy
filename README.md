@@ -99,7 +99,7 @@ You can save your work by either selecting the respective menu entry under `File
 
 Checkpoints are references to your last position in the navigation grid that are stored in the dataset. These references consist of the index of the channel and the index of the event in that channel from where you are trying to close the dataset. This feature might be helpful when wanting to continue from the same position another time without having to remember at which event you closed the dataset. Note that checkpoints might be selecting the wrong event if you have reprocessed the dataset or added or removed user events in the mean time.
 
-This concludes our walkthrough. At last, a humble wish from my side. If you are using `sleepy` and encounter any issues, e.g. in the form of crashes, unexpected or unwanted behaviour, please report the bug to us. This helps us constantly improve the application and increase the long-term quality of the `sleepy` software. When reporting a bug, you should add a potential error message you received and always attach a small description of the steps necessary to reproduce the issue. Only then can we reliably spot the erros and correct them.
+This concludes our walkthrough. At last, a humble wish from my side. If you are using `sleepy` and encounter any issues, e.g. in the form of crashes, unexpected or unwanted behaviour, please report the bug to us. This helps us constantly improve the application and increase the long-term quality of the `sleepy` software. When reporting a bug, you should add a potential error message you received and always attach a small description of the steps necessary to reproduce the issue. Only then can we reliably spot the errors and correct them.
 
 Thank you.
 
