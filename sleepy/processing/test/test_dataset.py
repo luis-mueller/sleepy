@@ -70,3 +70,61 @@ class DatasetTest(unittest.TestCase):
         sameDataSource = dataset.getDataSource(channel = 0, label = 16)
 
         self.assertEqual(dataSource, sameDataSource)
+
+    def test_forEachChannel_different_label_shape(self):
+        """Traversing channels and labels should not cause a crash when the shape
+        of the labels changes compared to the current dataset state.
+        """
+
+        dataset = DatasetTest.standardScenario()
+
+        dataset.tags = np.array([range(2)])
+
+        def converter(self, *args):
+            pass
+
+        result = dataset.forEachChannel(dataset.labels, converter)
+
+        self.assertEqual(result, [[None] * 5])
+
+    def test_forEachChannel_different_label_shape_complex(self):
+        """Traversing channels and labels should not cause a crash when the shape
+        of the labels changes compared to the current dataset state. Additionally
+        the shape of the labels is more complex now.
+        """
+
+        dataset = DatasetTest.standardScenario()
+
+        dataset.labels = np.array([
+            np.array(range(4)),
+            np.array(range(3)),
+            np.array(range(6))
+        ])
+
+        dataset.tags = np.array([np.array(range(2)), np.array(range(4)), np.array(range(1))])
+
+        def converter(self, *args):
+            pass
+
+        result = dataset.forEachChannel(dataset.labels, converter)
+
+        self.assertEqual(result, [[None] * 4, [None] * 3, [None] * 6])
+
+    def test_valid_tags_shape_are_loaded(self):
+        """If the tags have a valid shape the stored tags are loaded and not
+        overwritten.
+        """
+
+        dataset = DatasetTest.standardScenario()
+
+        dataset.labels = np.array([
+            np.array(range(4)),
+            np.array(range(3)),
+            np.array(range(6))
+        ])
+
+        dataset._tags = np.array([np.array(range(4)), np.array(range(3)), np.array(range(6))])
+
+        self.assertEqual(dataset.tags[0].tolist(), list(range(4)))
+        self.assertEqual(dataset.tags[1].tolist(), list(range(3)))
+        self.assertEqual(dataset.tags[2].tolist(), list(range(6)))

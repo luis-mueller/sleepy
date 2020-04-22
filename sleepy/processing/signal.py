@@ -28,6 +28,23 @@ class Signal:
             return self._zeroCrossings
 
     @property
+    def posToNegZeroCrossings(self):
+
+        try:
+            return self._posToNegZeroCrossings
+        except AttributeError:
+
+            signs = np.sign(self.data)
+
+            # Treat 0 as a positive sign
+            binarySigns = np.where(signs == 0, 1, signs)
+
+            # https://stackoverflow.com/questions/3843017/efficiently-detect-sign-changes-in-python
+            self._posToNegZeroCrossings = np.where(np.diff(binarySigns) < 0)[0]
+
+            return self._posToNegZeroCrossings
+
+    @property
     def positivePeaks(self):
 
         try:
@@ -79,3 +96,17 @@ class Signal:
         nCrossing = list(filter(lambda c: c < peak, cross))[-1]
 
         return nCrossing
+
+    def findWaves(self):
+        try:
+
+            cross = self.posToNegZeroCrossings
+
+            waves = []
+            for i in range(len(cross) - 1):
+                waves.append([cross[i],cross[i+1]])
+
+            return waves
+
+        except IndexError:
+            pass

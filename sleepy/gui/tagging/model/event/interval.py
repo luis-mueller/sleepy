@@ -1,5 +1,6 @@
 
 from sleepy.gui.tagging.model.event import Event
+from scipy.signal import find_peaks
 import numpy as np
 
 class IntervalEvent(Event):
@@ -12,6 +13,15 @@ class IntervalEvent(Event):
     @property
     def label(self):
         return np.array(self._interval)
+
+    @property
+    def intervalCalc(self):
+
+        return self._interval
+
+    @intervalCalc.setter
+    def intervalCalc(self, value):
+        self._intervalCalc = value
 
     @property
     def interval(self):
@@ -46,6 +56,40 @@ class IntervalEvent(Event):
         timeEnd = self.convertSamples(self._interval[1])
 
         return ( timeStart + timeEnd ) / 2
+
+    @property
+    def minVoltage(self):
+
+        relativeInterval = self.intervalCalc - self.epochInterval[0]
+
+        return self.getVoltage(relativeInterval, method='min')
+
+    @property
+    def maxVoltage(self):
+
+        relativeInterval = self.intervalCalc - self.epochInterval[0]
+
+        return self.getVoltage(relativeInterval, method='max')
+
+    def getVoltage(self, relativeInterval, method='min'):
+        """Returns either the raw or filtered voltage amount for the point of
+        this event.
+        """
+
+        if self.applicationSettings.plotFiltered:
+
+            if method == 'min':
+
+                return np.min(self.dataSource.epochFiltered[relativeInterval[0]:relativeInterval[1]])
+
+            return np.max(self.dataSource.epochFiltered[relativeInterval[0]:relativeInterval[1]])
+
+        else:
+            if method == 'min':
+
+                return np.min(self.dataSource.epoch[relativeInterval[0]:relativeInterval[1]])
+
+            return np.max(self.dataSource.epoch[relativeInterval[0]:relativeInterval[1]])
 
     def plotSelected(self, axis):
 

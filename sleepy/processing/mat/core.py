@@ -46,6 +46,14 @@ class MatDataset(Dataset):
         return raw
 
     @property
+    def samplingRate(self):
+        return self.raw['fsample']
+
+    @samplingRate.setter
+    def samplingRate(self, value):
+        self.raw['fsample'] = value
+
+    @property
     def epochs(self):
         return self.raw['sampleinfo'].copy()#[0][0][6].copy()
 
@@ -78,10 +86,17 @@ class MatDataset(Dataset):
 
     @property
     def tags(self):
+        """Constructs the tags using the parent method constructTags. This method
+        guarantees that the tags have a valid form. Converts the result into a
+        more pythonic form and returns the result.
 
-        if not 'sleepy-tags' in self.raw:
+        :returns: A np.array with a valid shape, representing the tags of this
+        dataset.
+        """
 
-            self.raw['sleepy-tags'] = super().tags
+        tags = self.convertToPy(self.raw['sleepy-tags']) if 'sleepy-tags' in self.raw else None
+
+        self.raw['sleepy-tags'] = self.constructTags(tags)
 
         tags = self.raw['sleepy-tags'].copy()
 
@@ -154,11 +169,17 @@ class MatDataset(Dataset):
 
     def convertToPy(self, array):
         """Convert the given array into pythonic format.
+
+        :param array: Input array to convert.
+
+        :returns: The converted array for chaining.
         """
 
         for index in range(len(array)):
 
             array[index] = array[index].squeeze()
+
+        return array
 
     def save(self, path, navigators):
         """Collects potentially changed data from a list of navigators and

@@ -99,18 +99,36 @@ class Dataset:
         the labels array.
         """
 
-        try:
-            return self._tags
-        except AttributeError:
+        tags = self._tags if hasattr(self, '_tags') else None
 
-            numberOfChannels = self.labels.shape[0]
+        self._tags = self.constructTags(tags)
 
-            self._tags = [
-                np.zeros(self.labels[channel].shape[0])
-                    for channel in range(numberOfChannels)
-            ]
+        return self._tags
 
-            return self._tags
+    def constructTags(self, tags):
+        """Constructs the tags array given the old (and potentially None-type) array of
+        tags. Can be used by an inheriting class to ensure that the tags are constructed
+        correctly.
+
+        :param tags: A candidate array of new tags.
+
+        :returns: A valid array of tags
+        """
+
+        if tags is not None:
+
+            if not self.__tagsShapeObsolete(tags):
+
+                return tags
+
+        numberOfChannels = len(self.labels)
+
+        tags = [
+            np.zeros(len(self.labels[channel]))
+                for channel in range(numberOfChannels)
+        ]
+
+        return np.array(tags)
 
     @tags.setter
     def tags(self, tags):
@@ -141,18 +159,19 @@ class Dataset:
 
         self.changesMade = not np.array_equal(result, labels)
 
-    def forEachChannel(self, converter):
+    def forEachChannel(self, labels, converter):
         """Supplies a converter function for each pair of channel and label that
         is stored in this dataset. The converter function is supplied with the
         following arguments:
 
         * Label
-        * Tag of the corresponding event
         * Data source containing the data of the epoch that contains the label
 
         The goal of this method is to abstract extracting the necessary data
         from the dataset to create a new event. The converter function can
         create an event based on this input and return it.
+
+        :param labels: A np.array (channel * labelsPerEpoch) containing the labels.
 
         :param converter: A function that respects the said format.
 
@@ -160,9 +179,9 @@ class Dataset:
         call.
         """
 
-        numberOfChannels = self.labels.shape[0]
+        numberOfChannels = labels.shape[0]
 
-        return [ self.__forEachLabel(channel, converter) for channel in range(numberOfChannels) ]
+        return [ self.__forEachLabel(labels, channel, converter) for channel in range(numberOfChannels) ]
 
     def getDataSource(self, channel, label):
         """Returns a data source for a given channel and a given label.
@@ -194,22 +213,22 @@ class Dataset:
 
         return dataSource
 
-    def __forEachLabel(self, channel, converter):
+    def __forEachLabel(self, labels, channel, converter):
         """Supplies a set of parameters to a converter and returns
         the result to the caller. Parameters a numpy array type of a label
         """
 
-        numberOfLabels = self.labels[channel].shape[0]
+        numberOfLabels = labels[channel].shape[0]
 
         def getObject(labelIndex):
 
-            label = np.array([self.labels[channel][labelIndex]]).ravel()
+            label = np.array([labels[channel][labelIndex]]).ravel()
 
             dataSource = self.getDataSource(channel, label)
 
-            tag = self.tags[channel][labelIndex]
+            #tag = self.tags[channel][labelIndex]
 
-            return converter(label, tag, dataSource)
+            return converter(label, dataSource)
 
         return [ getObject(idx) for idx in range(numberOfLabels) ]
 
@@ -279,3 +298,24 @@ class Dataset:
         if not channel in self.dataSources:
 
             self.dataSources[channel] = {}
+
+    def __tagsShapeObsolete(self, tags):
+        """Compares the first two dimension of the shape of the tags with the
+        shape of the labels. This has to be done for each dimension as the number of
+        labels is unlikely equal in every channel. Thus, the second dimension is
+        hidden. Returns true if the tags' shape is obsolete.
+        """
+
+        if len(tags) == len(self.labels):
+
+            if Dataset.__collectShape(tags) == Dataset.__collectShape(self.labels):
+
+                return False
+
+        return True
+
+    def __collectShape(array):
+        """Collects the inner length of all the entries of a given array.
+        """
+
+        return [ len(entry) for entry in array ]
