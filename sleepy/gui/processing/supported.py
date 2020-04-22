@@ -4,7 +4,7 @@ from sleepy.processing.mat.core import MatDataset
 
 SUPPORTED_ALGORITHMS = [
     Massimi,
-    Walkthrough,
+    #Walkthrough,
     Relative,
     Percentile,
     Custom
