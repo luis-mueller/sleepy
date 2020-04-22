@@ -159,6 +159,7 @@ class TaggingControl(MultiChannelControl):
 
         self.view.draw()
 
+    @visualize
     def onTimelineClick(self, time):
         """Handles a double-click on the timeline by telling the navigator
         to select the event that is closest to the timestamp that the user

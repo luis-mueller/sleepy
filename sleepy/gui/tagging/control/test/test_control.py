@@ -271,6 +271,24 @@ class ControlTest(unittest.TestCase):
             (0.0, 1.2)
         )
 
+    def test_onTimelineClick_tag_visualized(self):
+        """Clicking on the timeline supplies the navigator with the correct time
+        and visualizes potential changes on the tag.
+        """
+
+        view, app, settings, control, navigator, processing = ControlTest.standardScenario()
+
+        control.open(processing)
+
+        navigator.selectClosestToTime = MagicMock()
+        control.visualizeTag = MagicMock()
+
+        control.onTimelineClick(1.3)
+
+        navigator.selectClosestToTime.assert_called_with(1.3)
+
+        control.visualizeTag.assert_called()
+
     def test_navigate_forward_active(self):
         """Navigating forward two times increases the position of navigator about
         two.
