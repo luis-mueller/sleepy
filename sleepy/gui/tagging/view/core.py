@@ -158,6 +158,8 @@ class TaggingView(QWidget):
 
     def addToolBar(self):
 
+        print(self.plotToolBar)
+
         self.wrapping.window.addToolBar(self.plotToolBar)
 
     def plot(self, plotFunction):
