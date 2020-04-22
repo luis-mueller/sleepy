@@ -43,20 +43,19 @@ For shortcuts for Mac please refer to the section [Keyboard-Shortcuts](#keyboard
 
 ![initial-screen][initial-screen]
 
-
-[checkpoints-message]: https://github.com/pupuis/sleepy/docs/quickstart-screenshots/checkpoints-message.png
-[initial-screen]: https://github.com/pupuis/sleepy/docs/quickstart-screenshots/initial-screen.png
-[preprocessing-choosing-algorithm]: https://github.com/pupuis/sleepy/docs/quickstart-screenshots/preprocessing-choosing-algorithm.png
-[preprocessing-choosing-filter]: https://github.com/pupuis/sleepy/docs/quickstart-screenshots/preprocessing-choosing-filter.png
-[preprocessing-compute-hit]: https://github.com/pupuis/sleepy/docs/quickstart-screenshots/preprocessing-compute-hit.png
-[preprocessing-dataset-selection]: https://github.com/pupuis/sleepy/docs/quickstart-screenshots/preprocessing-dataset-selection.png
-[preprocessing-screen]: https://github.com/pupuis/sleepy/docs/quickstart-screenshots/preprocessing-screen.png
-[settings-open]: https://github.com/pupuis/sleepy/docs/quickstart-screenshots/settings-open.png
-[settings-show-case]: https://github.com/pupuis/sleepy/docs/quickstart-screenshots/settings-show-case.png
-[tagging-at-first-sight]: https://github.com/pupuis/sleepy/docs/quickstart-screenshots/tagging-at-first-sight.png
-[tagging-tagging-an-event]: https://github.com/pupuis/sleepy/docs/quickstart-screenshots/tagging-tagging-an-event.png
-[tagging-user-event-create]: https://github.com/pupuis/sleepy/docs/quickstart-screenshots/tagging-user-event-create.png
-[tagging-user-event-remove]: https://github.com/pupuis/sleepy/docs/quickstart-screenshots/tagging-user-event-remove.png
+[checkpoints-message]: https://github.com/pupuis/sleepy/blob/master/docs/quickstart-screenshots/checkpoints-message.PNG
+[initial-screen]: https://github.com/pupuis/sleepy/blob/master/docs/quickstart-screenshots/initial-screen.PNG
+[preprocessing-choosing-algorithm]: https://github.com/pupuis/sleepy/blob/master/docs/quickstart-screenshots/preprocessing-choosing-algorithm.PNG
+[preprocessing-choosing-filter]: https://github.com/pupuis/sleepy/blob/master/docs/quickstart-screenshots/preprocessing-choosing-filter.PNG
+[preprocessing-compute-hit]: https://github.com/pupuis/sleepy/blob/master/docs/quickstart-screenshots/preprocessing-compute-hit.PNG
+[preprocessing-dataset-selection]: https://github.com/pupuis/sleepy/blob/master/docs/quickstart-screenshots/preprocessing-dataset-selection.PNG
+[preprocessing-screen]: https://github.com/pupuis/sleepy/blob/master/docs/quickstart-screenshots/preprocessing-screen.PNG
+[settings-open]: https://github.com/pupuis/sleepy/blob/master/docs/quickstart-screenshots/settings-open.PNG
+[settings-show-case]: https://github.com/pupuis/sleepy/blob/master/docs/quickstart-screenshots/settings-show-case.PNG
+[tagging-at-first-sight]: https://github.com/pupuis/sleepy/blob/master/docs/quickstart-screenshots/tagging-at-first-sight.PNG
+[tagging-tagging-an-event]: https://github.com/pupuis/sleepy/blob/master/docs/quickstart-screenshots/tagging-tagging-an-event.PNG
+[tagging-user-event-create]: https://github.com/pupuis/sleepy/blob/master/docs/quickstart-screenshots/tagging-user-event-create.PNG
+[tagging-user-event-remove]: https://github.com/pupuis/sleepy/blob/master/docs/quickstart-screenshots/tagging-user-event-remove.PNG
 
 ## Keyboard-Shortcuts
 

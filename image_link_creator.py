@@ -14,5 +14,5 @@ for image in images:
     print("[{}]: {}/{}".format(
         imageName,
         link,
-        image.lower()
+        image
     ))
