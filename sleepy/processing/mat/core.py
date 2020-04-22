@@ -177,7 +177,7 @@ class MatDataset(Dataset):
 
         for index in range(len(array)):
 
-            array[index] = array[index].squeeze()
+            array[index] = np.array([array[index].squeeze()]).ravel()
 
         return array
 
