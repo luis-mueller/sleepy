@@ -10,6 +10,8 @@ class Dataset:
 
         :param path: An absolute path to a file whose contents should be loaded
         as a raw data object.
+
+        :returns: Raw data object representing the dataset.
         """
 
         pass
