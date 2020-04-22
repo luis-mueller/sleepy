@@ -11,7 +11,7 @@ class UserPointEvent(PointEvent):
 
         self.artist = None
 
-        self.binaryTag = 1
+        self.binaryTag = 0
 
     def plotSelected(self, axis):
 
