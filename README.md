@@ -45,7 +45,7 @@ For shortcuts for Mac please refer to the section [Keyboard-Shortcuts](#keyboard
 
 
 [checkpoints-message]: https://github.com/pupuis/sleepy/docs/quickstart-screenshots/checkpoints-message.png
-[initial-screen]: https://github.com/pupuis/sleepy/docs/quickstart-screenshots/initial-screen.png
+[initial-screen]: https://github.com/pupuis/sleepy/blob/docs/quickstart-screenshots/initial-screen.png
 [preprocessing-choosing-algorithm]: https://github.com/pupuis/sleepy/docs/quickstart-screenshots/preprocessing-choosing-algorithm.png
 [preprocessing-choosing-filter]: https://github.com/pupuis/sleepy/docs/quickstart-screenshots/preprocessing-choosing-filter.png
 [preprocessing-compute-hit]: https://github.com/pupuis/sleepy/docs/quickstart-screenshots/preprocessing-compute-hit.png
