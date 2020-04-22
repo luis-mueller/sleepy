@@ -11,7 +11,7 @@ def closingTagging(function):
     """Decorator for methods that can only be executed if the tagging control
     can be closed properly. Must have an instance of :class:`TaggingControl` as
     its attribute with the name 'taggingControl'. This decorator is mostly aimed
-    at the sleepy.gui.view.View. 
+    at the sleepy.gui.view.View.
     """
 
     def close(self, *args):
