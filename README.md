@@ -39,7 +39,7 @@ The `sleepy` GUI supports the following keyboard-shortcuts:
 
 * ```Ctrl+O / ⌘+O``` to open a new dataset
 * ```Left``` and ```Right``` arrow keys to navigate backward and forward between the events.
-* ```Ctrl+P / ⌘ + P``` or the ```Up``` key to tag the selected event in the tagging environment 
+* ```Ctrl+P / ⌘+P``` or the ```Up``` key to tag the selected event in the tagging environment 
 * ```A``` for navigating backwards through channels and ```D``` for navigating forward through channels.
 * ```Ctrl+Q``` to open the settings on Windows and ```⌘+,``` on Mac
 
