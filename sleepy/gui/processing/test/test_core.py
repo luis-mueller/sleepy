@@ -19,6 +19,18 @@ class MockingDataset(Dataset):
     def getDataSource(self, channel, label):
         return TestBase.getDataSource()
 
+class MockingOneUserLabelDataset(Dataset):
+
+    @property
+    def userLabels(self):
+        """User labels are squeezed on channel level. Only one label in the first
+        channel.
+        """
+        return [np.array([3]), np.array([])]
+
+    def getDataSource(self, channel, label):
+        return TestBase.getDataSource()
+
 class MockingProcessor:
     """Mock object for a processor (algorithm or filter). Supplied with an id,
     this can be used to ensure that on algorithm or filter change the options
@@ -50,7 +62,7 @@ class ProcessingTest(unittest.TestCase):
 
         _ , app, settings = TestBase.getBasics(active = False, name = "Test")
 
-        app.supportedDatasets = { "TEST" : Dataset, "MOCK" : MockingDataset }
+        app.supportedDatasets = { "TEST" : Dataset, "MOCK" : MockingDataset, "MOCK_SINGLE" : MockingOneUserLabelDataset }
         app.supportedFilters = app.supportedAlgorithms = []
 
         proc = ProcessingTest.getPreprocessing(app, extension)
@@ -127,6 +139,24 @@ class ProcessingTest(unittest.TestCase):
         self.assertEqual(
             [ e.point for e in proc.navigators[1].userEvents ],
             [3,5]
+        )
+
+    def test_load_userEvents_created_single_user_label(self):
+        """Calling load leads a single user event being created on the navigator.
+        """
+
+        app, settings, proc, events = ProcessingTest.standardScenario("mock_single")
+
+        self.call(proc.load, events)
+
+        self.assertEqual(
+            [ e.point for e in proc.navigators[0].userEvents ],
+            [3]
+        )
+
+        self.assertEqual(
+            [ e.point for e in proc.navigators[1].userEvents ],
+            []
         )
 
     def test_compute_view_output(self):

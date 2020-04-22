@@ -6,6 +6,7 @@ from sleepy.processing.engine import Engine
 from sleepy.gui.tagging.model.event.user import UserPointEvent
 from PyQt5.QtWidgets import QFileDialog, QMessageBox
 from PyQt5.QtCore import QSettings
+import numpy as np
 
 class Preprocessing:
     """Application starting a preprocessing screen from which the user can
@@ -161,9 +162,7 @@ class Preprocessing:
 
         if channel < len(dataset.userLabels):
 
-            for userLabel in dataset.userLabels[channel].squeeze():
-
-                #userLabel = userLabel.squeeze().tolist()
+            for userLabel in np.array([dataset.userLabels[channel].squeeze()]).ravel():
 
                 dataSource = self.dataset.getDataSource(channel, userLabel)
 
