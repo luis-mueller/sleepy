@@ -35,7 +35,7 @@ python ots.py
 The `sleepy` GUI supports the following keyboard-shortcuts:
 
 * ```Ctrl+O``` to open a new dataset
-* ```Ctrl+Q``` to open the settings on windows and ```Command+L``` on Mac
+* ```Ctrl+Q``` to open the settings on Windows and ```Command+L``` on Mac
 * ```Ctrl+P``` or the ```Up``` key to tag the selected event in the tagging environment
 * ```Left``` and ```Right``` to navigate backward and forward between the events.
 * ```A``` for navigating backwards through channels and ```D``` for navigating forward through channels.
