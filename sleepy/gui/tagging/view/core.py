@@ -9,7 +9,6 @@ import matplotlib
 from matplotlib.figure import Figure
 from matplotlib.dates import HourLocator, SecondLocator, DateFormatter
 import matplotlib.backends.backend_qt5agg as pltQt5
-#matplotlib.use('QT5Agg')
 from matplotlib.ticker import ScalarFormatter, FuncFormatter
 matplotlib.rcParams['axes.formatter.useoffset'] = False
 import pdb
@@ -154,11 +153,15 @@ class TaggingView(QWidget):
 
     def removeToolBar(self):
 
+        import traceback; traceback.print_stack()
+
         self.wrapping.window.removeToolBar(self.plotToolBar)
+        #pass
 
     def addToolBar(self):
 
         self.wrapping.window.addToolBar(self.plotToolBar)
+        self.plotToolBar.show()
 
     def plot(self, plotFunction):
 

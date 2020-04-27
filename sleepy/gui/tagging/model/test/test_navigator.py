@@ -144,8 +144,8 @@ class NavigatorTest(unittest.TestCase):
 
         self.assertEqual(navigator.changesMade, True)
 
-    def test_addUserEvent_always_tagged(self):
-        """User events are always tagged and cannot be untagged.
+    def test_addUserEvent_never_tagged(self):
+        """User events are never tagged and cannot be tagged.
         """
 
         _, dataSource, events, navigator = NavigatorTest.standardScenario([1,5,6,7,8])
@@ -155,11 +155,11 @@ class NavigatorTest(unittest.TestCase):
 
         navigator.addUserEvent(event)
 
-        self.assertEqual(navigator.getCurrentTags().tolist(), [0,1,0,0,0,0])
+        self.assertEqual(navigator.getCurrentTags().tolist(), [0,0,0,0,0,0])
 
         navigator.events[1].switchTag()
 
-        self.assertEqual(navigator.getCurrentTags().tolist(), [0,1,0,0,0,0])
+        self.assertEqual(navigator.getCurrentTags().tolist(), [0,0,0,0,0,0])
 
 
     def test_addUserEvent_tags_consistent(self):
@@ -182,7 +182,7 @@ class NavigatorTest(unittest.TestCase):
         navigator.addUserEvent(event)
         navigator.addUserEvent(eventAfter)
 
-        self.assertEqual(navigator.getCurrentTags().tolist(), [0,1,1,0,0,0,1])
+        self.assertEqual(navigator.getCurrentTags().tolist(), [0,0,1,0,0,0,0])
 
     def test_getComputedEventTags_returns_only_computed_event_tags(self):
         """The method getComputedEventTags only returns the tags that belong to
@@ -200,6 +200,6 @@ class NavigatorTest(unittest.TestCase):
 
         navigator.addUserEvent(event)
 
-        self.assertEqual(navigator.getCurrentTags().tolist(), [0,1,1,0,0,0])
+        self.assertEqual(navigator.getCurrentTags().tolist(), [0,0,1,0,0,0])
 
         self.assertEqual(navigator.getComputedEventTags().tolist(), [0,1,0,0,0])
