@@ -113,12 +113,11 @@ class Custom(Algorithm):
 
             events = [ event for event in events if event.minVoltage <= negThreshold ]
 
-        if self.percentile:
+        
+        amplitudes = [ event.maxVoltage - event.minVoltage for event in events ]
 
-            amplitudes = [ event.maxVoltage - event.minVoltage for event in events ]
+        amplitudeThreshold = np.percentile(amplitudes, 100 - self.percentile)
 
-            amplitudeThreshold = np.percentile(amplitudes, 100 - self.percentile)
-
-            events = [ event for event in events if (event.maxVoltage - event.minVoltage) >= amplitudeThreshold ]
+        events = [ event for event in events if (event.maxVoltage - event.minVoltage) >= amplitudeThreshold ]
 
         return events
