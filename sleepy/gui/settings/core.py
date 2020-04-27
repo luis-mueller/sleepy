@@ -5,6 +5,7 @@ from PyQt5.QtCore import QSettings
 from sleepy.gui.settings.view import SettingsView
 from sleepy.gui.builder import Builder
 from sleepy import SLEEPY_ROOT_DIR
+from sleepy.gui.settings._view import VIEW
 import pdb
 
 class Settings:
@@ -30,7 +31,7 @@ class Settings:
 
         self.values = {}
 
-        Builder.setAttributesFromJSON(SLEEPY_ROOT_DIR + '/gui/settings/view.json', self, level = 3)
+        Builder.setAttributesFromJSON(VIEW, self, level = 3)
 
         self.__load()
 

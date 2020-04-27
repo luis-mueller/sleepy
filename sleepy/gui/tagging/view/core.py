@@ -153,11 +153,8 @@ class TaggingView(QWidget):
 
     def removeToolBar(self):
 
-        import traceback; traceback.print_stack()
-
         self.wrapping.window.removeToolBar(self.plotToolBar)
-        #pass
-
+        
     def addToolBar(self):
 
         self.wrapping.window.addToolBar(self.plotToolBar)

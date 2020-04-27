@@ -1,4 +1,4 @@
-{
+VIEW = {
   "general": {
     "title": "General",
     "content": {
@@ -8,7 +8,7 @@
           "useCheckpoints": {
             "title": "Use Checkpoints",
             "fieldType": "bool",
-            "default": false
+            "default": False
           }
         }
       },
@@ -18,7 +18,7 @@
           "showIndex": {
             "title": "Show index of current event",
             "fieldType": "bool",
-            "default": true
+            "default": True
           }
         }
       }
@@ -33,7 +33,7 @@
           "plotGrid": {
             "title": "Plot data on grid",
             "fieldType": "bool",
-            "default": true
+            "default": True
           },
           "plotGridSize": {
             "title": "Separation of two vertical grid lines in seconds",
@@ -103,7 +103,7 @@
           "plotFiltered": {
             "title": "Plot filtered data",
             "fieldType": "bool",
-            "default": true
+            "default": True
           }
         }
       }

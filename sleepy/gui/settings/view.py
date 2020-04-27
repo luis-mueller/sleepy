@@ -2,6 +2,7 @@
 from PyQt5.QtWidgets import QDialogButtonBox, QDialog
 from sleepy.gui.builder import Builder
 from sleepy import SLEEPY_ROOT_DIR
+from sleepy.gui.settings._view import VIEW
 
 class SettingsView(QDialog):
 
@@ -15,7 +16,7 @@ class SettingsView(QDialog):
 
         super().__init__(application)
 
-        layout = Builder.build(SLEEPY_ROOT_DIR + '/gui/settings/view.json', control, level = 3)
+        layout = Builder.build(VIEW, control, level = 3)
 
         layout.addStretch()
 
