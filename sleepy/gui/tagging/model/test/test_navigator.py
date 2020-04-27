@@ -34,7 +34,7 @@ class NavigatorTest(unittest.TestCase):
         )
 
     def test_selectPrevious(self):
-        """Navigation backward should decrease the position by one.
+        """Navigate backward should decrease the position by one.
         """
 
         settings, dataSource, events, navigator = NavigatorTest.standardScenario([1,2,3])
@@ -47,7 +47,7 @@ class NavigatorTest(unittest.TestCase):
         )
 
     def test_selectNext_cyclic(self):
-        """Navigation forward as many times as there are events should reset
+        """Navigate forward as many times as there are events should reset
         the position to 0.
         """
 
