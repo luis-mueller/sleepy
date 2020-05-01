@@ -64,11 +64,11 @@ class MatDataset(Dataset):
     @property
     def labels(self):
 
-        if 'sleepy-labels' not in self.raw:
+        if 'sleepy_labels' not in self.raw:
 
-            self.raw['sleepy-labels'] = np.array([])
+            self.raw['sleepy_labels'] = np.array([])
 
-        labels = self.raw['sleepy-labels'].copy()
+        labels = self.raw['sleepy_labels'].copy()
 
         self.convertToPy(labels)
 
@@ -82,7 +82,7 @@ class MatDataset(Dataset):
 
         self.setChangesMadeFrom(labels)
 
-        self.raw['sleepy-labels'] = np.asarray(labels).copy()
+        self.raw['sleepy_labels'] = np.asarray(labels).copy()
 
     @property
     def tags(self):
@@ -94,11 +94,11 @@ class MatDataset(Dataset):
         dataset.
         """
 
-        tags = self.convertToPy(self.raw['sleepy-tags']) if 'sleepy-tags' in self.raw else None
+        tags = self.convertToPy(self.raw['sleepy_tags']) if 'sleepy_tags' in self.raw else None
 
-        self.raw['sleepy-tags'] = self.constructTags(tags)
+        self.raw['sleepy_tags'] = self.constructTags(tags)
 
-        tags = self.raw['sleepy-tags'].copy()
+        tags = self.raw['sleepy_tags'].copy()
 
         self.convertToPy(tags)
 
@@ -106,7 +106,7 @@ class MatDataset(Dataset):
 
     @tags.setter
     def tags(self, tags):
-        self.raw['sleepy-tags'] = tags.copy()
+        self.raw['sleepy_tags'] = tags.copy()
 
     @property
     def filteredData(self):
@@ -114,11 +114,11 @@ class MatDataset(Dataset):
         available.
         """
 
-        if 'sleepy-filteredData' not in self.raw:
+        if 'sleepy_filteredData' not in self.raw:
 
-            self.raw['sleepy-filteredData'] = self.data.copy()
+            self.raw['sleepy_filteredData'] = self.data.copy()
 
-        return self.raw['sleepy-filteredData']
+        return self.raw['sleepy_filteredData']
 
     @filteredData.setter
     def filteredData(self, filteredData):
@@ -128,16 +128,16 @@ class MatDataset(Dataset):
 
                 self.changesMade = True
 
-        self.raw['sleepy-filteredData'] = filteredData
+        self.raw['sleepy_filteredData'] = filteredData
 
     @property
     def userLabels(self):
 
-        if 'sleepy-userLabels' not in self.raw:
+        if 'sleepy_userLabels' not in self.raw:
 
-            self.raw['sleepy-userLabels'] = np.array([])
+            self.raw['sleepy_userLabels'] = np.array([])
 
-        return self.raw['sleepy-userLabels'].copy()
+        return self.raw['sleepy_userLabels'].copy()
 
     @userLabels.setter
     def userLabels(self, userLabels):
@@ -146,26 +146,26 @@ class MatDataset(Dataset):
 
             self.changesMade = True
 
-        self.raw['sleepy-userLabels'] = userLabels.copy()
+        self.raw['sleepy_userLabels'] = userLabels.copy()
 
     @property
     def checkpoint(self):
 
         try:
 
-            return tuple(self.raw['sleepy-metadata-checkpoint'].tolist())
+            return tuple(self.raw['sleepy_metadata_checkpoint'].tolist())
         except KeyError:
             pass
 
     @checkpoint.setter
     def checkpoint(self, checkpoint):
 
-        self.raw['sleepy-metadata-checkpoint'] = np.array(list(checkpoint))
+        self.raw['sleepy_metadata_checkpoint'] = np.array(list(checkpoint))
 
     def removeCheckpoint(self):
 
         # Removes the metadata if it exists in the dictionary
-        self.raw.pop('sleepy-metadata-checkpoint', None)
+        self.raw.pop('sleepy_metadata_checkpoint', None)
 
     def convertToPy(self, array):
         """Convert the given array into pythonic format.

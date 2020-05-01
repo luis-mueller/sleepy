@@ -89,7 +89,7 @@ class MatDatasetTest(unittest.TestCase):
 
         # Labels must match the shape of the tags that are extracted from
         # the navigator in the save method
-        raw['sleepy-labels'] = np.array([[1,2,3],[1,2,3]])
+        raw['sleepy_labels'] = np.array([[1,2,3],[1,2,3]])
 
         path = "/path/to/a/file"
 
@@ -112,8 +112,8 @@ class MatDatasetTest(unittest.TestCase):
 
         raw = MatDatasetTest.basicRaw()
 
-        raw['sleepy-labels'] = np.array([[[1,2],[3,4],[5,6]]])
-        raw['sleepy-tags'] = np.array([[0,1,0,1,0,0]])
+        raw['sleepy_labels'] = np.array([[[1,2],[3,4],[5,6]]])
+        raw['sleepy_tags'] = np.array([[0,1,0,1,0,0]])
 
         dataset = MatDataset(raw, None)
 
@@ -125,7 +125,7 @@ class MatDatasetTest(unittest.TestCase):
 
         raw = MatDatasetTest.basicRaw()
 
-        raw['sleepy-labels'] = np.array([[[1,2],[3,4],[5,6]]])
+        raw['sleepy_labels'] = np.array([[[1,2],[3,4],[5,6]]])
 
         dataset = MatDataset(raw, None)
 
@@ -138,8 +138,8 @@ class MatDatasetTest(unittest.TestCase):
 
         raw = MatDatasetTest.basicRaw()
 
-        raw['sleepy-labels'] = np.array([[[1,2],[3,4],[5,6]]])
-        raw['sleepy-tags'] = np.array([[0,1,0]])
+        raw['sleepy_labels'] = np.array([[[1,2],[3,4],[5,6]]])
+        raw['sleepy_tags'] = np.array([[0,1,0]])
 
         dataset = MatDataset(raw, None)
 
