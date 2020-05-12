@@ -76,9 +76,9 @@ class Custom(Algorithm):
             minInd = np.where(currSignal == np.min(currSignal))[0]
             maxInd = np.where(currSignal == np.max(currSignal))[0]
 
-            firstCrossToMinDuration = minInd - interval[0]
+            firstCrossToMinDuration = minInd
             minToMaxDuration = maxInd - minInd
-            maxToSecondCrossDuration = interval[1] - maxInd
+            maxToSecondCrossDuration = len(currSignal) - maxInd
 
             posPeaks, _ = find_peaks(signal.data[interval[0]:interval[1]], height=0)
             nPosPeaks = len(posPeaks)
