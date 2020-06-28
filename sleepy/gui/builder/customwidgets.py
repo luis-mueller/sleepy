@@ -84,6 +84,13 @@ class CustomQDoubleSpinBox(QDoubleSpinBox):
     """Wrapper around QDoubleSpinBox to give it a unified interface.
     """
 
+    def __init__(self):
+
+        super().__init__()
+
+        self.setMinimum(0.0)
+        self.setMaximum(100.0)
+
     def setValue(self, value):
         """Wrapper around the value setter of the internal widget.
         """
